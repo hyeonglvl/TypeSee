@@ -1,0 +1,116 @@
+/* ---------------------------------------------------------------------------
+   TypeSee v2 — design tokens & base
+   Dark-first, single-accent system. All animation is transform/opacity only.
+--------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: dark;
+
+  /* Canvas & surfaces */
+  --canvas: #0a0b10;
+  --surface: rgba(255, 255, 255, 0.035);
+  --surface-raised: rgba(255, 255, 255, 0.06);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.14);
+
+  /* Ink (text tokens — text never wears the accent) */
+  --ink: #f4f5f9;
+  --ink-2: #9aa0af;
+  --ink-3: #565c6b;
+
+  /* Accent ramp (mint) — one hue, stepped */
+  --accent: #5fe8c8;
+  --accent-deep: #2ea88c;
+  --accent-dim: rgba(95, 232, 200, 0.14);
+  --accent-glow: rgba(95, 232, 200, 0.35);
+
+  /* Secondary hue for the wordmark gradient only */
+  --ice: #6fa9ff;
+
+  /* Status */
+  --danger: #ff6f61;
+  --danger-dim: rgba(255, 111, 97, 0.16);
+
+  /* Type */
+  --font-sans: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI",
+    "Apple SD Gothic Neo", "Pretendard", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+  /* Shape */
+  --radius-s: 12px;
+  --radius-m: 20px;
+  --radius-l: 28px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 160ms;
+  --dur-med: 320ms;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Ambient stage light — one fixed layer, GPU-composited, never repaints */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      55% 42% at 50% -6%,
+      rgba(111, 169, 255, 0.09),
+      transparent 70%
+    ),
+    radial-gradient(
+      48% 38% at 50% 108%,
+      rgba(95, 232, 200, 0.07),
+      transparent 70%
+    );
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}

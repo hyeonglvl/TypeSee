@@ -1,0 +1,222 @@
+.screen {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 24px;
+}
+
+/* Account (top-right) ------------------------------------------------------ */
+
+.accountArea {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.userChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.accountButton {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline-strong);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition: background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.accountButton:hover {
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+
+.hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wordmark {
+  font-size: clamp(52px, 8vw, 84px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  background: linear-gradient(118deg, var(--ice) 8%, var(--accent) 82%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tagline {
+  font-size: 17px;
+  color: var(--ink-2);
+  letter-spacing: -0.01em;
+}
+
+/* Segmented control ------------------------------------------------------ */
+
+.segment {
+  display: flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+}
+
+.segmentItem {
+  position: relative;
+  padding: 8px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.segmentItem[aria-checked="true"] {
+  color: var(--ink);
+}
+
+.segmentThumb {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline-strong);
+}
+
+.segmentLabel {
+  position: relative;
+  z-index: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mode cards -------------------------------------------------------------- */
+
+.modes {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.modeCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: min(236px, 30vw);
+  padding: 24px 24px 22px;
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  text-align: left;
+  transition: border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.modeCard:hover:not(:disabled) {
+  background: var(--surface-raised);
+  border-color: var(--hairline-strong);
+}
+
+.reviewCard:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.reviewCard:not(:disabled) {
+  border-color: rgba(95, 232, 200, 0.22);
+}
+
+.reviewCard:not(:disabled) .modeIcon {
+  color: var(--accent);
+}
+
+.reviewCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  margin-left: 9px;
+  border-radius: 999px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  vertical-align: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.volatileNote {
+  color: var(--ink-3);
+}
+
+.modeIcon {
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.modeTitle {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.modeDesc {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.modeKey {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+/* kbd -------------------------------------------------------------------- */
+
+.screen kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.footHint {
+  font-size: 13px;
+  color: var(--ink-3);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
