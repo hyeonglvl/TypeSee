@@ -51,6 +51,7 @@ export function useReviewPool(): ReviewPool {
       return () => listeners.delete(fn);
     },
     () => snapshot,
+    () => snapshot, // SSR: 초기(빈) 풀
   );
 }
 

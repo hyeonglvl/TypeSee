@@ -12,6 +12,7 @@ export function useSoundPref(): boolean {
       return () => listeners.delete(fn);
     },
     () => soundOn,
+    () => true, // SSR 기본값
   );
 }
 
