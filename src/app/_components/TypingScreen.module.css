@@ -1,0 +1,266 @@
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  translate: -50% 0;
+  color: var(--color-dim);
+  font-family: var(--font-word), monospace;
+  font-size: 0.9rem;
+}
+
+.track {
+  position: relative;
+  width: 100%;
+  height: 220px;
+}
+
+.wordNav {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.navButton {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--color-dim);
+  color: var(--color-fg);
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  line-height: 1;
+  translate: 0 -0.06em;
+}
+
+.navButton:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.navButton:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.hint {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-dim);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition:
+    translate 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    scale 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.35s ease;
+}
+
+.roleCompleted {
+  opacity: 0.35;
+}
+
+.roleUpcoming {
+  opacity: 0.5;
+}
+
+.roleActive {
+  opacity: 1;
+}
+
+.meaningBlock {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  translate: -50% 0;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.sensesRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.senseCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.meaning {
+  font-family: var(--font-meaning), sans-serif;
+  font-weight: 700;
+  color: var(--color-accent);
+  opacity: 0;
+  font-size: 0;
+  white-space: nowrap;
+  transition:
+    opacity 0.3s ease 0.15s,
+    font-size 0.45s ease;
+}
+
+.roleActive .meaning {
+  opacity: 1;
+  font-size: clamp(2.25rem, 8.5vw, 3.75rem);
+}
+
+.pos {
+  font-family: var(--font-word), monospace;
+  color: var(--color-dim);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  opacity: 0;
+  font-size: 0;
+  transition:
+    opacity 0.3s ease 0.15s,
+    font-size 0.35s ease;
+}
+
+.roleActive .pos {
+  opacity: 1;
+  font-size: 0.85rem;
+}
+
+.textLarge,
+.textSmall {
+  font-family: var(--font-word), monospace;
+  white-space: nowrap;
+}
+
+.textLarge {
+  font-size: clamp(1.75rem, 7vw, 3rem);
+}
+
+.textSmall {
+  font-size: 1.1rem;
+}
+
+.quizWord {
+  display: inline-flex;
+  align-items: flex-end;
+}
+
+.charSlot {
+  position: relative;
+  display: inline-block;
+}
+
+.charGlyph {
+  position: absolute;
+  left: 50%;
+  bottom: 0.4em;
+  translate: -50% 0;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.charBlank {
+  line-height: 1;
+}
+
+.charDone {
+  color: var(--color-accent);
+}
+
+.charCursor {
+  color: var(--color-fg);
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.charCursorQuiz {
+  color: var(--color-fg);
+}
+
+.charPending {
+  color: var(--color-dim);
+}
+
+@keyframes shakeA {
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  80% {
+    transform: translateX(4px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-6px);
+  }
+  40%,
+  60% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes shakeB {
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  80% {
+    transform: translateX(4px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-6px);
+  }
+  40%,
+  60% {
+    transform: translateX(6px);
+  }
+}
+
+.shakeA {
+  animation: shakeA 0.28s ease;
+}
+
+.shakeB {
+  animation: shakeB 0.28s ease;
+}

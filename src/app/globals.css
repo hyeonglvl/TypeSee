@@ -1,0 +1,44 @@
+:root {
+  color-scheme: dark;
+  background: #14161f;
+  --color-bg: #14161f;
+  --color-fg: #f2f3f7;
+  --color-dim: #6b6f80;
+  --color-accent: #7dd6c0;
+  --color-error: #e2604f;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-meaning), system-ui, -apple-system, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
