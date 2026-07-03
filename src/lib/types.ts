@@ -9,6 +9,8 @@ export interface WordEntry {
   id: string;
   word: string;
   senses: WordSense[];
+  /** 심플한 예문 한 문장 (추후 표시 기능 예정). */
+  example?: string;
 }
 
 export type SessionMode = "typing" | "quiz";
@@ -54,4 +56,4 @@ export interface SessionSummary {
   troubleWords: Array<{ entry: WordEntry; mistakes: number; hinted: boolean }>;
   /** Review words cleared without a single mistake or hint this session. */
   mastered: WordEntry[];
-}
+} 
