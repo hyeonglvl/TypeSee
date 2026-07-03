@@ -143,6 +143,10 @@ export async function attachUser(userId: string) {
   }
 }
 
+/** On logout: drop the local pool so the account's words don't leak into guest mode. Remote rows stay. */
 export function detachUser() {
+  if (activeUserId === null) return;
   activeUserId = null;
+  misses.clear();
+  notify();
 }
