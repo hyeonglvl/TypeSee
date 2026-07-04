@@ -46,6 +46,14 @@ export function sessionReducer(
   if (state.finishedAt !== null) return state;
 
   switch (action.type) {
+    case "REVEAL": {
+      const active = state.words[state.currentIndex];
+      return replaceActive(state, {
+        ...active,
+        hintedUpTo: active.entry.word.length,
+      });
+    }
+
     case "PREV_WORD":
       return state.currentIndex === 0
         ? state
@@ -66,8 +74,20 @@ export function sessionReducer(
       });
     }
 
+    case "ADVANCE": {
+      const isLast = state.currentIndex === state.words.length - 1;
+      return {
+        ...state,
+        currentIndex: isLast ? state.currentIndex : state.currentIndex + 1,
+        finishedAt: isLast ? Date.now() : state.finishedAt,
+      };
+    }
+
     case "TYPE_CHAR": {
       const active = state.words[state.currentIndex];
+      // Word already completed — holding here for the brief pause before
+      // ADVANCE fires; ignore stray keystrokes instead of miscounting them.
+      if (active.status === "done") return state;
       const target = active.entry.word;
       const at = active.typed.length;
 
@@ -99,7 +119,6 @@ export function sessionReducer(
 
       const typed = active.typed + action.char;
       const done = typed.length === target.length;
-      const isLast = state.currentIndex === state.words.length - 1;
       const streak = state.streak + 1;
 
       return {
@@ -109,8 +128,6 @@ export function sessionReducer(
           status: done ? "done" : "active",
           mistakeStreak: 0,
         }),
-        currentIndex: done && !isLast ? state.currentIndex + 1 : state.currentIndex,
-        finishedAt: done && isLast ? Date.now() : null,
         correctKeystrokes: state.correctKeystrokes + 1,
         streak,
         bestStreak: Math.max(state.bestStreak, streak),

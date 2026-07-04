@@ -44,7 +44,9 @@ export type SessionAction =
   | { type: "TYPE_CHAR"; char: string }
   | { type: "BACKSPACE" }
   | { type: "PREV_WORD" }
-  | { type: "NEXT_WORD" };
+  | { type: "NEXT_WORD" }
+  | { type: "REVEAL" }
+  | { type: "ADVANCE" };
 
 export interface SessionSummary {
   mode: SessionMode;

@@ -27,12 +27,23 @@ const MODES: Array<{
   { mode: "quiz", key: "2", title: "Quiz", desc: "뜻만 보고 철자 떠올리기" },
 ];
 
+const CUSTOM_STEP = 10;
+const CUSTOM_MIN = 10;
+
 export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
-  const counts = [10, 20, totalWords];
+  const [customCount, setCustomCount] = useState(() =>
+    Math.min(50, totalWords),
+  );
+  const counts = [10, 20, customCount];
   const [countIdx, setCountIdx] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
   const user = useAuthUser();
   const pool = useReviewPool();
+
+  const nudgeCustom = (delta: number) =>
+    setCustomCount((c) =>
+      Math.min(totalWords, Math.max(CUSTOM_MIN, c + delta)),
+    );
 
   useEffect(() => {
     if (sheetOpen) return;
@@ -45,11 +56,25 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
         setCountIdx((i) => (i + counts.length - 1) % counts.length);
       else if (e.key === "ArrowRight")
         setCountIdx((i) => (i + 1) % counts.length);
+      else if (e.key === "Tab") {
+        e.preventDefault();
+        setCountIdx((i) =>
+          e.shiftKey
+            ? (i + counts.length - 1) % counts.length
+            : (i + 1) % counts.length,
+        );
+      } else if (e.key === "ArrowUp" && countIdx === 2) {
+        e.preventDefault();
+        nudgeCustom(CUSTOM_STEP);
+      } else if (e.key === "ArrowDown" && countIdx === 2) {
+        e.preventDefault();
+        nudgeCustom(-CUSTOM_STEP);
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countIdx, sheetOpen, pool.count, onStart, onReview]);
+  }, [countIdx, sheetOpen, pool.count, onStart, onReview, customCount]);
 
   return (
     <div className={styles.screen}>
@@ -89,9 +114,10 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
         role="radiogroup"
         aria-label="단어 수 선택"
       >
-        {counts.map((count, i) => (
+        {[10, 20].map((count, i) => (
           <button
             key={count}
+            type="button"
             role="radio"
             aria-checked={i === countIdx}
             className={styles.segmentItem}
@@ -104,11 +130,54 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
                 transition={{ type: "spring", stiffness: 500, damping: 38 }}
               />
             )}
-            <span className={styles.segmentLabel}>
-              {i === counts.length - 1 ? `전체 ${count}` : count}
-            </span>
+            <span className={styles.segmentLabel}>{count}</span>
           </button>
         ))}
+
+        <div
+          role="radio"
+          aria-checked={countIdx === 2}
+          tabIndex={0}
+          className={`${styles.segmentItem} ${styles.segmentCustomItem}`}
+          onClick={() => setCountIdx(2)}
+        >
+          {countIdx === 2 && (
+            <motion.span
+              layoutId="segment-thumb"
+              className={styles.segmentThumb}
+              transition={{ type: "spring", stiffness: 500, damping: 38 }}
+            />
+          )}
+          <span className={styles.segmentCustom}>
+            <button
+              type="button"
+              className={styles.stepper}
+              aria-label="단어 수 줄이기"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCountIdx(2);
+                nudgeCustom(-CUSTOM_STEP);
+              }}
+            >
+              −
+            </button>
+            <span className={styles.segmentLabel}>
+              {customCount} / {totalWords}
+            </span>
+            <button
+              type="button"
+              className={styles.stepper}
+              aria-label="단어 수 늘리기"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCountIdx(2);
+                nudgeCustom(CUSTOM_STEP);
+              }}
+            >
+              +
+            </button>
+          </span>
+        </div>
       </div>
 
       <div className={styles.modes}>
@@ -156,16 +225,21 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
           </span>
           <span className={styles.modeDesc}>
             {pool.count > 0
-              ? "틀린 횟수 보고 다시 풀기"
-              : "틀린 단어가 여기에 모여요"}
+              ? "틀린 단어, 저장한 단어 다시 풀기"
+              : "틀리거나 저장한 단어가 여기에 모여요"}
           </span>
           {pool.count > 0 && <kbd className={styles.modeKey}>3</kbd>}
         </motion.button>
       </div>
 
       <p className={styles.footHint}>
-        <kbd>←</kbd> <kbd>→</kbd> 단어 수 &nbsp;·&nbsp; <kbd>1</kbd>{" "}
-        <kbd>2</kbd> <kbd>3</kbd> 바로 시작
+        <kbd>tab</kbd> <kbd>←</kbd> <kbd>→</kbd> 단어 수
+        {countIdx === 2 && (
+          <>
+            &nbsp;·&nbsp; <kbd>↑</kbd> <kbd>↓</kbd> 갯수 조절
+          </>
+        )}
+        &nbsp;·&nbsp; <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> 바로 시작
         {!user && pool.count > 0 && (
           <span className={styles.volatileNote}>
             &nbsp;·&nbsp; 로그인하면 틀린 단어가 저장돼요

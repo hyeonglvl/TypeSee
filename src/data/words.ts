@@ -425,7 +425,7 @@ export const STARTER_WORDS: WordEntry[] = [
     id: "deny",
     word: "deny",
     senses: [{ meaning: "부인하다", pos: "v" }],
-    example: "He denied breaking the window.",
+    example: "He tried to deny the truth.",
   },
   {
     id: "desire",
@@ -1043,7 +1043,7 @@ export const STARTER_WORDS: WordEntry[] = [
       { meaning: "지원하다", pos: "v" },
       { meaning: "적용하다", pos: "v" },
     ],
-    example: "She applied for the job.",
+    example: "She wants to apply for the job.",
   },
   {
     id: "appoint",
@@ -1361,7 +1361,7 @@ export const STARTER_WORDS: WordEntry[] = [
     id: "bury",
     word: "bury",
     senses: [{ meaning: "묻다", pos: "v" }],
-    example: "The dog buried a bone in the yard.",
+    example: "The dog likes to bury bones.",
   },
   {
     id: "calculate",
@@ -1487,7 +1487,7 @@ export const STARTER_WORDS: WordEntry[] = [
     id: "cling",
     word: "cling",
     senses: [{ meaning: "매달리다", pos: "v" }],
-    example: "The child clung to her mother.",
+    example: "Wet clothes cling to your skin.",
   },
   {
     id: "coarse",
@@ -1618,7 +1618,7 @@ export const STARTER_WORDS: WordEntry[] = [
   {
     id: "conclude",
     word: "conclude",
-    sensesx: [
+    senses: [
       { meaning: "결론짓다", pos: "v" },
       { meaning: "끝내다", pos: "v" },
     ],
@@ -3242,7 +3242,7 @@ export const STARTER_WORDS: WordEntry[] = [
     id: "flee",
     word: "flee",
     senses: [{ meaning: "달아나다", pos: "v" }],
-    example: "The deer fled into the woods.",
+    example: "Deer often flee from danger.",
   },
   {
     id: "float",
@@ -3932,7 +3932,7 @@ export const STARTER_WORDS: WordEntry[] = [
     id: "imply",
     word: "imply",
     senses: [{ meaning: "암시하다", pos: "v" }],
-    example: "His smile implied agreement.",
+    example: "Silence doesn't always imply agreement.",
   },
   {
     id: "import",
@@ -4100,7 +4100,7 @@ export const STARTER_WORDS: WordEntry[] = [
     id: "innovate",
     word: "innovate",
     senses: [{ meaning: "혁신하다", pos: "v" }],
-    example: "The company keeps innovating.",
+    example: "The company always tries to innovate.",
   },
   {
     id: "inquire",

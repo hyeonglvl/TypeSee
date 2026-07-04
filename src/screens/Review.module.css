@@ -39,12 +39,56 @@
   color: var(--ink-2);
 }
 
-/* List ---------------------------------------------------------------------- */
+/* Lists ----------------------------------------------------------------------- */
+
+.lists {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  width: min(760px, 92vw);
+}
+
+.section {
+  flex: 1 1 320px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  padding: 0 4px;
+}
+
+.sectionCount {
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.sectionClear {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-3);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.sectionClear:hover {
+  color: var(--danger);
+}
 
 .list {
   list-style: none;
-  width: min(560px, 90vw);
-  max-height: min(380px, 42vh);
+  width: 100%;
+  max-height: min(340px, 40vh);
   overflow-y: auto;
   border-radius: var(--radius-m);
   background: var(--surface);
@@ -52,6 +96,7 @@
 }
 
 .row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -86,6 +131,53 @@
   background: var(--danger-dim);
   color: var(--danger);
   font-variant-numeric: tabular-nums;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.savedBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.rowDelete {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--ink-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline-strong);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.row:hover .rowDelete {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.row:hover .missBadge,
+.row:hover .savedBadge {
+  opacity: 0;
+}
+
+.rowDelete:hover {
+  color: var(--danger);
+  background: var(--danger-dim);
 }
 
 /* Actions -------------------------------------------------------------------- */
@@ -131,6 +223,17 @@
 .ghostButton:hover {
   background: var(--surface);
   color: var(--ink);
+}
+
+.footerLinks {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.footerDivider {
+  color: var(--hairline-strong);
+  font-size: 13px;
 }
 
 .clearButton {
