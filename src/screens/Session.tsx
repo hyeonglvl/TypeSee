@@ -2,6 +2,7 @@ import { memo, useEffect, useReducer, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createSession, sessionReducer, summarize } from "@/lib/engine";
 import { speak, toggleSound, useSoundPref } from "@/lib/tts";
+import { saveWord } from "@/lib/reviewStore";
 import type {
   Pos,
   SessionMode,
@@ -29,6 +30,8 @@ const POS_LABEL: Record<Pos, string> = {
 
 const WINDOW = 2;
 const FINISH_HOLD_MS = 700;
+const REVEAL_HOLD_MS = 1000;
+const ADVANCE_HOLD_MS = 500;
 
 const cardSpring = { type: "spring", stiffness: 280, damping: 30 } as const;
 
@@ -48,6 +51,14 @@ export default function SessionScreen({
   stateRef.current = state;
   const onExitRef = useRef(onExit);
   onExitRef.current = onExit;
+  const revealTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (revealTimeoutRef.current !== null)
+        clearTimeout(revealTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -64,6 +75,22 @@ export default function SessionScreen({
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
         dispatch({ type: "NEXT_WORD" });
+      } else if (e.key === " ") {
+        e.preventDefault();
+        if (e.repeat || revealTimeoutRef.current !== null) return;
+        const id =
+          stateRef.current.words[stateRef.current.currentIndex].entry.id;
+        if (mode === "quiz") {
+          dispatch({ type: "REVEAL" });
+          revealTimeoutRef.current = setTimeout(() => {
+            revealTimeoutRef.current = null;
+            saveWord(id);
+            dispatch({ type: "NEXT_WORD" });
+          }, REVEAL_HOLD_MS);
+        } else {
+          saveWord(id);
+          dispatch({ type: "NEXT_WORD" });
+        }
       } else if (e.key.length === 1) {
         e.preventDefault();
         dispatch({ type: "TYPE_CHAR", char: e.key });
@@ -82,10 +109,21 @@ export default function SessionScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.lastCompletedId]);
 
+  // Hold on the completed word briefly before moving on, instead of
+  // snapping to the next one the instant the last letter lands.
+  useEffect(() => {
+    if (state.lastCompletedId === null) return;
+    const t = setTimeout(() => dispatch({ type: "ADVANCE" }), ADVANCE_HOLD_MS);
+    return () => clearTimeout(t);
+  }, [state.lastCompletedId]);
+
   const finished = state.finishedAt !== null;
   useEffect(() => {
     if (!finished) return;
-    const t = setTimeout(() => onFinish(summarize(state, mode)), FINISH_HOLD_MS);
+    const t = setTimeout(
+      () => onFinish(summarize(state, mode)),
+      FINISH_HOLD_MS,
+    );
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished]);
@@ -172,6 +210,7 @@ export default function SessionScreen({
         <StreakPill streak={state.streak} />
         <span className={styles.navHints}>
           <kbd>←</kbd> 이전 단어 &nbsp;·&nbsp; <kbd>→</kbd> 건너뛰기
+          &nbsp;·&nbsp; <kbd>space</kbd> 저장하고 스킵
         </span>
       </footer>
     </div>
@@ -191,22 +230,28 @@ const WordCard = memo(function WordCard({
 }) {
   const active = offset === 0;
   const depth = Math.abs(offset);
+  const sign = Math.sign(offset);
+  // Neighbors sit right at the screen edge so the track's overflow:hidden
+  // clips them to a ~50% sliver; anything past that is pushed fully offstage.
+  const xVw = depth === 0 ? 0 : depth === 1 ? sign * 52 : sign * 90;
 
   return (
     <motion.div
       className={active ? `${styles.card} ${styles.cardActive}` : styles.card}
       style={{ zIndex: 10 - depth }}
       initial={{
-        x: `${offset * 26}vw`,
+        x: `${xVw}vw`,
         scale: 0.4,
         opacity: 0,
         rotateY: offset * -14,
+        filter: "blur(0px)",
       }}
       animate={{
-        x: `${offset * 26}vw`,
-        scale: depth === 0 ? 1 : depth === 1 ? 0.55 : 0.4,
-        opacity: depth === 0 ? 1 : depth === 1 ? 0.35 : 0.12,
+        x: `${xVw}vw`,
+        scale: depth === 0 ? 1 : depth === 1 ? 0.92 : 0.8,
+        opacity: depth === 0 ? 1 : depth === 1 ? 0.55 : 0.2,
         rotateY: offset * -14,
+        filter: depth === 0 ? "blur(0px)" : "blur(1.5px)",
       }}
       exit={{ opacity: 0, scale: 0.35 }}
       transition={cardSpring}
@@ -223,7 +268,11 @@ const WordCard = memo(function WordCard({
         }
       >
         <Meaning entry={word.entry} />
-        <WordGlyphs word={word} mode={mode} active={active} />
+        {active ? (
+          <ExampleLine word={word} mode={mode} active={active} />
+        ) : (
+          <WordGlyphs word={word} mode={mode} active={active} />
+        )}
       </span>
     </motion.div>
   );
@@ -244,6 +293,56 @@ function Meaning({ entry }: { entry: WordEntry }) {
             </span>
           ))}
         </span>
+      )}
+    </span>
+  );
+}
+
+/* Example sentence ------------------------------------------------------------
+   Show the word's glyphs (typing/quiz) inline at its natural spot in a short
+   example sentence, so the target word stays the same size/behavior it
+   always had — just framed by the rest of the sentence around it. */
+
+function findWordSpan(
+  entry: WordEntry,
+): { prefix: string; suffix: string } | null {
+  const { word, example } = entry;
+  if (!example) return null;
+  const boundary = new RegExp(`\\b${word}\\b`, "i").exec(example);
+  if (boundary) {
+    return {
+      prefix: example.slice(0, boundary.index),
+      suffix: example.slice(boundary.index + boundary[0].length),
+    };
+  }
+  const idx = example.toLowerCase().indexOf(word.toLowerCase());
+  if (idx === -1) return null;
+  return {
+    prefix: example.slice(0, idx),
+    suffix: example.slice(idx + word.length),
+  };
+}
+
+function ExampleLine({
+  word,
+  mode,
+  active,
+}: {
+  word: WordState;
+  mode: SessionMode;
+  active: boolean;
+}) {
+  const span = findWordSpan(word.entry);
+  if (!span) return <WordGlyphs word={word} mode={mode} active={active} />;
+
+  return (
+    <span className={styles.sentenceRow}>
+      {span.prefix && (
+        <span className={styles.sentenceText}>{span.prefix}</span>
+      )}
+      <WordGlyphs word={word} mode={mode} active={active} />
+      {span.suffix && (
+        <span className={styles.sentenceText}>{span.suffix}</span>
       )}
     </span>
   );

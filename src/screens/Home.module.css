@@ -110,6 +110,37 @@
   font-variant-numeric: tabular-nums;
 }
 
+.segmentCustomItem {
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.segmentCustom {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stepper {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  color: var(--ink-3);
+  font-size: 15px;
+  line-height: 1;
+  transition: color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.stepper:hover {
+  color: var(--ink);
+  background: var(--surface-raised);
+}
+
 /* Mode cards -------------------------------------------------------------- */
 
 .modes {
