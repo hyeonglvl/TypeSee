@@ -144,9 +144,21 @@ function replaceActive(state: SessionState, next: WordState): SessionState {
 }
 
 export function summarize(state: SessionState, mode: SessionMode): SessionSummary {
-  const totalKeystrokes = state.correctKeystrokes + state.mistakes;
-  const accuracy =
-    totalKeystrokes === 0 ? 1 : state.correctKeystrokes / totalKeystrokes;
+  const wrongWords = state.words.filter((w) => w.mistakes > 0).length;
+  const wrongRate =
+    state.words.length === 0 ? 0 : wrongWords / state.words.length;
+
+  let wordStreak = 0;
+  let bestWordStreak = 0;
+  for (const w of state.words) {
+    if (w.mistakes === 0) {
+      wordStreak++;
+      bestWordStreak = Math.max(bestWordStreak, wordStreak);
+    } else {
+      wordStreak = 0;
+    }
+  }
+
   const elapsedMs = (state.finishedAt ?? Date.now()) - state.startedAt;
   // Standard WPM: 5 keystrokes = 1 word
   const wpm =
@@ -174,10 +186,10 @@ export function summarize(state: SessionState, mode: SessionMode): SessionSummar
   return {
     mode,
     totalWords: state.words.length,
-    accuracy,
+    wrongRate,
     elapsedMs,
     wpm,
-    bestStreak: state.bestStreak,
+    bestStreak: bestWordStreak,
     troubleWords,
     mastered,
   };

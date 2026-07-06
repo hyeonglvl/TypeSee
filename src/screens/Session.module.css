@@ -120,6 +120,19 @@
   letter-spacing: -0.01em;
 }
 
+.savedBadge {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
 .cardActive {
   background: var(--surface-raised);
   border-color: var(--hairline-strong);
@@ -182,10 +195,14 @@
 
 /* Example sentence ------------------------------------------------------------ */
 
-.sentenceRow {
+.sentenceBlock {
   display: block;
   max-width: 62vw;
   text-align: center;
+}
+
+.sentenceRow {
+  display: block;
   line-height: 1.6;
 }
 
@@ -194,6 +211,16 @@
   font-size: clamp(16px, 2vw, 22px);
   font-weight: 400;
   color: var(--ink-3);
+}
+
+.sentenceMeaning {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-sans);
+  font-size: clamp(13px, 1.5vw, 16px);
+  font-weight: 400;
+  color: var(--ink-4, var(--ink-3));
+  opacity: 0.7;
 }
 
 /* Word glyphs — typing mode -------------------------------------------------- */
