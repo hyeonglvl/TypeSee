@@ -1,4 +1,4 @@
-import { memo, useEffect, useReducer, useRef } from "react";
+import { memo, useEffect, useReducer, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createSession, sessionReducer, summarize } from "@/lib/engine";
 import { speak, toggleSound, useSoundPref } from "@/lib/tts";
@@ -30,7 +30,6 @@ const POS_LABEL: Record<Pos, string> = {
 
 const WINDOW = 2;
 const FINISH_HOLD_MS = 700;
-const REVEAL_HOLD_MS = 1000;
 const ADVANCE_HOLD_MS = 500;
 
 const cardSpring = { type: "spring", stiffness: 280, damping: 30 } as const;
@@ -46,19 +45,14 @@ export default function SessionScreen({
     createSession(words, reviewIds),
   );
   const soundOn = useSoundPref();
+  const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
 
   const stateRef = useRef(state);
   stateRef.current = state;
   const onExitRef = useRef(onExit);
   onExitRef.current = onExit;
-  const revealTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (revealTimeoutRef.current !== null)
-        clearTimeout(revealTimeoutRef.current);
-    };
-  }, []);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -77,19 +71,15 @@ export default function SessionScreen({
         dispatch({ type: "NEXT_WORD" });
       } else if (e.key === " ") {
         e.preventDefault();
-        if (e.repeat || revealTimeoutRef.current !== null) return;
+        if (e.repeat) return;
         const id =
           stateRef.current.words[stateRef.current.currentIndex].entry.id;
         if (mode === "quiz") {
           dispatch({ type: "REVEAL" });
-          revealTimeoutRef.current = setTimeout(() => {
-            revealTimeoutRef.current = null;
-            saveWord(id);
-            dispatch({ type: "NEXT_WORD" });
-          }, REVEAL_HOLD_MS);
+          saveWord(id);
         } else {
           saveWord(id);
-          dispatch({ type: "NEXT_WORD" });
+          setSavedIds((prev) => new Set(prev).add(id));
         }
       } else if (e.key.length === 1) {
         e.preventDefault();
@@ -201,6 +191,7 @@ export default function SessionScreen({
               word={word}
               offset={first + i - state.currentIndex}
               mode={mode}
+              saved={savedIds.has(word.entry.id)}
             />
           ))}
         </AnimatePresence>
@@ -210,7 +201,8 @@ export default function SessionScreen({
         <StreakPill streak={state.streak} />
         <span className={styles.navHints}>
           <kbd>←</kbd> 이전 단어 &nbsp;·&nbsp; <kbd>→</kbd> 건너뛰기
-          &nbsp;·&nbsp; <kbd>space</kbd> 저장하고 스킵
+          &nbsp;·&nbsp; <kbd>space</kbd>{" "}
+          {mode === "quiz" ? "정답 보기" : "저장"}
         </span>
       </footer>
     </div>
@@ -223,10 +215,12 @@ const WordCard = memo(function WordCard({
   word,
   offset,
   mode,
+  saved,
 }: {
   word: WordState;
   offset: number;
   mode: SessionMode;
+  saved: boolean;
 }) {
   const active = offset === 0;
   const depth = Math.abs(offset);
@@ -259,6 +253,7 @@ const WordCard = memo(function WordCard({
       {word.fromReview && (
         <span className={styles.reviewBadge}>틀렸던 단어</span>
       )}
+      {saved && <span className={styles.savedBadge}>저장한 단어</span>}
       <span
         key={word.lastMistakeAt ?? -1}
         className={
@@ -336,13 +331,20 @@ function ExampleLine({
   if (!span) return <WordGlyphs word={word} mode={mode} active={active} />;
 
   return (
-    <span className={styles.sentenceRow}>
-      {span.prefix && (
-        <span className={styles.sentenceText}>{span.prefix}</span>
-      )}
-      <WordGlyphs word={word} mode={mode} active={active} />
-      {span.suffix && (
-        <span className={styles.sentenceText}>{span.suffix}</span>
+    <span className={styles.sentenceBlock}>
+      <span className={styles.sentenceRow}>
+        {span.prefix && (
+          <span className={styles.sentenceText}>{span.prefix}</span>
+        )}
+        <WordGlyphs word={word} mode={mode} active={active} />
+        {span.suffix && (
+          <span className={styles.sentenceText}>{span.suffix}</span>
+        )}
+      </span>
+      {word.entry.exampleMeaning && (
+        <span className={styles.sentenceMeaning}>
+          {word.entry.exampleMeaning}
+        </span>
       )}
     </span>
   );

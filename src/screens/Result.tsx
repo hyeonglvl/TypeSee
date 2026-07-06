@@ -32,7 +32,7 @@ export default function ResultScreen({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onRetry, onRetryTrouble, onHome, hasTrouble]);
 
-  const accuracyPct = summary.accuracy * 100;
+  const wrongPct = summary.wrongRate * 100;
 
   return (
     <div className={styles.screen}>
@@ -40,21 +40,21 @@ export default function ResultScreen({
         {summary.mode === "quiz" ? "Quiz" : "Typing"} 세션 완료
       </p>
 
-      {/* Hero — accuracy ring */}
+      {/* Hero — wrong-rate ring */}
       <div className={styles.ringWrap}>
         <svg
           width={RING_SIZE}
           height={RING_SIZE}
           viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
           role="img"
-          aria-label={`정확도 ${Math.round(accuracyPct)}퍼센트`}
+          aria-label={`오답률 ${Math.round(wrongPct)}퍼센트`}
         >
           <circle
             cx={RING_SIZE / 2}
             cy={RING_SIZE / 2}
             r={RING_R}
             fill="none"
-            stroke="var(--accent-dim)"
+            stroke="var(--danger-dim)"
             strokeWidth={RING_STROKE}
           />
           <motion.circle
@@ -62,21 +62,21 @@ export default function ResultScreen({
             cy={RING_SIZE / 2}
             r={RING_R}
             fill="none"
-            stroke="var(--accent)"
+            stroke="var(--danger)"
             strokeWidth={RING_STROKE}
             strokeLinecap="round"
             transform={`rotate(-90 ${RING_SIZE / 2} ${RING_SIZE / 2})`}
             initial={{ pathLength: 0 }}
-            animate={{ pathLength: summary.accuracy }}
+            animate={{ pathLength: summary.wrongRate }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
           />
         </svg>
         <div className={styles.ringCenter}>
           <span className={styles.ringValue}>
-            <CountUp to={accuracyPct} />
+            <CountUp to={wrongPct} />
             <span className={styles.ringUnit}>%</span>
           </span>
-          <span className={styles.ringLabel}>정확도</span>
+          <span className={styles.ringLabel}>오답률</span>
         </div>
       </div>
 
@@ -88,7 +88,7 @@ export default function ResultScreen({
         <Tile
           label="최고 연속"
           value={<CountUp to={summary.bestStreak} />}
-          unit="타"
+          unit="단어"
         />
       </div>
 
