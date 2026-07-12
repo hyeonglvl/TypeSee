@@ -44,11 +44,14 @@ src/
   app/                # Next.js 엔트리 (layout, page)
   App.tsx             # 화면 전환 (홈 → 세션 → 결과 → 복습)
   lib/engine.ts       # 세션 리듀서·통계 (순수 함수)
+  lib/types.ts        # 공용 타입 (WordEntry, SessionState 등)
   lib/reviewStore.ts  # 틀린 단어 풀 (메모리 + DB 동기화)
   lib/auth.ts         # Supabase 인증
+  lib/supabase.ts     # Supabase 클라이언트
   lib/tts.ts          # 단어 발음
-  screens/            # Home · Session · Result · Review · AuthSheet
+  screens/            # Home · Session · Result · Review · HistorySheet · AuthSheet
   data/words.ts       # 단어 데이터
+  styles/global.css   # 전역 스타일
 ```
 
 브랜치: `hyeong-dev-v1` = 구버전(v1) 백업.

@@ -32,7 +32,8 @@ export default function ResultScreen({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onRetry, onRetryTrouble, onHome, hasTrouble]);
 
-  const wrongPct = summary.wrongRate * 100;
+  const accuracyRate = 1 - summary.wrongRate;
+  const accuracyPct = accuracyRate * 100;
 
   return (
     <div className={styles.screen}>
@@ -40,21 +41,21 @@ export default function ResultScreen({
         {summary.mode === "quiz" ? "Quiz" : "Typing"} 세션 완료
       </p>
 
-      {/* Hero — wrong-rate ring */}
+      {/* Hero — accuracy ring */}
       <div className={styles.ringWrap}>
         <svg
           width={RING_SIZE}
           height={RING_SIZE}
           viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
           role="img"
-          aria-label={`오답률 ${Math.round(wrongPct)}퍼센트`}
+          aria-label={`정답률 ${Math.round(accuracyPct)}퍼센트`}
         >
           <circle
             cx={RING_SIZE / 2}
             cy={RING_SIZE / 2}
             r={RING_R}
             fill="none"
-            stroke="var(--danger-dim)"
+            stroke="var(--accent-dim)"
             strokeWidth={RING_STROKE}
           />
           <motion.circle
@@ -62,21 +63,21 @@ export default function ResultScreen({
             cy={RING_SIZE / 2}
             r={RING_R}
             fill="none"
-            stroke="var(--danger)"
+            stroke="var(--accent)"
             strokeWidth={RING_STROKE}
             strokeLinecap="round"
             transform={`rotate(-90 ${RING_SIZE / 2} ${RING_SIZE / 2})`}
             initial={{ pathLength: 0 }}
-            animate={{ pathLength: summary.wrongRate }}
+            animate={{ pathLength: accuracyRate }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
           />
         </svg>
         <div className={styles.ringCenter}>
           <span className={styles.ringValue}>
-            <CountUp to={wrongPct} />
+            <CountUp to={accuracyPct} />
             <span className={styles.ringUnit}>%</span>
           </span>
-          <span className={styles.ringLabel}>오답률</span>
+          <span className={styles.ringLabel}>정답률</span>
         </div>
       </div>
 
@@ -84,7 +85,11 @@ export default function ResultScreen({
       <div className={styles.tiles}>
         <Tile label="타속" value={<CountUp to={summary.wpm} />} unit="WPM" />
         <Tile label="시간" value={formatElapsed(summary.elapsedMs)} />
-        <Tile label="단어" value={<CountUp to={summary.totalWords} />} unit="개" />
+        <Tile
+          label="단어"
+          value={<CountUp to={summary.totalWords} />}
+          unit="개"
+        />
         <Tile
           label="최고 연속"
           value={<CountUp to={summary.bestStreak} />}
@@ -143,9 +148,7 @@ function Tile({
 
 function TroubleWords({ summary }: { summary: SessionSummary }) {
   if (summary.troubleWords.length === 0) {
-    return (
-      <p className={styles.perfect}>모든 단어를 한 번에 통과했어요</p>
-    );
+    return <p className={styles.perfect}>모든 단어를 한 번에 통과했어요</p>;
   }
   return (
     <div className={styles.trouble}>

@@ -53,13 +53,27 @@ export default function SessionScreen({
   stateRef.current = state;
   const onExitRef = useRef(onExit);
   onExitRef.current = onExit;
+  const mobileInputRef = useRef<HTMLInputElement>(null);
+
+  const exit = () => onExitRef.current(summarize(stateRef.current, mode));
+
+  const handleSpace = () => {
+    const id = stateRef.current.words[stateRef.current.currentIndex].entry.id;
+    if (mode === "quiz") {
+      dispatch({ type: "REVEAL" });
+      saveWord(id);
+    } else {
+      saveWord(id);
+      setSavedIds((prev) => new Set(prev).add(id));
+    }
+  };
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "Escape") {
         e.preventDefault();
-        onExitRef.current(summarize(stateRef.current, mode));
+        exit();
       } else if (e.key === "Backspace") {
         e.preventDefault();
         dispatch({ type: "BACKSPACE" });
@@ -72,16 +86,12 @@ export default function SessionScreen({
       } else if (e.key === " ") {
         e.preventDefault();
         if (e.repeat) return;
-        const id =
-          stateRef.current.words[stateRef.current.currentIndex].entry.id;
-        if (mode === "quiz") {
-          dispatch({ type: "REVEAL" });
-          saveWord(id);
-        } else {
-          saveWord(id);
-          setSavedIds((prev) => new Set(prev).add(id));
-        }
+        handleSpace();
       } else if (e.key.length === 1) {
+        // Suppressed here so the character never lands in the hidden mobile
+        // input too — on iOS/desktop keyboards e.key is reliable and this
+        // preventDefault stops the input's native insertion, so the
+        // onChange-based path below never double-fires for the same key.
         e.preventDefault();
         dispatch({ type: "TYPE_CHAR", char: e.key });
       }
@@ -90,6 +100,27 @@ export default function SessionScreen({
     return () => window.removeEventListener("keydown", onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Focus a hidden input so mobile browsers show the on-screen keyboard —
+  // without a focused input element, no software keyboard ever appears.
+  useEffect(() => {
+    mobileInputRef.current?.focus();
+  }, []);
+
+  const focusMobileInput = () => mobileInputRef.current?.focus();
+
+  // Fallback path for software keyboards (mainly Android/Gboard) whose
+  // composition sends keydown as "Unidentified" — the real character still
+  // lands in the input's value via the native input event, so read it here.
+  const handleMobileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const chars = e.target.value;
+    e.target.value = "";
+    if (chars.length === 0) return;
+    for (const char of chars) {
+      if (char === " ") handleSpace();
+      else dispatch({ type: "TYPE_CHAR", char });
+    }
+  };
 
   // Pronounce a word the moment it's completed
   useEffect(() => {
@@ -138,7 +169,20 @@ export default function SessionScreen({
   const visible = state.words.slice(first, last + 1);
 
   return (
-    <div className={styles.screen}>
+    <div className={styles.screen} onClick={focusMobileInput}>
+      <input
+        ref={mobileInputRef}
+        className={styles.mobileInput}
+        onChange={handleMobileInput}
+        type="text"
+        inputMode="text"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        aria-hidden="true"
+        tabIndex={-1}
+      />
       <motion.div
         className={styles.progressFill}
         animate={{ width: `${(doneCount / total) * 100}%` }}
@@ -146,9 +190,9 @@ export default function SessionScreen({
       />
 
       <header className={styles.topBar}>
-        <span className={styles.topHint}>
+        <button type="button" className={styles.exitButton} onClick={exit}>
           <kbd>esc</kbd> 나가기
-        </span>
+        </button>
 
         <span className={styles.liveStats}>
           {liveWpm !== null && (
@@ -182,6 +226,10 @@ export default function SessionScreen({
           </span>
         </span>
       </header>
+
+      <div className={styles.mobileCounter}>
+        {doneCount} / {total}
+      </div>
 
       <div className={styles.track}>
         <AnimatePresence initial={false}>
