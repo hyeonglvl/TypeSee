@@ -13,6 +13,11 @@ import {
   recordSession,
   useReviewPool,
 } from "@/lib/reviewStore";
+import {
+  attachUser as attachStreakUser,
+  detachUser as detachStreakUser,
+  recordDailyActivity,
+} from "@/lib/streakStore";
 import type { SessionMode, SessionSummary, WordEntry } from "@/lib/types";
 
 type SessionConfig =
@@ -46,8 +51,13 @@ export default function App() {
   const pool = useReviewPool();
 
   useEffect(() => {
-    if (user) attachUser(user.id);
-    else detachUser();
+    if (user) {
+      attachUser(user.id);
+      attachStreakUser(user.id);
+    } else {
+      detachUser();
+      detachStreakUser();
+    }
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startNormal = useCallback(
@@ -95,6 +105,7 @@ export default function App() {
       })),
       summary.mastered.map((w) => w.id),
     );
+    recordDailyActivity(summary.wordsCompleted);
   }, []);
 
   const goHome = useCallback(() => setPhase({ step: "home" }), []);

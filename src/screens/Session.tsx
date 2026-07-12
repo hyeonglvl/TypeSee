@@ -31,6 +31,7 @@ const POS_LABEL: Record<Pos, string> = {
 const WINDOW = 2;
 const FINISH_HOLD_MS = 700;
 const ADVANCE_HOLD_MS = 500;
+const GIVE_UP_HOLD_MS = 1500;
 
 const cardSpring = { type: "spring", stiffness: 280, damping: 30 } as const;
 
@@ -42,7 +43,7 @@ export default function SessionScreen({
   onExit,
 }: Props) {
   const [state, dispatch] = useReducer(sessionReducer, null, () =>
-    createSession(words, reviewIds),
+    createSession(words, mode, reviewIds),
   );
   const soundOn = useSoundPref();
   const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(
@@ -131,11 +132,18 @@ export default function SessionScreen({
   }, [state.lastCompletedId]);
 
   // Hold on the completed word briefly before moving on, instead of
-  // snapping to the next one the instant the last letter lands.
+  // snapping to the next one the instant the last letter lands. A word
+  // given up on (quiz mode, Space) gets a longer hold so the revealed
+  // spelling can actually be read.
   useEffect(() => {
     if (state.lastCompletedId === null) return;
-    const t = setTimeout(() => dispatch({ type: "ADVANCE" }), ADVANCE_HOLD_MS);
+    const completed = state.words.find(
+      (w) => w.entry.id === state.lastCompletedId,
+    );
+    const delay = completed?.gaveUp ? GIVE_UP_HOLD_MS : ADVANCE_HOLD_MS;
+    const t = setTimeout(() => dispatch({ type: "ADVANCE" }), delay);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.lastCompletedId]);
 
   const finished = state.finishedAt !== null;
@@ -422,6 +430,8 @@ function WordGlyphs({
         const isCursor = active && i === typedLen && word.status !== "done";
 
         if (mode === "quiz") {
+          const typedChar = word.typed[i];
+          const wrong = done && typedChar !== ch;
           const ghost = !done && i < hintBoundary;
           return (
             <span
@@ -429,11 +439,14 @@ function WordGlyphs({
               className={[
                 styles.slot,
                 done ? styles.slotDone : "",
+                wrong ? styles.slotWrong : "",
                 isCursor ? styles.slotCursor : "",
               ].join(" ")}
             >
               {done ? (
-                <span className={styles.glyphPop}>{ch}</span>
+                <span className={wrong ? styles.glyphWrong : styles.glyphPop}>
+                  {typedChar}
+                </span>
               ) : ghost ? (
                 <span className={styles.glyphGhost}>{ch}</span>
               ) : (
