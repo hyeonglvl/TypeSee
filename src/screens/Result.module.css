@@ -267,3 +267,43 @@
   background: rgba(6, 36, 28, 0.12);
   color: #06241c;
 }
+
+/* Mobile — 4 tiles side by side don't fit; stack into a 2x2 grid and let
+   the whole screen scroll instead of clipping top/bottom on short phones. */
+@media (max-width: 640px) {
+  .screen {
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding: 28px 18px;
+    gap: 24px;
+  }
+
+  .tiles {
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .tile {
+    padding: 16px;
+  }
+
+  .trouble,
+  .mastered {
+    width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .primaryButton,
+  .ghostButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
