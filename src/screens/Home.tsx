@@ -8,6 +8,7 @@ import {
 } from "@/lib/auth";
 import { useReviewPool } from "@/lib/reviewStore";
 import AuthSheet from "@/screens/AuthSheet";
+import StreakCalendar from "@/screens/StreakCalendar";
 import type { SessionMode } from "@/lib/types";
 import styles from "./Home.module.css";
 
@@ -231,6 +232,8 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
           {pool.count > 0 && <kbd className={styles.modeKey}>3</kbd>}
         </motion.button>
       </div>
+
+      <StreakCalendar authenticated={!!user} />
 
       <p className={styles.footHint}>
         <kbd>tab</kbd> <kbd>←</kbd> <kbd>→</kbd> 단어 수

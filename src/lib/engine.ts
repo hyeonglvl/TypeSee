@@ -12,9 +12,11 @@ const LONG_WORD_LENGTH = 7;
 
 export function createSession(
   words: WordEntry[],
+  mode: SessionMode,
   reviewIds?: ReadonlySet<string>,
 ): SessionState {
   return {
+    mode,
     words: words.map(
       (entry): WordState => ({
         entry,
@@ -25,6 +27,7 @@ export function createSession(
         lastMistakeAt: null,
         hintStage: 0,
         hintedUpTo: 0,
+        gaveUp: false,
         fromReview: reviewIds?.has(entry.id) ?? false,
       }),
     ),
@@ -47,11 +50,25 @@ export function sessionReducer(
 
   switch (action.type) {
     case "REVEAL": {
+      // Space in quiz mode: give up on this word. Reveal the spelling,
+      // count it as a miss, and complete it — a longer hold (driven by
+      // `gaveUp`) gives the user time to actually read it before ADVANCE.
       const active = state.words[state.currentIndex];
-      return replaceActive(state, {
-        ...active,
-        hintedUpTo: active.entry.word.length,
-      });
+      if (active.status === "done") return state;
+      return {
+        ...replaceActive(state, {
+          ...active,
+          hintedUpTo: active.entry.word.length,
+          hintStage: 2,
+          status: "done",
+          mistakes: active.mistakes + 1,
+          gaveUp: true,
+          lastMistakeAt: Date.now(),
+        }),
+        mistakes: state.mistakes + 1,
+        streak: 0,
+        lastCompletedId: active.entry.id,
+      };
     }
 
     case "PREV_WORD":
@@ -90,8 +107,35 @@ export function sessionReducer(
       if (active.status === "done") return state;
       const target = active.entry.word;
       const at = active.typed.length;
+      const correct = action.char === target[at];
 
-      if (action.char !== target[at]) {
+      // Quiz mode tests spelling recall — every keystroke lands and the
+      // cursor always advances, right or wrong, instead of blocking until
+      // the correct letter is found (that's what Typing mode is for).
+      if (state.mode === "quiz") {
+        const typed = active.typed + action.char;
+        const done = typed.length === target.length;
+        const streak = correct ? state.streak + 1 : 0;
+
+        return {
+          ...replaceActive(state, {
+            ...active,
+            typed,
+            status: done ? "done" : "active",
+            mistakes: correct ? active.mistakes : active.mistakes + 1,
+            lastMistakeAt: correct ? active.lastMistakeAt : Date.now(),
+          }),
+          correctKeystrokes: correct
+            ? state.correctKeystrokes + 1
+            : state.correctKeystrokes,
+          mistakes: correct ? state.mistakes : state.mistakes + 1,
+          streak,
+          bestStreak: Math.max(state.bestStreak, streak),
+          lastCompletedId: done ? active.entry.id : state.lastCompletedId,
+        };
+      }
+
+      if (!correct) {
         const mistakeStreak = active.mistakeStreak + 1;
         const triggerHint =
           mistakeStreak >= MISTAKES_FOR_HINT && active.hintStage < 2;
@@ -186,6 +230,7 @@ export function summarize(state: SessionState, mode: SessionMode): SessionSummar
   return {
     mode,
     totalWords: state.words.length,
+    wordsCompleted: state.words.filter((w) => w.status === "done").length,
     wrongRate,
     elapsedMs,
     wpm,

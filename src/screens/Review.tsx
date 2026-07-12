@@ -47,8 +47,8 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
     if (historyOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onBack();
-      else if (e.key === "1" && entries.length > 0) onStart("typing", entries);
-      else if (e.key === "2" && entries.length > 0) onStart("quiz", entries);
+      else if (e.key === "1" && entries.length > 0) onStart("quiz", entries);
+      else if (e.key === "2" && entries.length > 0) onStart("typing", entries);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -191,13 +191,13 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
           className={styles.primaryButton}
           onClick={() => onStart("quiz", entries)}
         >
-          Quiz로 복습 <kbd className={styles.kbdOnAccent}>2</kbd>
+          Quiz로 복습 <kbd className={styles.kbdOnAccent}>1</kbd>
         </button>
         <button
           className={styles.ghostButton}
           onClick={() => onStart("typing", entries)}
         >
-          Typing으로 복습 <kbd>1</kbd>
+          Typing으로 복습 <kbd>2</kbd>
         </button>
         <button className={styles.ghostButton} onClick={onBack}>
           뒤로 <kbd>esc</kbd>

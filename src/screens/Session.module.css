@@ -341,11 +341,20 @@
   box-shadow: inset 0 -3px 0 var(--accent-deep);
 }
 
+.slotWrong {
+  box-shadow: inset 0 -3px 0 var(--danger);
+}
+
 .slotCursor {
   animation: caret 1.1s ease-in-out infinite;
 }
 
 .glyphPop {
+  animation: pop 200ms var(--ease-out);
+}
+
+.glyphWrong {
+  color: var(--danger);
   animation: pop 200ms var(--ease-out);
 }
 

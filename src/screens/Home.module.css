@@ -251,3 +251,58 @@
   align-items: center;
   gap: 5px;
 }
+
+/* Mobile — the streak calendar adds enough height that some phones clip
+   top/bottom; let the whole screen scroll instead. */
+@media (max-width: 640px) {
+  .screen {
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding: 28px 18px;
+    gap: 28px;
+  }
+
+  /* 3 mode cards side by side instead of wrapping 2+1 (the lone 3rd
+     card centering under the gap read as broken alignment). */
+  .modes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .modeCard {
+    width: auto;
+    padding: 16px 8px 14px;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+  }
+
+  .modeIcon {
+    margin-bottom: 0;
+  }
+
+  .modeTitle {
+    font-size: 15px;
+  }
+
+  .modeDesc {
+    display: none;
+  }
+
+  .modeKey {
+    top: 8px;
+    right: 8px;
+  }
+
+  .reviewCount {
+    min-width: 18px;
+    height: 18px;
+    margin-left: 5px;
+    font-size: 11px;
+  }
+}

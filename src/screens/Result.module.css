@@ -254,18 +254,18 @@
   height: 20px;
   padding: 0 5px;
   border-radius: 5px;
-  border: 1px solid var(--hairline-strong);
-  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #2c2d33;
   font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 500;
-  color: var(--ink-2);
+  color: var(--ink);
 }
 
 .kbdOnAccent {
-  border-color: rgba(6, 36, 28, 0.3);
-  background: rgba(6, 36, 28, 0.12);
-  color: #06241c;
+  border-color: rgba(255, 255, 255, 0.14);
+  background: #2c2d33;
+  color: var(--ink);
 }
 
 /* Mobile — 4 tiles side by side don't fit; stack into a 2x2 grid and let

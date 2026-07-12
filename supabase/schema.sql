@@ -59,3 +59,30 @@ create policy "update own word history" on public.word_history
 drop policy if exists "delete own word history" on public.word_history;
 create policy "delete own word history" on public.word_history
   for delete using (auth.uid() = user_id);
+
+-- 일별 학습량 — 홈 화면 스트릭(연속 학습) 캘린더용. 하루에 타이핑/퀴즈로
+-- 시도한 단어 수를 누적합니다 (정답/오답/포기 모두 포함).
+create table if not exists public.daily_activity (
+  user_id uuid not null references auth.users (id) on delete cascade,
+  activity_date date not null,
+  words_typed integer not null default 0,
+  primary key (user_id, activity_date)
+);
+
+alter table public.daily_activity enable row level security;
+
+drop policy if exists "select own daily activity" on public.daily_activity;
+create policy "select own daily activity" on public.daily_activity
+  for select using (auth.uid() = user_id);
+
+drop policy if exists "insert own daily activity" on public.daily_activity;
+create policy "insert own daily activity" on public.daily_activity
+  for insert with check (auth.uid() = user_id);
+
+drop policy if exists "update own daily activity" on public.daily_activity;
+create policy "update own daily activity" on public.daily_activity
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+drop policy if exists "delete own daily activity" on public.daily_activity;
+create policy "delete own daily activity" on public.daily_activity
+  for delete using (auth.uid() = user_id);

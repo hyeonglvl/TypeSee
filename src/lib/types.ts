@@ -26,11 +26,15 @@ export interface WordState {
   lastMistakeAt: number | null;
   hintStage: number;
   hintedUpTo: number;
+  /** Gave up via Space in quiz mode — completed as a miss, held longer so
+   *  the revealed spelling can actually be read before advancing. */
+  gaveUp: boolean;
   /** This word is here because the user missed it before. */
   fromReview: boolean;
 }
 
 export interface SessionState {
+  mode: SessionMode;
   words: WordState[];
   currentIndex: number;
   startedAt: number;
@@ -53,6 +57,9 @@ export type SessionAction =
 export interface SessionSummary {
   mode: SessionMode;
   totalWords: number;
+  /** Words actually reached this session (status "done") — excludes words
+   *  never reached on early exit. Drives the daily streak count. */
+  wordsCompleted: number;
   /** Share of words (0–1) that had at least one mistake. */
   wrongRate: number;
   elapsedMs: number;
