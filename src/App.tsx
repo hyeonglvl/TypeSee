@@ -11,6 +11,7 @@ import {
   appearanceWeight,
   attachUser,
   detachUser,
+  hydrateLocal,
   recordSession,
   useReviewPool,
 } from "@/lib/reviewStore";
@@ -50,6 +51,11 @@ export default function App() {
   const [phase, setPhase] = useState<Phase>({ step: "home" });
   const user = useAuthUser();
   const pool = useReviewPool();
+
+  // localStorage 백업 복원 — SSR HTML과 첫 렌더가 일치하도록 마운트 후에
+  useEffect(() => {
+    hydrateLocal();
+  }, []);
 
   useEffect(() => {
     if (user) {

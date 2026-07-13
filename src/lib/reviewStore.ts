@@ -89,11 +89,78 @@ function buildHistorySnapshot(): HistoryPool {
 function notify() {
   snapshot = buildSnapshot();
   listeners.forEach((fn) => fn());
+  persistLocal();
 }
 
 function notifyHistory() {
   historySnapshot = buildHistorySnapshot();
   historyListeners.forEach((fn) => fn());
+  persistLocal();
+}
+
+/* ── 게스트 localStorage 백업 ─────────────────────────────────────────
+   새로고침해도 복습 풀·오답 기록이 날아가지 않게 로컬에도 남긴다.
+   로그인 유저에게는 오프라인 캐시 역할 (다음 로그인 때 DB와 병합).
+   서버 HTML과 하이드레이션 첫 렌더가 일치해야 하므로 모듈 로드 시점이
+   아니라 App 마운트 후 hydrateLocal() 에서 읽는다. */
+
+const POOL_STORAGE_KEY = "typesee:review-pool:v1";
+const HISTORY_STORAGE_KEY = "typesee:word-history:v1";
+let hydrated = false;
+
+function persistLocal() {
+  // 하이드레이션 전에 쓰면 이전 백업을 빈 풀로 덮어쓸 수 있다
+  if (typeof window === "undefined" || !hydrated) return;
+  try {
+    localStorage.setItem(POOL_STORAGE_KEY, JSON.stringify([...misses]));
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify([...history]));
+  } catch {
+    // 저장 공간 부족 등 — 백업일 뿐이니 앱 동작은 계속한다
+  }
+}
+
+/** App 마운트 직후 1회 — localStorage 백업을 메모리 풀에 병합한다. */
+export function hydrateLocal() {
+  if (typeof window === "undefined" || hydrated) return;
+  hydrated = true;
+  try {
+    const rawPool = localStorage.getItem(POOL_STORAGE_KEY);
+    if (rawPool) {
+      for (const [id, e] of JSON.parse(rawPool) as Array<
+        [string, Partial<Entry>]
+      >) {
+        if (typeof id !== "string") continue;
+        const cur = misses.get(id);
+        const wrongCount = Math.max(
+          cur?.wrongCount ?? 0,
+          Math.max(0, Math.floor(Number(e?.wrongCount) || 0)),
+        );
+        const saved = (cur?.saved ?? false) || e?.saved === true;
+        const rawEase = Number(e?.ease);
+        const storedEase = Number.isFinite(rawEase)
+          ? Math.min(Math.max(rawEase, EASE_MIN), EASE_MASTER)
+          : EASE_INIT;
+        // 로그인 병합과 같은 규칙: 낮은(약한) ease 쪽이 이긴다
+        const ease = Math.min(cur?.ease ?? EASE_INIT, storedEase);
+        if (wrongCount > 0 || saved) misses.set(id, { wrongCount, saved, ease });
+      }
+      if (misses.size > 0) notify();
+    }
+
+    const rawHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
+    if (rawHistory) {
+      for (const [id, count] of JSON.parse(rawHistory) as Array<
+        [string, number]
+      >) {
+        if (typeof id !== "string") continue;
+        const n = Math.max(0, Math.floor(Number(count) || 0));
+        if (n > 0) history.set(id, Math.max(history.get(id) ?? 0, n));
+      }
+      if (history.size > 0) notifyHistory();
+    }
+  } catch {
+    // 손상된 백업은 버린다 — 다음 persistLocal 이 정상 상태로 덮어쓴다
+  }
 }
 
 function warnRemote(err: unknown) {
