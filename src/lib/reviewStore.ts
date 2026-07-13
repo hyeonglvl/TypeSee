@@ -183,6 +183,11 @@ function warnHistoryRemote(err: unknown) {
   );
 }
 
+/** 테스트 전용 — 훅 없이 현재 풀 스냅샷을 읽는다. */
+export function getReviewPool(): ReviewPool {
+  return snapshot;
+}
+
 export function useReviewPool(): ReviewPool {
   return useSyncExternalStore(
     (fn) => {
