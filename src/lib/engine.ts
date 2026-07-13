@@ -7,8 +7,6 @@ import type {
   WordState,
 } from "./types";
 
-const MISTAKES_FOR_HINT = 2;
-const LONG_WORD_LENGTH = 7;
 
 export function createSession(
   words: WordEntry[],
@@ -23,9 +21,7 @@ export function createSession(
         typed: "",
         status: "pending",
         mistakes: 0,
-        mistakeStreak: 0,
         lastMistakeAt: null,
-        hintStage: 0,
         hintedUpTo: 0,
         gaveUp: false,
         fromReview: reviewIds?.has(entry.id) ?? false,
@@ -59,7 +55,6 @@ export function sessionReducer(
         ...replaceActive(state, {
           ...active,
           hintedUpTo: active.entry.word.length,
-          hintStage: 2,
           status: "done",
           mistakes: active.mistakes + 1,
           gaveUp: true,
@@ -87,7 +82,6 @@ export function sessionReducer(
       return replaceActive(state, {
         ...active,
         typed: active.typed.slice(0, -1),
-        mistakeStreak: 0,
       });
     }
 
@@ -136,25 +130,11 @@ export function sessionReducer(
       }
 
       if (!correct) {
-        const mistakeStreak = active.mistakeStreak + 1;
-        const triggerHint =
-          mistakeStreak >= MISTAKES_FOR_HINT && active.hintStage < 2;
-        const hintStage = triggerHint ? active.hintStage + 1 : active.hintStage;
-        const firstReveal = target.length >= LONG_WORD_LENGTH ? 2 : 1;
-        const hintedUpTo = triggerHint
-          ? hintStage >= 2
-            ? target.length
-            : Math.max(active.hintedUpTo, Math.min(target.length, at + firstReveal))
-          : active.hintedUpTo;
-
         return {
           ...replaceActive(state, {
             ...active,
             mistakes: active.mistakes + 1,
-            mistakeStreak: triggerHint ? 0 : mistakeStreak,
             lastMistakeAt: Date.now(),
-            hintStage,
-            hintedUpTo,
           }),
           mistakes: state.mistakes + 1,
           streak: 0,
@@ -170,7 +150,6 @@ export function sessionReducer(
           ...active,
           typed,
           status: done ? "done" : "active",
-          mistakeStreak: 0,
         }),
         correctKeystrokes: state.correctKeystrokes + 1,
         streak,
@@ -209,22 +188,18 @@ export function summarize(state: SessionState, mode: SessionMode): SessionSummar
     elapsedMs === 0 ? 0 : (state.correctKeystrokes / 5 / elapsedMs) * 60000;
 
   const troubleWords = state.words
-    .filter((w) => w.mistakes > 0 || w.hintStage > 0)
+    .filter((w) => w.mistakes > 0)
     .sort((a, b) => b.mistakes - a.mistakes)
     .map((w) => ({
       entry: w.entry,
       mistakes: w.mistakes,
-      hinted: w.hintStage > 0,
+      gaveUp: w.gaveUp,
     }));
 
+  // 정타 통과: 복습 출신 단어를 오타 없이 완주 (Space 정답 보기는 오타로
+  // 세므로 자동 제외) — TS-1 에서 ease 를 올리는 신호가 된다.
   const mastered = state.words
-    .filter(
-      (w) =>
-        w.fromReview &&
-        w.status === "done" &&
-        w.mistakes === 0 &&
-        w.hintStage === 0,
-    )
+    .filter((w) => w.fromReview && w.status === "done" && w.mistakes === 0)
     .map((w) => w.entry);
 
   return {

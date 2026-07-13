@@ -461,7 +461,8 @@ function ExampleLine({
 
 /* Character rendering -------------------------------------------------------
    Typing: full word visible; typed chars light up.
-   Quiz: empty slots; chars appear as typed, hints ghost in after mistakes. */
+   Quiz: empty slots; chars appear as typed. Ghosts show the always-visible
+   first letter and the full answer after Space (정답 보기). */
 
 function WordGlyphs({
   word,

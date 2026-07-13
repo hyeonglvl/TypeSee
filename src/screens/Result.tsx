@@ -154,14 +154,14 @@ function TroubleWords({ summary }: { summary: SessionSummary }) {
     <div className={styles.trouble}>
       <p className={styles.troubleTitle}>다시 볼 단어</p>
       <ul className={styles.troubleList}>
-        {summary.troubleWords.map(({ entry, mistakes, hinted }) => (
+        {summary.troubleWords.map(({ entry, mistakes, gaveUp }) => (
           <li key={entry.id} className={styles.troubleRow}>
             <span className={styles.troubleWord}>{entry.word}</span>
             <span className={styles.troubleMeaning}>
               {entry.senses.map((s) => s.meaning).join(" · ")}
             </span>
             <span className={styles.troubleBadges}>
-              {hinted && <span className={styles.hintBadge}>힌트</span>}
+              {gaveUp && <span className={styles.hintBadge}>정답 봄</span>}
               {mistakes > 0 && (
                 <span className={styles.missBadge}>×{mistakes}</span>
               )}

@@ -46,13 +46,6 @@ describe("sessionReducer — typing 모드", () => {
     expect(s.mistakes).toBe(1);
   });
 
-  it("연속 오타 2회에 힌트가 열린다", () => {
-    let s = createSession([entry("a", "cat")], "typing");
-    s = type(s, "xx");
-    expect(s.words[0].hintStage).toBe(1);
-    expect(s.words[0].hintedUpTo).toBeGreaterThan(0);
-  });
-
   it("마지막 글자를 치면 status 가 done 이 된다", () => {
     let s = createSession([entry("a", "cat")], "typing");
     s = type(s, "cat");
@@ -76,11 +69,21 @@ describe("sessionReducer — quiz 모드", () => {
     expect(s.words[0].status).toBe("done");
     expect(s.words[0].gaveUp).toBe(true);
     expect(s.words[0].mistakes).toBe(1);
+    // 정답 전체가 고스트로 보이도록 공개 경계가 끝까지 열린다
+    expect(s.words[0].hintedUpTo).toBe(3);
+  });
+
+  it("정답 보기로 완료한 단어는 troubleWords 에 gaveUp 으로 표시된다", () => {
+    let s = createSession([entry("a", "cat")], "quiz");
+    s = sessionReducer(s, { type: "REVEAL" });
+    const [trouble] = summarize(s, "quiz").troubleWords;
+    expect(trouble.entry.id).toBe("a");
+    expect(trouble.gaveUp).toBe(true);
   });
 });
 
 describe("summarize — 정타 통과(mastered) 판정", () => {
-  it("복습 출신 + 완주 + 오타 0 + 힌트 0 만 mastered 에 들어간다", () => {
+  it("복습 출신 + 완주 + 오타 0 만 mastered 에 들어간다", () => {
     let s = createSession(
       [entry("a", "cat"), entry("b", "dog")],
       "typing",
