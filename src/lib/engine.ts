@@ -240,6 +240,29 @@ export function summarize(state: SessionState, mode: SessionMode): SessionSummar
   };
 }
 
+/** TS-1: 가중 무작위 추출(비복원) — weight 가 클수록 뽑힐 확률이 높다. */
+export function weightedSample<T>(
+  items: readonly T[],
+  weightOf: (item: T) => number,
+  n: number,
+): T[] {
+  const pool = items.slice();
+  const weights = pool.map((item) => Math.max(weightOf(item), 0.0001));
+  const picked: T[] = [];
+  while (picked.length < n && pool.length > 0) {
+    let r = Math.random() * weights.reduce((a, b) => a + b, 0);
+    let i = 0;
+    for (; i < pool.length - 1; i++) {
+      r -= weights[i];
+      if (r <= 0) break;
+    }
+    picked.push(pool[i]);
+    pool.splice(i, 1);
+    weights.splice(i, 1);
+  }
+  return picked;
+}
+
 export function shuffle<T>(items: readonly T[]): T[] {
   const result = items.slice();
   for (let i = result.length - 1; i > 0; i--) {

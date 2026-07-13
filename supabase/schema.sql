@@ -6,13 +6,17 @@ create table if not exists public.missed_words (
   word_id text not null,
   wrong_count integer not null default 1,
   saved boolean not null default false,
+  -- TS-1 ease factor: 낮을수록 약한 단어라 세션에 더 자주 등장 (범위 1.3~3.0)
+  ease_factor real not null default 2.5,
   last_missed_at timestamptz not null default now(),
   primary key (user_id, word_id)
 );
 
--- 기존 테이블에 saved 컬럼이 없다면 추가 (기존 배포 마이그레이션용)
+-- 기존 테이블에 saved / ease_factor 컬럼이 없다면 추가 (기존 배포 마이그레이션용)
 alter table public.missed_words
   add column if not exists saved boolean not null default false;
+alter table public.missed_words
+  add column if not exists ease_factor real not null default 2.5;
 
 alter table public.missed_words enable row level security;
 
