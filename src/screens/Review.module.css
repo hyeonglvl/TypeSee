@@ -24,9 +24,11 @@
 }
 
 .title {
+  font-family: var(--font-display);
   font-size: 34px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
 .titleCount {
@@ -93,6 +95,7 @@
   border-radius: var(--radius-m);
   background: var(--surface);
   border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-card);
 }
 
 .row {
@@ -104,7 +107,7 @@
 }
 
 .row + .row {
-  border-top: 1px solid var(--hairline);
+  border-top: 1px dashed var(--hairline);
 }
 
 .word {
@@ -112,6 +115,7 @@
   font-size: 15px;
   font-weight: 500;
   min-width: 110px;
+  color: var(--ink);
 }
 
 .meaning {
@@ -139,8 +143,9 @@
   font-weight: 600;
   padding: 3px 9px;
   border-radius: 999px;
-  background: var(--accent-dim);
-  color: var(--accent);
+  background: var(--highlight-dim);
+  border: 1px solid rgba(226, 178, 14, 0.35);
+  color: #6f5500;
   transition: opacity var(--dur-fast) var(--ease-out);
 }
 
@@ -199,16 +204,19 @@
   font-size: 15px;
   font-weight: 600;
   transition: transform var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .primaryButton {
-  background: var(--accent);
-  color: #06241c;
+  background: var(--ink);
+  color: var(--canvas);
+  box-shadow: var(--shadow-card);
 }
 
 .primaryButton:hover {
   transform: translateY(-1px);
+  box-shadow: var(--shadow-pop);
 }
 
 .primaryButton:active {
@@ -217,11 +225,12 @@
 
 .ghostButton {
   border: 1px solid var(--hairline-strong);
+  background: var(--surface);
   color: var(--ink-2);
 }
 
 .ghostButton:hover {
-  background: var(--surface);
+  background: var(--surface-raised);
   color: var(--ink);
 }
 
@@ -232,7 +241,7 @@
 }
 
 .footerDivider {
-  color: var(--hairline-strong);
+  color: var(--ink-3);
   font-size: 13px;
 }
 
@@ -256,16 +265,19 @@
   height: 25px;
   padding: 0 6px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: #2c2d33;
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface-raised);
+  box-shadow: 0 1.5px 0 var(--hairline-strong);
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 700;
-  color: var(--ink);
+  color: var(--ink-2);
 }
 
+/* kbd sitting on the dark ink button */
 .kbdOnAccent {
-  border-color: rgba(255, 255, 255, 0.14);
-  background: #2c2d33;
-  color: var(--ink);
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 1.5px 0 rgba(255, 255, 255, 0.25);
+  color: var(--canvas);
 }

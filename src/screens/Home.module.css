@@ -27,7 +27,8 @@
   padding: 7px 14px;
   border-radius: 999px;
   background: var(--accent-dim);
-  color: var(--accent);
+  border: 1px solid rgba(43, 79, 216, 0.2);
+  color: var(--accent-deep);
   font-size: 13px;
   font-weight: 600;
 }
@@ -36,17 +37,22 @@
   padding: 7px 16px;
   border-radius: 999px;
   border: 1px solid var(--hairline-strong);
+  background: var(--surface);
   font-size: 13px;
   font-weight: 500;
   color: var(--ink-2);
   transition: background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .accountButton:hover {
   background: var(--surface-raised);
   color: var(--ink);
+  box-shadow: var(--shadow-card);
 }
+
+/* Hero --------------------------------------------------------------------- */
 
 .hero {
   text-align: center;
@@ -56,14 +62,17 @@
 }
 
 .wordmark {
-  font-size: clamp(52px, 8vw, 84px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-family: var(--font-display);
+  font-size: clamp(54px, 8vw, 86px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
   line-height: 1;
-  background: linear-gradient(118deg, var(--ice) 8%, var(--accent) 82%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--ink);
+}
+
+.wordmarkAccent {
+  color: var(--accent);
+  font-style: italic;
 }
 
 .tagline {
@@ -78,7 +87,7 @@
   display: flex;
   padding: 4px;
   border-radius: 999px;
-  background: var(--surface);
+  background: rgba(33, 29, 23, 0.05);
   border: 1px solid var(--hairline);
 }
 
@@ -102,6 +111,7 @@
   border-radius: 999px;
   background: var(--surface-raised);
   border: 1px solid var(--hairline-strong);
+  box-shadow: 0 1px 3px rgba(33, 29, 23, 0.12);
 }
 
 .segmentLabel {
@@ -138,7 +148,7 @@
 
 .stepper:hover {
   color: var(--ink);
-  background: var(--surface-raised);
+  background: rgba(33, 29, 23, 0.07);
 }
 
 /* Mode cards -------------------------------------------------------------- */
@@ -161,23 +171,27 @@
   border-radius: var(--radius-l);
   background: var(--surface);
   border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-card);
   text-align: left;
   transition: border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .modeCard:hover:not(:disabled) {
   background: var(--surface-raised);
   border-color: var(--hairline-strong);
+  box-shadow: var(--shadow-pop);
 }
 
 .reviewCard:disabled {
-  opacity: 0.45;
+  opacity: 0.5;
   cursor: default;
+  box-shadow: none;
 }
 
 .reviewCard:not(:disabled) {
-  border-color: rgba(95, 232, 200, 0.22);
+  border-color: rgba(43, 79, 216, 0.3);
 }
 
 .reviewCard:not(:disabled) .modeIcon {
@@ -193,8 +207,8 @@
   padding: 0 8px;
   margin-left: 9px;
   border-radius: 999px;
-  background: var(--accent-dim);
-  color: var(--accent);
+  background: var(--highlight);
+  color: var(--ink);
   font-size: 13px;
   font-weight: 700;
   vertical-align: 3px;
@@ -212,8 +226,9 @@
 
 .modeTitle {
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.02em;
+  color: var(--ink);
 }
 
 .modeDesc {
@@ -227,7 +242,7 @@
   right: 20px;
 }
 
-/* kbd -------------------------------------------------------------------- */
+/* kbd — keycap look -------------------------------------------------------- */
 
 .screen kbd {
   display: inline-flex;
@@ -238,7 +253,8 @@
   padding: 0 6px;
   border-radius: 6px;
   border: 1px solid var(--hairline-strong);
-  background: var(--surface);
+  background: var(--surface-raised);
+  box-shadow: 0 1.5px 0 var(--hairline-strong);
   font-family: var(--font-sans);
   font-size: 12px;
   color: var(--ink-2);

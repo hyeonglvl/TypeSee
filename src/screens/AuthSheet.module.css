@@ -4,9 +4,9 @@
   z-index: 100;
   display: grid;
   place-items: center;
-  background: rgba(4, 5, 8, 0.6);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(38, 33, 26, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .sheet {
@@ -14,18 +14,20 @@
   width: min(400px, calc(100vw - 40px));
   padding: 36px 34px 32px;
   border-radius: var(--radius-l);
-  background: #14161d;
-  border: 1px solid var(--hairline-strong);
-  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.7);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-pop);
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
 .title {
+  font-family: var(--font-display);
   font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
 .subtitle {
@@ -54,11 +56,13 @@
   font-weight: 500;
   color: var(--ink);
   transition: background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .providerButton:hover {
   background: var(--surface-raised);
+  box-shadow: var(--shadow-card);
 }
 
 .divider {
@@ -83,7 +87,7 @@
   display: flex;
   padding: 4px;
   border-radius: 12px;
-  background: var(--surface);
+  background: rgba(33, 29, 23, 0.05);
   border: 1px solid var(--hairline);
 }
 
@@ -107,6 +111,7 @@
   border-radius: 9px;
   background: var(--surface-raised);
   border: 1px solid var(--hairline-strong);
+  box-shadow: 0 1px 3px rgba(33, 29, 23, 0.12);
 }
 
 .modeLabel {
@@ -149,23 +154,26 @@
 
 .notice {
   font-size: 13px;
-  color: var(--accent);
+  color: var(--accent-deep);
 }
 
 .submit {
   margin-top: 4px;
   padding: 13px 0;
   border-radius: 999px;
-  background: var(--accent);
-  color: #06241c;
+  background: var(--ink);
+  color: var(--canvas);
   font-size: 15px;
   font-weight: 600;
+  box-shadow: var(--shadow-card);
   transition: transform var(--dur-fast) var(--ease-out),
-    opacity var(--dur-fast) var(--ease-out);
+    opacity var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .submit:hover {
   transform: translateY(-1px);
+  box-shadow: var(--shadow-pop);
 }
 
 .submit:active {
@@ -194,6 +202,6 @@
 }
 
 .close:hover {
-  background: var(--surface-raised);
+  background: rgba(33, 29, 23, 0.06);
   color: var(--ink);
 }
