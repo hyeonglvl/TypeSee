@@ -7,8 +7,6 @@ import type {
   WordState,
 } from "./types";
 
-const MISTAKES_FOR_HINT = 2;
-const LONG_WORD_LENGTH = 7;
 
 export function createSession(
   words: WordEntry[],
@@ -23,9 +21,7 @@ export function createSession(
         typed: "",
         status: "pending",
         mistakes: 0,
-        mistakeStreak: 0,
         lastMistakeAt: null,
-        hintStage: 0,
         hintedUpTo: 0,
         gaveUp: false,
         fromReview: reviewIds?.has(entry.id) ?? false,
@@ -37,7 +33,6 @@ export function createSession(
     mistakes: 0,
     correctKeystrokes: 0,
     streak: 0,
-    bestStreak: 0,
     lastCompletedId: null,
   };
 }
@@ -59,7 +54,6 @@ export function sessionReducer(
         ...replaceActive(state, {
           ...active,
           hintedUpTo: active.entry.word.length,
-          hintStage: 2,
           status: "done",
           mistakes: active.mistakes + 1,
           gaveUp: true,
@@ -87,7 +81,6 @@ export function sessionReducer(
       return replaceActive(state, {
         ...active,
         typed: active.typed.slice(0, -1),
-        mistakeStreak: 0,
       });
     }
 
@@ -130,31 +123,16 @@ export function sessionReducer(
             : state.correctKeystrokes,
           mistakes: correct ? state.mistakes : state.mistakes + 1,
           streak,
-          bestStreak: Math.max(state.bestStreak, streak),
           lastCompletedId: done ? active.entry.id : state.lastCompletedId,
         };
       }
 
       if (!correct) {
-        const mistakeStreak = active.mistakeStreak + 1;
-        const triggerHint =
-          mistakeStreak >= MISTAKES_FOR_HINT && active.hintStage < 2;
-        const hintStage = triggerHint ? active.hintStage + 1 : active.hintStage;
-        const firstReveal = target.length >= LONG_WORD_LENGTH ? 2 : 1;
-        const hintedUpTo = triggerHint
-          ? hintStage >= 2
-            ? target.length
-            : Math.max(active.hintedUpTo, Math.min(target.length, at + firstReveal))
-          : active.hintedUpTo;
-
         return {
           ...replaceActive(state, {
             ...active,
             mistakes: active.mistakes + 1,
-            mistakeStreak: triggerHint ? 0 : mistakeStreak,
             lastMistakeAt: Date.now(),
-            hintStage,
-            hintedUpTo,
           }),
           mistakes: state.mistakes + 1,
           streak: 0,
@@ -170,11 +148,9 @@ export function sessionReducer(
           ...active,
           typed,
           status: done ? "done" : "active",
-          mistakeStreak: 0,
         }),
         correctKeystrokes: state.correctKeystrokes + 1,
         streak,
-        bestStreak: Math.max(state.bestStreak, streak),
         lastCompletedId: done ? active.entry.id : state.lastCompletedId,
       };
     }
@@ -187,7 +163,7 @@ function replaceActive(state: SessionState, next: WordState): SessionState {
   return { ...state, words };
 }
 
-export function summarize(state: SessionState, mode: SessionMode): SessionSummary {
+export function summarize(state: SessionState): SessionSummary {
   const wrongWords = state.words.filter((w) => w.mistakes > 0).length;
   const wrongRate =
     state.words.length === 0 ? 0 : wrongWords / state.words.length;
@@ -209,26 +185,22 @@ export function summarize(state: SessionState, mode: SessionMode): SessionSummar
     elapsedMs === 0 ? 0 : (state.correctKeystrokes / 5 / elapsedMs) * 60000;
 
   const troubleWords = state.words
-    .filter((w) => w.mistakes > 0 || w.hintStage > 0)
+    .filter((w) => w.mistakes > 0)
     .sort((a, b) => b.mistakes - a.mistakes)
     .map((w) => ({
       entry: w.entry,
       mistakes: w.mistakes,
-      hinted: w.hintStage > 0,
+      gaveUp: w.gaveUp,
     }));
 
+  // 정타 통과: 복습 출신 단어를 오타 없이 완주 (Space 정답 보기는 오타로
+  // 세므로 자동 제외) — TS-1 에서 ease 를 올리는 신호가 된다.
   const mastered = state.words
-    .filter(
-      (w) =>
-        w.fromReview &&
-        w.status === "done" &&
-        w.mistakes === 0 &&
-        w.hintStage === 0,
-    )
+    .filter((w) => w.fromReview && w.status === "done" && w.mistakes === 0)
     .map((w) => w.entry);
 
   return {
-    mode,
+    mode: state.mode,
     totalWords: state.words.length,
     wordsCompleted: state.words.filter((w) => w.status === "done").length,
     wrongRate,
@@ -238,6 +210,29 @@ export function summarize(state: SessionState, mode: SessionMode): SessionSummar
     troubleWords,
     mastered,
   };
+}
+
+/** TS-1: 가중 무작위 추출(비복원) — weight 가 클수록 뽑힐 확률이 높다. */
+export function weightedSample<T>(
+  items: readonly T[],
+  weightOf: (item: T) => number,
+  n: number,
+): T[] {
+  const pool = items.slice();
+  const weights = pool.map((item) => Math.max(weightOf(item), 0.0001));
+  const picked: T[] = [];
+  while (picked.length < n && pool.length > 0) {
+    let r = Math.random() * weights.reduce((a, b) => a + b, 0);
+    let i = 0;
+    for (; i < pool.length - 1; i++) {
+      r -= weights[i];
+      if (r <= 0) break;
+    }
+    picked.push(pool[i]);
+    pool.splice(i, 1);
+    weights.splice(i, 1);
+  }
+  return picked;
 }
 
 export function shuffle<T>(items: readonly T[]): T[] {

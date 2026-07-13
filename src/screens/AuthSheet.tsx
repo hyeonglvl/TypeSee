@@ -27,7 +27,8 @@ export default function AuthSheet({ onClose }: Props) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
-  // OAuth 제공자가 아직 미설정 — 활성화되면 signInWithProvider(auth.ts)로 교체
+  // OAuth 제공자가 아직 미설정 — 활성화 시 auth.ts에 signInWithOAuth 래퍼를
+  // 추가하고 이 핸들러를 교체 (과거 구현은 git 히스토리의 signInWithProvider 참고)
   const handleProvider = (label: string) => {
     setError(null);
     setNotice(`${label} 로그인은 추후 서비스 예정이에요`);

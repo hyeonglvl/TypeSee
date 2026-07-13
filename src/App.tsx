@@ -5,11 +5,13 @@ import SessionScreen from "@/screens/Session";
 import ResultScreen from "@/screens/Result";
 import ReviewScreen from "@/screens/Review";
 import { STARTER_WORDS } from "@/data/words";
-import { shuffle } from "@/lib/engine";
+import { shuffle, weightedSample } from "@/lib/engine";
 import { useAuthUser } from "@/lib/auth";
 import {
+  appearanceWeight,
   attachUser,
   detachUser,
+  hydrateLocal,
   recordSession,
   useReviewPool,
 } from "@/lib/reviewStore";
@@ -50,6 +52,11 @@ export default function App() {
   const user = useAuthUser();
   const pool = useReviewPool();
 
+  // localStorage 백업 복원 — SSR HTML과 첫 렌더가 일치하도록 마운트 후에
+  useEffect(() => {
+    hydrateLocal();
+  }, []);
+
   useEffect(() => {
     if (user) {
       attachUser(user.id);
@@ -62,9 +69,15 @@ export default function App() {
 
   const startNormal = useCallback(
     (mode: SessionMode, count: number) => {
-      const fromPool = shuffle(
-        STARTER_WORDS.filter((w) => pool.ids.has(w.id)),
-      ).slice(0, Math.floor(count / REVIEW_MIX_RATIO));
+      // TS-1: 복습 몫은 ease 가 낮은(자주 틀리는) 단어일수록 잘 뽑히고,
+      // 직전 세션에서 막 정타 통과한 단어는 한 세션 쉰다.
+      const fromPool = weightedSample(
+        STARTER_WORDS.filter(
+          (w) => pool.ids.has(w.id) && !pool.inCooldown(w.id),
+        ),
+        (w) => appearanceWeight(pool.easeOf(w.id)),
+        Math.floor(count / REVIEW_MIX_RATIO),
+      );
       const pickedIds = new Set(fromPool.map((w) => w.id));
       const fresh = shuffle(
         STARTER_WORDS.filter((w) => !pickedIds.has(w.id)),

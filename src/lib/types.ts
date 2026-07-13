@@ -22,9 +22,8 @@ export interface WordState {
   typed: string;
   status: "pending" | "active" | "done";
   mistakes: number;
-  mistakeStreak: number;
   lastMistakeAt: number | null;
-  hintStage: number;
+  /** 글자 공개 경계 — 퀴즈 첫 글자 고스트와 Space 정답 보기가 사용한다. */
   hintedUpTo: number;
   /** Gave up via Space in quiz mode — completed as a miss, held longer so
    *  the revealed spelling can actually be read before advancing. */
@@ -42,7 +41,6 @@ export interface SessionState {
   mistakes: number;
   correctKeystrokes: number;
   streak: number;
-  bestStreak: number;
   lastCompletedId: string | null;
 }
 
@@ -66,7 +64,7 @@ export interface SessionSummary {
   wpm: number;
   /** Longest run of consecutive words typed with zero mistakes. */
   bestStreak: number;
-  troubleWords: Array<{ entry: WordEntry; mistakes: number; hinted: boolean }>;
+  troubleWords: Array<{ entry: WordEntry; mistakes: number; gaveUp: boolean }>;
   /** Review words cleared without a single mistake or hint this session. */
   mastered: WordEntry[];
 } 
