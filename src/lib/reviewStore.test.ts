@@ -1,14 +1,18 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   EASE_INIT,
   EASE_MASTER,
   EASE_MIN,
+  TIME_WEIGHT_MAX,
+  TIME_WEIGHT_SATURATION_DAYS,
   appearanceWeight,
   clearAll,
   clearHistoryAll,
   getReviewPool,
   recordSession,
   saveWord,
+  sessionWeight,
+  timeWeight,
 } from "./reviewStore";
 
 /* getSupabase 는 env 가 없으면 null 을 반환하고 activeUserId 도 없으므로
@@ -119,5 +123,66 @@ describe("appearanceWeight", () => {
 
   it("졸업 직전 단어도 0 이 아닌 가중치를 가진다", () => {
     expect(appearanceWeight(EASE_MASTER)).toBeGreaterThan(0);
+  });
+});
+
+describe("TS-1 — 시간 가중치", () => {
+  const DAY = 86_400_000;
+  const now = Date.parse("2026-07-14T00:00:00Z");
+
+  it("방금 본 단어와 미상(null)은 중립(1)이다", () => {
+    expect(timeWeight(now, now)).toBe(1);
+    expect(timeWeight(null, now)).toBe(1);
+  });
+
+  it("오래 안 볼수록 단조 증가한다", () => {
+    const d1 = timeWeight(now - 1 * DAY, now);
+    const d3 = timeWeight(now - 3 * DAY, now);
+    const d7 = timeWeight(now - 7 * DAY, now);
+    expect(d1).toBeGreaterThan(1);
+    expect(d3).toBeGreaterThan(d1);
+    expect(d7).toBeGreaterThan(d3);
+  });
+
+  it("포화 일수 이후에는 TIME_WEIGHT_MAX 로 고정된다", () => {
+    const sat = timeWeight(now - TIME_WEIGHT_SATURATION_DAYS * DAY, now);
+    expect(sat).toBe(TIME_WEIGHT_MAX);
+    expect(timeWeight(now - 30 * DAY, now)).toBe(TIME_WEIGHT_MAX);
+  });
+
+  it("미래 시각(시계 역행)에도 1 밑으로 내려가지 않는다", () => {
+    expect(timeWeight(now + DAY, now)).toBe(1);
+  });
+
+  it("일주일 묵은 마스터 직전 단어가 방금 틀린 약한 단어를 넘어설 수 없다", () => {
+    const staleStrong = sessionWeight(EASE_MASTER, now - 30 * DAY, now);
+    const freshWeak = sessionWeight(EASE_MIN, now, now);
+    expect(freshWeak).toBeGreaterThan(staleStrong);
+  });
+
+  describe("lastSeenAt 스탬프", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(now);
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("오답·정타 통과·저장 모두 lastSeenAt 을 찍는다", () => {
+      recordSession([{ id: "w", count: 1 }], []);
+      expect(getReviewPool().lastSeenAtOf("w")).toBe(now);
+
+      vi.setSystemTime(now + DAY);
+      recordSession([], ["w"]);
+      expect(getReviewPool().lastSeenAtOf("w")).toBe(now + DAY);
+
+      saveWord("s");
+      expect(getReviewPool().lastSeenAtOf("s")).toBe(now + DAY);
+    });
+
+    it("풀에 없는 단어는 null 이다", () => {
+      expect(getReviewPool().lastSeenAtOf("ghost")).toBeNull();
+    });
   });
 });

@@ -8,6 +8,8 @@ create table if not exists public.missed_words (
   saved boolean not null default false,
   -- TS-1 ease factor: 낮을수록 약한 단어라 세션에 더 자주 등장 (범위 1.3~3.0)
   ease_factor real not null default 2.5,
+  -- TS-1 시간 가중치: 세션에서 마지막으로 실제 학습한 시각 (null = 미상)
+  last_seen_at timestamptz,
   last_missed_at timestamptz not null default now(),
   primary key (user_id, word_id)
 );
@@ -17,6 +19,9 @@ alter table public.missed_words
   add column if not exists saved boolean not null default false;
 alter table public.missed_words
   add column if not exists ease_factor real not null default 2.5;
+-- TS-1 시간 가중치: 세션에서 마지막으로 실제 학습한 시각 (null = 미상)
+alter table public.missed_words
+  add column if not exists last_seen_at timestamptz;
 
 alter table public.missed_words enable row level security;
 

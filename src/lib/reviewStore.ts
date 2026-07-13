@@ -15,6 +15,9 @@ interface Entry {
   saved: boolean;
   /** TS-1 ease factor — 낮을수록 약한 단어라 세션에 더 자주 등장한다. */
   ease: number;
+  /** 세션에서 마지막으로 실제 학습(오답·정타 통과·저장)한 시각(ms).
+   *  null = 미상(구버전 백업) — 시간 가중치는 중립(1)으로 본다. */
+  lastSeenAt: number | null;
 }
 
 /** TS-1 파라미터: 오타는 ease 를 내리고 정타 통과는 올린다.
@@ -31,12 +34,61 @@ export function appearanceWeight(ease: number): number {
   return gap * gap;
 }
 
+/** TS-1 시간 가중치: 오래 안 본 단어일수록 출현 확률을 올려, 날짜 스케줄
+ *  없이 간격 효과(spacing effect)를 근사한다. 1(방금 봄·미상)에서
+ *  TIME_WEIGHT_SATURATION_DAYS 에 걸쳐 TIME_WEIGHT_MAX 까지 선형 증가.
+ *  상한 3× 근거: appearanceWeight 는 0.04(ease 3.0)~3.61(ease 1.3) 범위라,
+ *  일주일 묵은 마스터 직전 단어(0.04×3)가 방금 틀린 약한 단어(3.61×1)를
+ *  넘어설 수 없다. */
+export const TIME_WEIGHT_MAX = 3;
+export const TIME_WEIGHT_SATURATION_DAYS = 7;
+const DAY_MS = 86_400_000;
+
+export function timeWeight(lastSeenAt: number | null, now: number): number {
+  if (lastSeenAt === null) return 1;
+  const days = Math.max(0, now - lastSeenAt) / DAY_MS;
+  return (
+    1 +
+    (TIME_WEIGHT_MAX - 1) * Math.min(1, days / TIME_WEIGHT_SATURATION_DAYS)
+  );
+}
+
+/** 세션 추첨 최종 가중치 = ease 가중치 × 시간 가중치. */
+export function sessionWeight(
+  ease: number,
+  lastSeenAt: number | null,
+  now: number,
+): number {
+  return appearanceWeight(ease) * timeWeight(lastSeenAt, now);
+}
+
+/** 두 시각 중 더 최근 값 — 한쪽만 있으면 그 값, 둘 다 없으면 null. */
+function laterOf(a: number | null, b: number | null): number | null {
+  if (a === null) return b;
+  if (b === null) return a;
+  return Math.max(a, b);
+}
+
+/** ms epoch → DB 저장용 ISO 문자열 (미상이면 null). */
+function toIso(ms: number | null | undefined): string | null {
+  return typeof ms === "number" ? new Date(ms).toISOString() : null;
+}
+
+/** DB의 ISO 문자열 → ms epoch (없거나 손상이면 null). */
+function fromIso(iso: string | null | undefined): number | null {
+  if (!iso) return null;
+  const ms = Date.parse(iso);
+  return Number.isFinite(ms) ? ms : null;
+}
+
 export interface ReviewPool {
   count: number;
   ids: ReadonlySet<string>;
   wrongCountOf: (id: string) => number;
   isSaved: (id: string) => boolean;
   easeOf: (id: string) => number;
+  /** 마지막으로 실제 학습한 시각(ms) — 시간 가중치용, 미상이면 null. */
+  lastSeenAtOf: (id: string) => number | null;
   /** 직전 세션에서 정타로 통과해 바로 다음 일반 세션은 쉬는 단어. */
   inCooldown: (id: string) => boolean;
 }
@@ -73,6 +125,7 @@ function buildSnapshot(): ReviewPool {
     wrongCountOf: (id) => frozen.get(id)?.wrongCount ?? 0,
     isSaved: (id) => frozen.get(id)?.saved ?? false,
     easeOf: (id) => frozen.get(id)?.ease ?? EASE_INIT,
+    lastSeenAtOf: (id) => frozen.get(id)?.lastSeenAt ?? null,
     inCooldown: (id) => frozenCooldown.has(id),
   };
 }
@@ -142,7 +195,13 @@ export function hydrateLocal() {
           : EASE_INIT;
         // 로그인 병합과 같은 규칙: 낮은(약한) ease 쪽이 이긴다
         const ease = Math.min(cur?.ease ?? EASE_INIT, storedEase);
-        if (wrongCount > 0 || saved) misses.set(id, { wrongCount, saved, ease });
+        const rawSeen = Number(e?.lastSeenAt);
+        const storedSeen =
+          Number.isFinite(rawSeen) && rawSeen > 0 ? rawSeen : null;
+        // 더 최근에 본 쪽이 이긴다
+        const lastSeenAt = laterOf(cur?.lastSeenAt ?? null, storedSeen);
+        if (wrongCount > 0 || saved)
+          misses.set(id, { wrongCount, saved, ease, lastSeenAt });
       }
       if (misses.size > 0) notify();
     }
@@ -215,6 +274,7 @@ export function recordSession(
   passed: string[],
 ) {
   if (missed.length === 0 && passed.length === 0) return;
+  const now = Date.now();
 
   for (const { id, count } of missed) {
     const cur = misses.get(id);
@@ -222,6 +282,7 @@ export function recordSession(
       wrongCount: (cur?.wrongCount ?? 0) + count,
       saved: cur?.saved ?? false,
       ease: Math.max(EASE_MIN, (cur?.ease ?? EASE_INIT) - EASE_WRONG_STEP * count),
+      lastSeenAt: now,
     });
     history.set(id, (history.get(id) ?? 0) + count);
   }
@@ -230,15 +291,24 @@ export function recordSession(
   // even once mastered — only its miss-driven presence is cleared (ease is
   // reset so the bookmark isn't starved by its own near-zero weight).
   // History is untouched either way.
+  // lastSeenAt=now(시간 가중치 1) + 쿨다운으로 통과 단어는 다음 세션에서
+  // 이중으로 억제되는데, 방금 맞힌 단어를 곧바로 또 보여주지 않으려는
+  // 의도된 동작이다.
   for (const id of passed) {
     const cur = misses.get(id);
     if (!cur) continue;
     const ease = cur.ease + EASE_RIGHT_STEP;
     if (ease >= EASE_MASTER) {
-      if (cur.saved) misses.set(id, { wrongCount: 0, saved: true, ease: EASE_INIT });
+      if (cur.saved)
+        misses.set(id, {
+          wrongCount: 0,
+          saved: true,
+          ease: EASE_INIT,
+          lastSeenAt: now,
+        });
       else misses.delete(id);
     } else {
-      misses.set(id, { ...cur, ease });
+      misses.set(id, { ...cur, ease, lastSeenAt: now });
     }
   }
 
@@ -264,6 +334,7 @@ export function recordSession(
       wrong_count: misses.get(id)?.wrongCount ?? 1,
       saved: misses.get(id)?.saved ?? false,
       ease_factor: misses.get(id)?.ease ?? EASE_INIT,
+      last_seen_at: toIso(misses.get(id)?.lastSeenAt),
       last_missed_at: new Date().toISOString(),
     }));
     sb.from("missed_words")
@@ -299,6 +370,7 @@ export function saveWord(id: string) {
     wrongCount: cur?.wrongCount ?? 0,
     saved: true,
     ease: cur?.ease ?? EASE_INIT,
+    lastSeenAt: Date.now(), // 저장하는 순간 화면에 떠 있는 단어다
   });
   notify();
 
@@ -314,6 +386,7 @@ export function saveWord(id: string) {
           wrong_count: entry.wrongCount,
           saved: true,
           ease_factor: entry.ease,
+          last_seen_at: toIso(entry.lastSeenAt),
           last_missed_at: new Date().toISOString(),
         },
       ],
@@ -341,7 +414,7 @@ export function clearWrong() {
   const toKeep: string[] = [];
   for (const [id, entry] of misses) {
     if (entry.saved) {
-      misses.set(id, { wrongCount: 0, saved: true, ease: entry.ease });
+      misses.set(id, { ...entry, wrongCount: 0 });
       toKeep.push(id);
     } else {
       misses.delete(id);
@@ -369,6 +442,7 @@ export function clearWrong() {
       wrong_count: 0,
       saved: true,
       ease_factor: misses.get(word_id)?.ease ?? EASE_INIT,
+      last_seen_at: toIso(misses.get(word_id)?.lastSeenAt),
       last_missed_at: new Date().toISOString(),
     }));
     sb.from("missed_words")
@@ -384,7 +458,7 @@ export function clearSaved() {
   for (const [id, entry] of misses) {
     if (!entry.saved) continue;
     if (entry.wrongCount > 0) {
-      misses.set(id, { wrongCount: entry.wrongCount, saved: false, ease: entry.ease });
+      misses.set(id, { ...entry, saved: false });
       toKeep.push(id);
     } else {
       misses.delete(id);
@@ -412,6 +486,7 @@ export function clearSaved() {
       wrong_count: misses.get(word_id)?.wrongCount ?? 1,
       saved: false,
       ease_factor: misses.get(word_id)?.ease ?? EASE_INIT,
+      last_seen_at: toIso(misses.get(word_id)?.lastSeenAt),
       last_missed_at: new Date().toISOString(),
     }));
     sb.from("missed_words")
@@ -429,7 +504,7 @@ export function clearWrongWord(id: string) {
 
   if (cur.saved) {
     if (cur.wrongCount === 0) return;
-    misses.set(id, { wrongCount: 0, saved: true, ease: cur.ease });
+    misses.set(id, { ...cur, wrongCount: 0 });
     notify();
     if (sb && uid) {
       sb.from("missed_words")
@@ -441,6 +516,7 @@ export function clearWrongWord(id: string) {
               wrong_count: 0,
               saved: true,
               ease_factor: cur.ease,
+              last_seen_at: toIso(cur.lastSeenAt),
               last_missed_at: new Date().toISOString(),
             },
           ],
@@ -470,7 +546,7 @@ export function clearSavedWord(id: string) {
   const uid = activeUserId;
 
   if (cur.wrongCount > 0) {
-    misses.set(id, { wrongCount: cur.wrongCount, saved: false, ease: cur.ease });
+    misses.set(id, { ...cur, saved: false });
     notify();
     if (sb && uid) {
       sb.from("missed_words")
@@ -482,6 +558,7 @@ export function clearSavedWord(id: string) {
               wrong_count: cur.wrongCount,
               saved: false,
               ease_factor: cur.ease,
+              last_seen_at: toIso(cur.lastSeenAt),
               last_missed_at: new Date().toISOString(),
             },
           ],
@@ -538,43 +615,55 @@ async function syncMissedWordsOnLogin(sb: SupabaseClient, userId: string) {
     wrong_count: number;
     saved?: boolean;
     ease_factor?: number;
+    last_seen_at?: string | null;
   }>;
 
-  // Newer columns (`saved`, `ease_factor`) may be missing on a DB that
-  // predates their migrations (see supabase/schema.sql). Fall back
+  // Newer columns (`saved`, `ease_factor`, `last_seen_at`) may be missing on
+  // a DB that predates their migrations (see supabase/schema.sql). Fall back
   // progressively so the pool still loads instead of wiping out on every
   // refresh; the missing fields just won't persist remotely until the
   // migration runs.
-  const withEase = await sb
+  const withTimes = await sb
     .from("missed_words")
-    .select("word_id, wrong_count, saved, ease_factor")
+    .select("word_id, wrong_count, saved, ease_factor, last_seen_at")
     .eq("user_id", userId);
 
-  if (!withEase.error) {
-    rows = withEase.data ?? [];
-  } else if (withEase.error.code === "42703") {
-    const withSaved = await sb
+  if (!withTimes.error) {
+    rows = withTimes.data ?? [];
+  } else if (withTimes.error.code === "42703") {
+    const withEase = await sb
       .from("missed_words")
-      .select("word_id, wrong_count, saved")
+      .select("word_id, wrong_count, saved, ease_factor")
       .eq("user_id", userId);
-    if (!withSaved.error) {
-      rows = withSaved.data ?? [];
-    } else if (withSaved.error.code === "42703") {
-      const legacy = await sb
+    if (!withEase.error) {
+      rows = withEase.data ?? [];
+    } else if (withEase.error.code === "42703") {
+      const withSaved = await sb
         .from("missed_words")
-        .select("word_id, wrong_count")
+        .select("word_id, wrong_count, saved")
         .eq("user_id", userId);
-      if (legacy.error) {
-        warnRemote(legacy.error);
+      if (!withSaved.error) {
+        rows = withSaved.data ?? [];
+      } else if (withSaved.error.code === "42703") {
+        const legacy = await sb
+          .from("missed_words")
+          .select("word_id, wrong_count")
+          .eq("user_id", userId);
+        if (legacy.error) {
+          warnRemote(legacy.error);
+          return;
+        }
+        rows = legacy.data ?? [];
+      } else {
+        warnRemote(withSaved.error);
         return;
       }
-      rows = legacy.data ?? [];
     } else {
-      warnRemote(withSaved.error);
+      warnRemote(withEase.error);
       return;
     }
   } else {
-    warnRemote(withEase.error);
+    warnRemote(withTimes.error);
     return;
   }
 
@@ -585,6 +674,8 @@ async function syncMissedWordsOnLogin(sb: SupabaseClient, userId: string) {
       saved: (cur?.saved ?? false) || Boolean(row.saved),
       // 낮은(약한) ease 쪽이 이긴다 — 덜 외운 상태로 보는 게 안전하다.
       ease: Math.min(cur?.ease ?? EASE_INIT, row.ease_factor ?? EASE_INIT),
+      // 더 최근에 본 쪽이 이긴다
+      lastSeenAt: laterOf(cur?.lastSeenAt ?? null, fromIso(row.last_seen_at)),
     });
   }
   notify();
@@ -596,6 +687,8 @@ async function syncMissedWordsOnLogin(sb: SupabaseClient, userId: string) {
       wrong_count: entry.wrongCount,
       saved: entry.saved,
       ease_factor: entry.ease,
+      // 재푸시는 동기화일 뿐 학습이 아니다 — 저장된 시각을 그대로 유지
+      last_seen_at: toIso(entry.lastSeenAt),
       last_missed_at: new Date().toISOString(),
     }));
     const { error: upErr } = await sb

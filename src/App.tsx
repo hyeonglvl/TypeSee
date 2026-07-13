@@ -8,11 +8,11 @@ import { STARTER_WORDS } from "@/data/words";
 import { shuffle, weightedSample } from "@/lib/engine";
 import { useAuthUser } from "@/lib/auth";
 import {
-  appearanceWeight,
   attachUser,
   detachUser,
   hydrateLocal,
   recordSession,
+  sessionWeight,
   useReviewPool,
 } from "@/lib/reviewStore";
 import {
@@ -69,13 +69,15 @@ export default function App() {
 
   const startNormal = useCallback(
     (mode: SessionMode, count: number) => {
-      // TS-1: 복습 몫은 ease 가 낮은(자주 틀리는) 단어일수록 잘 뽑히고,
-      // 직전 세션에서 막 정타 통과한 단어는 한 세션 쉰다.
+      // TS-1: 복습 몫은 ease 가 낮은(자주 틀리는) 단어일수록, 그리고 오래
+      // 안 본 단어일수록 잘 뽑히고, 직전 세션에서 막 정타 통과한 단어는
+      // 한 세션 쉰다.
+      const now = Date.now();
       const fromPool = weightedSample(
         STARTER_WORDS.filter(
           (w) => pool.ids.has(w.id) && !pool.inCooldown(w.id),
         ),
-        (w) => appearanceWeight(pool.easeOf(w.id)),
+        (w) => sessionWeight(pool.easeOf(w.id), pool.lastSeenAtOf(w.id), now),
         Math.floor(count / REVIEW_MIX_RATIO),
       );
       const pickedIds = new Set(fromPool.map((w) => w.id));
