@@ -106,7 +106,9 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
       </div>
 
       <header className={styles.hero}>
-        <h1 className={styles.wordmark}>TypeSee</h1>
+        <h1 className={styles.wordmark}>
+          Type<span className={styles.wordmarkAccent}>See</span>
+        </h1>
         <p className={styles.tagline}>타이핑하며 눈에 새기는 영단어</p>
       </header>
 

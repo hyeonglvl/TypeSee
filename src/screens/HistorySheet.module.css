@@ -4,9 +4,9 @@
   z-index: 100;
   display: grid;
   place-items: center;
-  background: rgba(4, 5, 8, 0.6);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(38, 33, 26, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   padding: 24px;
 }
 
@@ -16,9 +16,9 @@
   max-height: min(640px, 86vh);
   padding: 30px 30px 26px;
   border-radius: var(--radius-l);
-  background: #14161d;
-  border: 1px solid var(--hairline-strong);
-  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.7);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-pop);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -33,9 +33,11 @@
 }
 
 .title {
+  font-family: var(--font-display);
   font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
 .titleCount {
@@ -90,7 +92,7 @@
 }
 
 .row + .row {
-  border-top: 1px solid var(--hairline);
+  border-top: 1px dashed var(--hairline);
 }
 
 .word {
@@ -98,6 +100,7 @@
   font-size: 15px;
   font-weight: 500;
   min-width: 110px;
+  color: var(--ink);
 }
 
 .meaning {
@@ -171,6 +174,6 @@
 }
 
 .close:hover {
-  background: var(--surface-raised);
+  background: rgba(33, 29, 23, 0.06);
   color: var(--ink);
 }
