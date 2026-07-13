@@ -1,57 +1,80 @@
 # TypeSee
-Type and Learn
-이름 유래: 영어권에서 modern slang 중 하나인 'TypeSh*t' 을 한국에 일본컨셉으로 한 바의 일하는 일본인 직원들한테 말해주니 발음을 'TypeC' 라고하는것에서 유래
 
-타이핑하며 눈에 새기는 영단어 앱. Next.js + React + Supabase.
+Type and Learn — 타이핑하며 눈에 새기는 영단어 앱.
 
-## 실행
+## 핵심 기능
 
-```bash
-npm install
-npm run dev     # http://localhost:3000
-npm run build   # 프로덕션 빌드
-```
+### TS-1 — 오답 단어 출현 확률 알고리즘
 
-## 환경 변수 (`.env.local`)
+처음에는 SM-2(SuperMemo-2) 도입을 고려했으나, 유저가 매일 접속하지 못하는 경우와
+틀린 단어를 최소 하루 간격으로 다시 보여줄 수 없는 서비스 특성을 고려해
+직접 고안한 **TS-1** 알고리즘 구현.
 
-```
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-```
+**동작 방식**
 
-없으면 로그인 버튼이 숨겨지고 게스트 모드로만 동작합니다.
+- 단어마다 ease factor를 두고, 틀리면 값이 내려가고 맞히면 올라감.
+- 세션 단어를 뽑을 때 ease factor가 낮을수록 출현 확률(가중치)이 높아져,
+  자주 틀리는 단어가 잘 맞출 때까지 더 자주 등장.
+- 정타로 통과할수록 출현 확률이 점점 낮아지고, 마스터하면 복습 풀에서 제거.
+- 방금 맞힌 단어는 짧은 쿨다운을 둬 같은 세션에서 곧바로 다시 나오지 않게 조절.
 
-## 기능
+**SM-2 vs TS-1**
 
-- **Typing / Quiz 모드**: 단어를 보고 치거나, 뜻만 보고 철자를 떠올리며 입력 (오타 2회 → 힌트)
-- **틀린 단어 복습**: 세션에서 틀린 단어가 자동으로 모이고, 복습 노트(단축키 `3`)에서
-  틀린 횟수 확인·Typing/Quiz로 재도전. 정타로 통과하면 목록에서 제거(마스터)
+| | 장점 | 단점 |
+|---|---|---|
+| **SM-2** | 검증된 간격 반복(spaced repetition). 기억이 흐려지는 시점에 맞춰 복습시켜 장기 기억 효율이 높음. | 날짜 기반 스케줄이라 매일 접속을 전제로 함. 며칠 놓치면 밀린 복습이 쌓이고, 시기를 놓친 단어는 학습 효과가 급감. |
+| **TS-1** | 접속 빈도와 무관. 언제 들어와도 밀린 복습 없이 약한 단어부터 확률적으로 등장하므로 스케줄 관리가 필요 없음. | 시간 기반 간격 효과(spacing effect)가 약해 같은 단어가 짧은 간격으로 반복될 수 있음. 쿨다운으로 보완. |
+
+### 학습
+
+- **Typing / Quiz 모드**: 단어를 보고 치거나, 뜻만 보고 철자를 떠올리며 입력 (오타 2회 → 힌트, 퀴즈 오답 즉시 표시)
+- **예문 학습**: 단어별 예문과 한글 해석 표시, 스페이스로 저장/스킵
+- **틀린 단어 복습**: 세션에서 틀린 단어가 자동으로 모이고, 복습 노트에서 틀린 횟수 확인·재도전. 정타로 통과하면 마스터 처리
   - 게스트: 탭 메모리에만 유지 (새로고침 시 초기화)
   - 로그인: `missed_words` 테이블에 저장되어 어디서든 복원
-- **라이브 스탯**(WPM·정확도), **단어 발음**(Web Speech, 토글), 키보드 온리 조작
 
-## Supabase 설정
+### 기록·편의
 
-1. **틀린 단어 저장**: SQL Editor에서 [`supabase/schema.sql`](supabase/schema.sql) 1회 실행
-2. **GitHub/Google 로그인**: 현재 "추후 서비스 예정" 안내만 표시됨.
-   활성화하려면 Authentication → Providers에서 제공자 설정 후
-   `src/screens/AuthSheet.tsx`의 핸들러를 `signInWithProvider`(`src/lib/auth.ts`)로 교체
+- **학습 스트릭 캘린더**: 홈 화면에서 날짜별 학습 기록 확인
+- **라이브 스탯**: WPM·오답률 실시간 표시
+- **단어 발음**: Web Speech 기반 TTS (토글)
+- **키보드 온리 조작** + 모바일 반응형 (타이핑 키보드 지원)
+
+## 스택
+
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **React Compiler** (babel-plugin-react-compiler)
+- **Motion** — 애니메이션
+- **Supabase** — 인증, 틀린 단어·학습 기록 저장 ([`supabase/schema.sql`](supabase/schema.sql))
+- **CSS Modules** — 화면별 스타일
 
 ## 구조
 
 ```
 src/
-  app/                # Next.js 엔트리 (layout, page)
-  App.tsx             # 화면 전환 (홈 → 세션 → 결과 → 복습)
-  lib/engine.ts       # 세션 리듀서·통계 (순수 함수)
-  lib/types.ts        # 공용 타입 (WordEntry, SessionState 등)
-  lib/reviewStore.ts  # 틀린 단어 풀 (메모리 + DB 동기화)
-  lib/auth.ts         # Supabase 인증
-  lib/supabase.ts     # Supabase 클라이언트
-  lib/tts.ts          # 단어 발음
-  screens/            # Home · Session · Result · Review · HistorySheet · AuthSheet
-  data/words.ts       # 단어 데이터
-  styles/global.css   # 전역 스타일
+  app/                    # Next.js 엔트리 (layout, page)
+  App.tsx                 # 화면 전환 (홈 → 세션 → 결과 → 복습)
+  lib/
+    engine.ts             # 세션 리듀서·통계 (순수 함수)
+    types.ts              # 공용 타입 (WordEntry, SessionState 등)
+    reviewStore.ts        # 틀린 단어 풀 (메모리 + DB 동기화)
+    streakStore.ts        # 학습 스트릭 기록
+    auth.ts               # Supabase 인증
+    supabase.ts           # Supabase 클라이언트
+    tts.ts                # 단어 발음
+  screens/                # Home · Session · Result · Review
+                          # HistorySheet · AuthSheet · StreakCalendar
+  data/words.ts           # 단어 데이터
+  styles/global.css       # 전역 스타일
 ```
 
 브랜치: `hyeong-dev-v1` = 구버전(v1) 백업.
+
+## 역사
+
+- 2026.07.13 - 종이와 잉크 컨셉 라이트 테마로 전체 화면 리디자인.
+- 2026.07.12 - 모바일 반응형 개선, 퀴즈 오답 즉시 표시, 학습 스트릭 캘린더 추가.
+- 2026.07.07 - 예문 한글 해석·저장 단어 표시 추가, 결과 지표를 정확도에서 오답률로 변경.
+- 2026.07.05 - 예문 임베드, 스페이스 저장/스킵, 복습 목록·세션 카드 UX 개선.
+- 2026.07.03 - 단어 500개 추가, 예문 필드 추가, 로그아웃 시 틀린 단어 초기화 버그 수정.
+- 2026.07.02 - 프로젝트 시작, v1 개발 후 성능·디자인을 재설계한 v2로 개편.
