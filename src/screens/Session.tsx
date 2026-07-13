@@ -2,7 +2,7 @@ import { memo, useEffect, useReducer, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createSession, sessionReducer, summarize } from "@/lib/engine";
 import { speak, toggleSound, useSoundPref } from "@/lib/tts";
-import { saveWord } from "@/lib/reviewStore";
+import { saveWord, useReviewPool } from "@/lib/reviewStore";
 import type {
   Pos,
   SessionMode,
@@ -35,6 +35,29 @@ const GIVE_UP_HOLD_MS = 1500;
 
 const cardSpring = { type: "spring", stiffness: 280, damping: 30 } as const;
 
+/* 한국어 IME가 켜진 채 타이핑해도 영어가 입력되게, e.key 대신 물리 키
+   위치(e.code)에서 문자를 복원한다. 한글 2벌식은 QWERTY 배열 그대로라
+   ㅁ(KeyA) → "a" 처럼 안전하게 매핑된다. */
+const CODE_TO_CHAR: Record<string, string> = {
+  Minus: "-",
+  Quote: "'",
+  Period: ".",
+  Comma: ",",
+};
+for (let i = 0; i < 26; i++) {
+  const letter = String.fromCharCode(97 + i);
+  CODE_TO_CHAR[`Key${letter.toUpperCase()}`] = letter;
+}
+
+function charFromKeydown(e: KeyboardEvent): string | null {
+  // ASCII 문자가 그대로 오면 신뢰 (영문 자판, 특수 배열 모두 존중)
+  if (e.key.length === 1 && e.key.charCodeAt(0) < 128) return e.key;
+  // 한글("ㅁ")이나 "Process" 등 IME 산출물이면 물리 키에서 복원
+  const base = CODE_TO_CHAR[e.code];
+  if (!base) return null;
+  return e.shiftKey ? base.toUpperCase() : base;
+}
+
 export default function SessionScreen({
   words,
   mode,
@@ -46,6 +69,7 @@ export default function SessionScreen({
     createSession(words, mode, reviewIds),
   );
   const soundOn = useSoundPref();
+  const pool = useReviewPool(); // TS-1 EF 디버그 배지용
   const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -88,13 +112,15 @@ export default function SessionScreen({
         e.preventDefault();
         if (e.repeat) return;
         handleSpace();
-      } else if (e.key.length === 1) {
+      } else {
+        const char = charFromKeydown(e);
+        if (char === null) return;
         // Suppressed here so the character never lands in the hidden mobile
-        // input too — on iOS/desktop keyboards e.key is reliable and this
-        // preventDefault stops the input's native insertion, so the
-        // onChange-based path below never double-fires for the same key.
+        // input too — on iOS/desktop keyboards this preventDefault stops the
+        // input's native insertion, so the onChange-based path below never
+        // double-fires for the same key.
         e.preventDefault();
-        dispatch({ type: "TYPE_CHAR", char: e.key });
+        dispatch({ type: "TYPE_CHAR", char });
       }
     };
     window.addEventListener("keydown", onKeyDown);
@@ -119,7 +145,8 @@ export default function SessionScreen({
     if (chars.length === 0) return;
     for (const char of chars) {
       if (char === " ") handleSpace();
-      else dispatch({ type: "TYPE_CHAR", char });
+      // 한글 등 비 ASCII 문자는 IME 조합 산출물 — 오답으로 세지 않고 무시
+      else if (char.charCodeAt(0) < 128) dispatch({ type: "TYPE_CHAR", char });
     }
   };
 
@@ -241,15 +268,29 @@ export default function SessionScreen({
 
       <div className={styles.track}>
         <AnimatePresence initial={false}>
-          {visible.map((word, i) => (
-            <WordCard
-              key={word.entry.id}
-              word={word}
-              offset={first + i - state.currentIndex}
-              mode={mode}
-              saved={savedIds.has(word.entry.id)}
-            />
-          ))}
+          {visible.map((word, i) => {
+            // 복습 풀에는 틀린 단어와 저장한 단어가 섞여 있다. 복습 노트
+            // 화면과 같은 기준으로 저장 여부가 우선한다 — 저장한 단어는
+            // 틀린 적이 있어도 "저장한 단어"로 보여준다.
+            const isSaved =
+              savedIds.has(word.entry.id) ||
+              (word.fromReview && pool.isSaved(word.entry.id));
+            const wrongReview =
+              word.fromReview &&
+              !isSaved &&
+              pool.wrongCountOf(word.entry.id) > 0;
+            return (
+              <WordCard
+                key={word.entry.id}
+                word={word}
+                offset={first + i - state.currentIndex}
+                mode={mode}
+                wrongReview={wrongReview}
+                saved={isSaved}
+                ease={word.fromReview ? pool.easeOf(word.entry.id) : null}
+              />
+            );
+          })}
         </AnimatePresence>
       </div>
 
@@ -271,12 +312,18 @@ const WordCard = memo(function WordCard({
   word,
   offset,
   mode,
+  wrongReview,
   saved,
+  ease,
 }: {
   word: WordState;
   offset: number;
   mode: SessionMode;
+  /** 복습 풀 출신 중 실제로 틀린 적 있는 단어. */
+  wrongReview: boolean;
   saved: boolean;
+  /** TS-1 ease factor — 디버그용 표시, 복습 풀 출신 단어에만 값이 있다. */
+  ease: number | null;
 }) {
   const active = offset === 0;
   const depth = Math.abs(offset);
@@ -306,10 +353,16 @@ const WordCard = memo(function WordCard({
       exit={{ opacity: 0, scale: 0.35 }}
       transition={cardSpring}
     >
-      {word.fromReview && (
-        <span className={styles.reviewBadge}>틀렸던 단어</span>
+      {wrongReview && (
+        <span className={styles.reviewBadge}>
+          틀렸던 단어{ease !== null && ` · EF ${ease.toFixed(2)}`}
+        </span>
       )}
-      {saved && <span className={styles.savedBadge}>저장한 단어</span>}
+      {saved && (
+        <span className={styles.savedBadge}>
+          저장한 단어{ease !== null && ` · EF ${ease.toFixed(2)}`}
+        </span>
+      )}
       <span
         key={word.lastMistakeAt ?? -1}
         className={
