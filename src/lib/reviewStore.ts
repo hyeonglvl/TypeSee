@@ -18,6 +18,10 @@ interface Entry {
   /** 세션에서 마지막으로 실제 학습(오답·정타 통과·저장)한 시각(ms).
    *  null = 미상(구버전 백업) — 시간 가중치는 중립(1)으로 본다. */
   lastSeenAt: number | null;
+  /** 마스터한 시각(ms). null 이면 활성(복습 중), 값이 있으면 마스터 유지
+   *  점검 대상 — 일반 세션에 낮은 빈도로 재출현하고, 틀리면 활성으로
+   *  복귀한다. */
+  masteredAt: number | null;
 }
 
 /** TS-1 파라미터: 오타는 ease 를 내리고 정타 통과는 올린다.
@@ -82,8 +86,14 @@ function fromIso(iso: string | null | undefined): number | null {
 }
 
 export interface ReviewPool {
+  /** 활성(미마스터) 단어 수 — 홈 복습 카드·복습 노트가 쓰는 값. */
   count: number;
+  /** 활성(미마스터) 단어 id — 마스터 유지 단어는 retainedIds 에 있다. */
   ids: ReadonlySet<string>;
+  /** 마스터 유지 점검 대상 단어 id. */
+  retainedIds: ReadonlySet<string>;
+  /** 마스터한 시각(ms) — 활성 단어면 null. */
+  masteredAtOf: (id: string) => number | null;
   wrongCountOf: (id: string) => number;
   isSaved: (id: string) => boolean;
   easeOf: (id: string) => number;
@@ -119,9 +129,15 @@ let historySnapshot: HistoryPool = buildHistorySnapshot();
 function buildSnapshot(): ReviewPool {
   const frozen = new Map(misses);
   const frozenCooldown = new Set(cooldown);
+  const activeIds = new Set<string>();
+  const retainedIds = new Set<string>();
+  for (const [id, entry] of frozen)
+    (entry.masteredAt === null ? activeIds : retainedIds).add(id);
   return {
-    count: frozen.size,
-    ids: new Set(frozen.keys()),
+    count: activeIds.size,
+    ids: activeIds,
+    retainedIds,
+    masteredAtOf: (id) => frozen.get(id)?.masteredAt ?? null,
     wrongCountOf: (id) => frozen.get(id)?.wrongCount ?? 0,
     isSaved: (id) => frozen.get(id)?.saved ?? false,
     easeOf: (id) => frozen.get(id)?.ease ?? EASE_INIT,
@@ -200,8 +216,19 @@ export function hydrateLocal() {
           Number.isFinite(rawSeen) && rawSeen > 0 ? rawSeen : null;
         // 더 최근에 본 쪽이 이긴다
         const lastSeenAt = laterOf(cur?.lastSeenAt ?? null, storedSeen);
-        if (wrongCount > 0 || saved)
-          misses.set(id, { wrongCount, saved, ease, lastSeenAt });
+        const rawMastered = Number(e?.masteredAt);
+        const storedMastered =
+          Number.isFinite(rawMastered) && rawMastered > 0 ? rawMastered : null;
+        // 한쪽이라도 활성(미마스터)이면 활성 — 로그인 병합과 같은 철학
+        const masteredAt = cur
+          ? cur.masteredAt !== null && storedMastered !== null
+            ? Math.max(cur.masteredAt, storedMastered)
+            : null
+          : storedMastered;
+        // 마스터 유지 엔트리는 wrongCount 0·saved false 라서 masteredAt 도
+        // 보존 조건에 넣어야 새로고침에 증발하지 않는다.
+        if (wrongCount > 0 || saved || masteredAt !== null)
+          misses.set(id, { wrongCount, saved, ease, lastSeenAt, masteredAt });
       }
       if (misses.size > 0) notify();
     }
@@ -278,11 +305,16 @@ export function recordSession(
 
   for (const { id, count } of missed) {
     const cur = misses.get(id);
+    // 마스터 유지 점검 실패는 새 오답처럼 EASE_INIT 기준으로 강등한다 —
+    // 3.0 에서 −0.2 만 내리면 정타 한 번에 재마스터돼 점검이 무력해진다.
+    const baseEase =
+      cur?.masteredAt != null ? EASE_INIT : (cur?.ease ?? EASE_INIT);
     misses.set(id, {
       wrongCount: (cur?.wrongCount ?? 0) + count,
       saved: cur?.saved ?? false,
-      ease: Math.max(EASE_MIN, (cur?.ease ?? EASE_INIT) - EASE_WRONG_STEP * count),
+      ease: Math.max(EASE_MIN, baseEase - EASE_WRONG_STEP * count),
       lastSeenAt: now,
+      masteredAt: null,
     });
     history.set(id, (history.get(id) ?? 0) + count);
   }
@@ -297,6 +329,11 @@ export function recordSession(
   for (const id of passed) {
     const cur = misses.get(id);
     if (!cur) continue;
+    // 마스터 유지 점검 통과: 마스터 상태 그대로, 시각만 갱신한다.
+    if (cur.masteredAt !== null) {
+      misses.set(id, { ...cur, masteredAt: now, lastSeenAt: now });
+      continue;
+    }
     const ease = cur.ease + EASE_RIGHT_STEP;
     if (ease >= EASE_MASTER) {
       if (cur.saved)
@@ -305,8 +342,19 @@ export function recordSession(
           saved: true,
           ease: EASE_INIT,
           lastSeenAt: now,
+          masteredAt: null,
         });
-      else misses.delete(id);
+      // 마스터: 삭제하는 대신 유지 점검 대상으로 남긴다. wrongCount 0 리셋로
+      // 세션 카드 배지가 사라져, 재출현 시 유저가 눈치채지 못하는 블라인드
+      // 점검이 된다.
+      else
+        misses.set(id, {
+          wrongCount: 0,
+          saved: false,
+          ease: EASE_MASTER,
+          lastSeenAt: now,
+          masteredAt: now,
+        });
     } else {
       misses.set(id, { ...cur, ease, lastSeenAt: now });
     }
@@ -335,6 +383,7 @@ export function recordSession(
       saved: misses.get(id)?.saved ?? false,
       ease_factor: misses.get(id)?.ease ?? EASE_INIT,
       last_seen_at: toIso(misses.get(id)?.lastSeenAt),
+      mastered_at: toIso(misses.get(id)?.masteredAt),
       last_missed_at: new Date().toISOString(),
     }));
     sb.from("missed_words")
@@ -369,8 +418,11 @@ export function saveWord(id: string) {
   misses.set(id, {
     wrongCount: cur?.wrongCount ?? 0,
     saved: true,
-    ease: cur?.ease ?? EASE_INIT,
+    // 마스터 유지 상태였던 단어를 저장하면 활성 북마크로 복귀한다 — ease 를
+    // 리셋해 자기 가중치(≈0)에 굶지 않게 (saved 마스터와 같은 규칙).
+    ease: cur?.masteredAt != null ? EASE_INIT : (cur?.ease ?? EASE_INIT),
     lastSeenAt: Date.now(), // 저장하는 순간 화면에 떠 있는 단어다
+    masteredAt: null,
   });
   notify();
 
@@ -387,6 +439,7 @@ export function saveWord(id: string) {
           saved: true,
           ease_factor: entry.ease,
           last_seen_at: toIso(entry.lastSeenAt),
+          mastered_at: toIso(entry.masteredAt),
           last_missed_at: new Date().toISOString(),
         },
       ],
@@ -397,6 +450,7 @@ export function saveWord(id: string) {
 
 export function clearAll() {
   if (misses.size === 0) return;
+  // 마스터 유지 상태도 함께 지워진다 — "모두 지우기"는 완전 초기화다.
   misses.clear();
   notify();
 
@@ -408,7 +462,8 @@ export function clearAll() {
     .then(({ error }) => error && warnRemote(error));
 }
 
-/** Clear only the miss-driven entries; saved bookmarks are kept (wrongCount reset to 0). */
+/** Clear only the miss-driven entries; saved bookmarks are kept (wrongCount
+ *  reset to 0). 마스터 유지(non-saved) 엔트리도 함께 지워진다. */
 export function clearWrong() {
   const toDelete: string[] = [];
   const toKeep: string[] = [];
@@ -443,6 +498,7 @@ export function clearWrong() {
       saved: true,
       ease_factor: misses.get(word_id)?.ease ?? EASE_INIT,
       last_seen_at: toIso(misses.get(word_id)?.lastSeenAt),
+      mastered_at: toIso(misses.get(word_id)?.masteredAt),
       last_missed_at: new Date().toISOString(),
     }));
     sb.from("missed_words")
@@ -487,6 +543,7 @@ export function clearSaved() {
       saved: false,
       ease_factor: misses.get(word_id)?.ease ?? EASE_INIT,
       last_seen_at: toIso(misses.get(word_id)?.lastSeenAt),
+      mastered_at: toIso(misses.get(word_id)?.masteredAt),
       last_missed_at: new Date().toISOString(),
     }));
     sb.from("missed_words")
@@ -517,6 +574,7 @@ export function clearWrongWord(id: string) {
               saved: true,
               ease_factor: cur.ease,
               last_seen_at: toIso(cur.lastSeenAt),
+              mastered_at: toIso(cur.masteredAt),
               last_missed_at: new Date().toISOString(),
             },
           ],
@@ -559,6 +617,7 @@ export function clearSavedWord(id: string) {
               saved: false,
               ease_factor: cur.ease,
               last_seen_at: toIso(cur.lastSeenAt),
+              mastered_at: toIso(cur.masteredAt),
               last_missed_at: new Date().toISOString(),
             },
           ],
@@ -616,16 +675,17 @@ async function syncMissedWordsOnLogin(sb: SupabaseClient, userId: string) {
     saved?: boolean;
     ease_factor?: number;
     last_seen_at?: string | null;
+    mastered_at?: string | null;
   }>;
 
-  // Newer columns (`saved`, `ease_factor`, `last_seen_at`) may be missing on
-  // a DB that predates their migrations (see supabase/schema.sql). Fall back
-  // progressively so the pool still loads instead of wiping out on every
-  // refresh; the missing fields just won't persist remotely until the
-  // migration runs.
+  // Newer columns (`saved`, `ease_factor`, `last_seen_at`, `mastered_at`)
+  // may be missing on a DB that predates their migrations (see
+  // supabase/schema.sql). Fall back progressively so the pool still loads
+  // instead of wiping out on every refresh; the missing fields just won't
+  // persist remotely until the migration runs.
   const withTimes = await sb
     .from("missed_words")
-    .select("word_id, wrong_count, saved, ease_factor, last_seen_at")
+    .select("word_id, wrong_count, saved, ease_factor, last_seen_at, mastered_at")
     .eq("user_id", userId);
 
   if (!withTimes.error) {
@@ -669,6 +729,7 @@ async function syncMissedWordsOnLogin(sb: SupabaseClient, userId: string) {
 
   for (const row of rows) {
     const cur = misses.get(row.word_id);
+    const remoteMastered = fromIso(row.mastered_at);
     misses.set(row.word_id, {
       wrongCount: Math.max(cur?.wrongCount ?? 0, row.wrong_count),
       saved: (cur?.saved ?? false) || Boolean(row.saved),
@@ -676,6 +737,13 @@ async function syncMissedWordsOnLogin(sb: SupabaseClient, userId: string) {
       ease: Math.min(cur?.ease ?? EASE_INIT, row.ease_factor ?? EASE_INIT),
       // 더 최근에 본 쪽이 이긴다
       lastSeenAt: laterOf(cur?.lastSeenAt ?? null, fromIso(row.last_seen_at)),
+      // 한쪽이라도 활성(미마스터)이면 활성 — min-ease 와 같은 철학.
+      // 로컬에 없던 단어는 원격 상태를 그대로 따른다.
+      masteredAt: cur
+        ? cur.masteredAt !== null && remoteMastered !== null
+          ? Math.max(cur.masteredAt, remoteMastered)
+          : null
+        : remoteMastered,
     });
   }
   notify();
@@ -689,6 +757,7 @@ async function syncMissedWordsOnLogin(sb: SupabaseClient, userId: string) {
       ease_factor: entry.ease,
       // 재푸시는 동기화일 뿐 학습이 아니다 — 저장된 시각을 그대로 유지
       last_seen_at: toIso(entry.lastSeenAt),
+      mastered_at: toIso(entry.masteredAt),
       last_missed_at: new Date().toISOString(),
     }));
     const { error: upErr } = await sb

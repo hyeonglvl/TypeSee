@@ -98,6 +98,19 @@ export default function ResultScreen({
       </div>
 
       <TroubleWords summary={summary} />
+      {summary.retentionMisses.length > 0 && (
+        <div className={styles.retention}>
+          <span className={styles.retentionLabel}>다시 복습 풀로</span>
+          {summary.retentionMisses.map(({ entry }) => (
+            <span key={entry.id} className={styles.retentionChip}>
+              {entry.word}
+            </span>
+          ))}
+          <span className={styles.retentionNote}>
+            마스터했던 단어를 틀려서 복습 풀로 돌아왔어요
+          </span>
+        </div>
+      )}
       {summary.mastered.length > 0 && (
         <div className={styles.mastered}>
           <span className={styles.masteredLabel}>복습 완료</span>

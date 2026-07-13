@@ -53,13 +53,17 @@ describe("TS-1 — 정타 통과 시 ease 회복과 마스터", () => {
     expect(pool.easeOf("w")).toBeCloseTo(2.55);
   });
 
-  it("EASE_MASTER 에 도달하면 풀에서 제거된다", () => {
+  it("EASE_MASTER 에 도달하면 활성 풀에서 빠지고 유지 점검 대상이 된다", () => {
     recordSession([{ id: "w", count: 1 }], []); // 2.3
     recordSession([], ["w"]); // 2.55
     recordSession([], ["w"]); // 2.8
     expect(getReviewPool().ids.has("w")).toBe(true);
     recordSession([], ["w"]); // 3.05 ≥ 3.0 → 마스터
-    expect(getReviewPool().ids.has("w")).toBe(false);
+    const pool = getReviewPool();
+    expect(pool.ids.has("w")).toBe(false);
+    expect(pool.retainedIds.has("w")).toBe(true);
+    expect(pool.masteredAtOf("w")).not.toBeNull();
+    expect(pool.wrongCountOf("w")).toBe(0); // 배지 없는 블라인드 점검용
   });
 
   it("풀에 없는 단어의 통과는 무시된다", () => {
@@ -79,6 +83,59 @@ describe("TS-1 — 정타 통과 시 ease 회복과 마스터", () => {
   });
 });
 
+describe("TS-1 — 마스터 유지 점검", () => {
+  const DAY = 86_400_000;
+  const t0 = Date.parse("2026-07-14T00:00:00Z");
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(t0);
+    // w 를 마스터 상태로 만든다
+    recordSession([{ id: "w", count: 1 }], []); // 2.3
+    recordSession([], ["w"]); // 2.55
+    recordSession([], ["w"]); // 2.8
+    recordSession([], ["w"]); // 마스터
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("유지 점검 통과: 마스터 유지, masteredAt·lastSeenAt 갱신", () => {
+    vi.setSystemTime(t0 + 5 * DAY);
+    recordSession([], ["w"]);
+    const pool = getReviewPool();
+    expect(pool.retainedIds.has("w")).toBe(true);
+    expect(pool.masteredAtOf("w")).toBe(t0 + 5 * DAY);
+    expect(pool.lastSeenAtOf("w")).toBe(t0 + 5 * DAY);
+  });
+
+  it("유지 점검 실패: EASE_INIT 기준으로 강등되어 활성 풀에 복귀", () => {
+    vi.setSystemTime(t0 + 5 * DAY);
+    recordSession([{ id: "w", count: 1 }], []);
+    const pool = getReviewPool();
+    expect(pool.masteredAtOf("w")).toBeNull();
+    expect(pool.ids.has("w")).toBe(true);
+    expect(pool.retainedIds.has("w")).toBe(false);
+    expect(pool.easeOf("w")).toBeCloseTo(EASE_INIT - 0.2); // 3.0 기준이 아니다
+    expect(pool.wrongCountOf("w")).toBe(1);
+  });
+
+  it("유지 점검 통과 직후에는 쿨다운에 들어간다", () => {
+    vi.setSystemTime(t0 + 5 * DAY);
+    recordSession([], ["w"]);
+    expect(getReviewPool().inCooldown("w")).toBe(true);
+  });
+
+  it("유지 단어를 저장하면 활성 북마크로 복귀하고 ease 가 리셋된다", () => {
+    saveWord("w");
+    const pool = getReviewPool();
+    expect(pool.masteredAtOf("w")).toBeNull();
+    expect(pool.ids.has("w")).toBe(true);
+    expect(pool.isSaved("w")).toBe(true);
+    expect(pool.easeOf("w")).toBe(EASE_INIT);
+  });
+});
+
 describe("TS-1 — 쿨다운", () => {
   it("정타 통과 후 풀에 남은 단어는 쿨다운에 들어간다", () => {
     recordSession([{ id: "w", count: 1 }], []);
@@ -86,14 +143,14 @@ describe("TS-1 — 쿨다운", () => {
     expect(getReviewPool().inCooldown("w")).toBe(true);
   });
 
-  it("마스터로 풀에서 빠진 단어는 쿨다운에 없다", () => {
+  it("마스터 직후에도 쿨다운에 들어간다 (유지 점검으로 곧바로 재출현하지 않게)", () => {
     saveWord("keep"); // 쿨다운 비교용
     recordSession([{ id: "w", count: 1 }], []); // 2.3
     recordSession([], ["w"]); // 2.55
     recordSession([], ["w"]); // 2.8
-    recordSession([], ["w", "keep"]); // w 마스터 탈출, keep 은 잔류
+    recordSession([], ["w", "keep"]); // w 마스터(유지 상태로 잔류), keep 은 잔류
     const pool = getReviewPool();
-    expect(pool.inCooldown("w")).toBe(false);
+    expect(pool.inCooldown("w")).toBe(true);
     expect(pool.inCooldown("keep")).toBe(true);
   });
 

@@ -12,6 +12,7 @@ export function createSession(
   words: WordEntry[],
   mode: SessionMode,
   reviewIds?: ReadonlySet<string>,
+  retentionIds?: ReadonlySet<string>,
 ): SessionState {
   return {
     mode,
@@ -25,6 +26,7 @@ export function createSession(
         hintedUpTo: 0,
         gaveUp: false,
         fromReview: reviewIds?.has(entry.id) ?? false,
+        isRetention: retentionIds?.has(entry.id) ?? false,
       }),
     ),
     currentIndex: 0,
@@ -199,6 +201,11 @@ export function summarize(state: SessionState): SessionSummary {
     .filter((w) => w.fromReview && w.status === "done" && w.mistakes === 0)
     .map((w) => w.entry);
 
+  // 마스터 유지 점검 실패 — recordSession 이 복습 풀로 강등한 단어들.
+  const retentionMisses = state.words
+    .filter((w) => w.isRetention && w.mistakes > 0)
+    .map((w) => ({ entry: w.entry, mistakes: w.mistakes }));
+
   return {
     mode: state.mode,
     totalWords: state.words.length,
@@ -209,6 +216,7 @@ export function summarize(state: SessionState): SessionSummary {
     bestStreak: bestWordStreak,
     troubleWords,
     mastered,
+    retentionMisses,
   };
 }
 

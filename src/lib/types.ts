@@ -30,6 +30,8 @@ export interface WordState {
   gaveUp: boolean;
   /** This word is here because the user missed it before. */
   fromReview: boolean;
+  /** 마스터 유지 점검으로 뽑힌 단어 — 틀리면 복습 풀로 복귀한다. */
+  isRetention: boolean;
 }
 
 export interface SessionState {
@@ -67,4 +69,6 @@ export interface SessionSummary {
   troubleWords: Array<{ entry: WordEntry; mistakes: number; gaveUp: boolean }>;
   /** Review words cleared without a single mistake or hint this session. */
   mastered: WordEntry[];
+  /** 마스터 유지 점검에서 틀린 단어 — 복습 풀로 복귀했다. */
+  retentionMisses: Array<{ entry: WordEntry; mistakes: number }>;
 } 

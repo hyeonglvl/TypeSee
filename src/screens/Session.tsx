@@ -16,6 +16,8 @@ interface Props {
   words: WordEntry[];
   mode: SessionMode;
   reviewIds: ReadonlySet<string>;
+  /** 마스터 유지 점검으로 섞인 단어 — 배지 없이 출제되고 틀리면 풀로 복귀. */
+  retentionIds: ReadonlySet<string>;
   onFinish: (summary: SessionSummary) => void;
   onExit: (summary: SessionSummary) => void;
 }
@@ -62,11 +64,12 @@ export default function SessionScreen({
   words,
   mode,
   reviewIds,
+  retentionIds,
   onFinish,
   onExit,
 }: Props) {
   const [state, dispatch] = useReducer(sessionReducer, null, () =>
-    createSession(words, mode, reviewIds),
+    createSession(words, mode, reviewIds, retentionIds),
   );
   const soundOn = useSoundPref();
   const pool = useReviewPool(); // TS-1 EF 디버그 배지용

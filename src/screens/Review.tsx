@@ -73,7 +73,9 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
         <p className={styles.subtitle}>
           틀려서 쌓인 단어와 스페이스로 저장해둔 단어를 모아봤어요 · 틀린 단어{" "}
           {wrongEntries.length} · 저장한 단어 {savedEntries.length} · 누적 오타{" "}
-          {totalWrong}회 ·{" "}
+          {totalWrong}회
+          {pool.retainedIds.size > 0 && <> · 마스터 {pool.retainedIds.size}개</>}
+          {" · "}
           {user
             ? "계정에 저장되었어요"
             : "로그인하면 이 목록이 계정에 저장돼요"}
