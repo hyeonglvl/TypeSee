@@ -22,6 +22,14 @@ export function toggleSound() {
   listeners.forEach((fn) => fn());
 }
 
+/** 리스닝 세션은 소리가 꺼져 있으면 성립하지 않는다 — 시작 시 강제로 켠다.
+ *  이후 토글로 끄는 것은 유저의 명시적 선택으로 존중한다. */
+export function ensureSoundOn() {
+  if (soundOn) return;
+  soundOn = true;
+  listeners.forEach((fn) => fn());
+}
+
 export function speak(word: string) {
   if (!soundOn || typeof window === "undefined" || !window.speechSynthesis)
     return;

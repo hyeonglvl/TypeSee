@@ -1,7 +1,7 @@
 import { memo, useEffect, useReducer, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createSession, sessionReducer, summarize } from "@/lib/engine";
-import { speak, toggleSound, useSoundPref } from "@/lib/tts";
+import { ensureSoundOn, speak, toggleSound, useSoundPref } from "@/lib/tts";
 import { saveWord, useReviewPool } from "@/lib/reviewStore";
 import type {
   Pos,
@@ -87,13 +87,19 @@ export default function SessionScreen({
 
   const handleSpace = () => {
     const id = stateRef.current.words[stateRef.current.currentIndex].entry.id;
-    if (mode === "quiz") {
+    if (mode !== "typing") {
       dispatch({ type: "REVEAL" });
       saveWord(id);
     } else {
       saveWord(id);
       setSavedIds((prev) => new Set(prev).add(id));
     }
+  };
+
+  const replayCurrent = () => {
+    const current =
+      stateRef.current.words[stateRef.current.currentIndex];
+    if (current) speak(current.entry.word);
   };
 
   useEffect(() => {
@@ -115,6 +121,10 @@ export default function SessionScreen({
         e.preventDefault();
         if (e.repeat) return;
         handleSpace();
+      } else if (e.key === "Tab" && mode === "listening") {
+        e.preventDefault();
+        if (e.repeat) return;
+        replayCurrent();
       } else {
         const char = charFromKeydown(e);
         if (char === null) return;
@@ -130,6 +140,22 @@ export default function SessionScreen({
     return () => window.removeEventListener("keydown", onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 리스닝은 소리가 꺼져 있으면 성립하지 않는다 — 세션 시작 시 강제로 켠다.
+  // (진입-발화 effect 보다 먼저 실행되어야 첫 단어가 들린다.)
+  useEffect(() => {
+    if (mode === "listening") ensureSoundOn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 리스닝: 카드에 진입하는 순간 발음을 들려준다 (문제 출제)
+  useEffect(() => {
+    if (mode !== "listening") return;
+    const current = state.words[state.currentIndex];
+    if (!current || current.status === "done") return;
+    speak(current.entry.word);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.currentIndex]);
 
   // Focus a hidden input so mobile browsers show the on-screen keyboard —
   // without a focused input element, no software keyboard ever appears.
@@ -302,7 +328,12 @@ export default function SessionScreen({
         <span className={styles.navHints}>
           <kbd>←</kbd> 이전 단어 &nbsp;·&nbsp; <kbd>→</kbd> 건너뛰기
           &nbsp;·&nbsp; <kbd>space</kbd>{" "}
-          {mode === "quiz" ? "정답 보기" : "저장"}
+          {mode === "typing" ? "저장" : "정답 보기"}
+          {mode === "listening" && (
+            <>
+              &nbsp;·&nbsp; <kbd>tab</kbd> 다시 듣기
+            </>
+          )}
         </span>
       </footer>
     </div>
@@ -374,16 +405,56 @@ const WordCard = memo(function WordCard({
             : styles.shakeLayer
         }
       >
-        <Meaning entry={word.entry} />
-        {active ? (
-          <ExampleLine word={word} mode={mode} active={active} />
+        {mode === "listening" ? (
+          // 리스닝: 완료 전엔 뜻·예문 모두 숨긴다 (예문은 단어를 유출한다).
+          // 완료 후 홀드 동안 뜻을 보여줘 철자+뜻으로 마무리하게 한다.
+          <>
+            {word.status === "done" ? (
+              <Meaning entry={word.entry} />
+            ) : (
+              <ListeningPrompt word={word.entry.word} active={active} />
+            )}
+            <WordGlyphs word={word} mode={mode} active={active} />
+          </>
         ) : (
-          <WordGlyphs word={word} mode={mode} active={active} />
+          <>
+            <Meaning entry={word.entry} />
+            {active ? (
+              <ExampleLine word={word} mode={mode} active={active} />
+            ) : (
+              <WordGlyphs word={word} mode={mode} active={active} />
+            )}
+          </>
         )}
       </span>
     </motion.div>
   );
 });
+
+/* Listening prompt ----------------------------------------------------------
+   완료 전 리스닝 카드의 머리 부분 — 뜻 대신 안내 문구와 다시 듣기 버튼. */
+
+function ListeningPrompt({ word, active }: { word: string; active: boolean }) {
+  return (
+    <span className={styles.listeningPrompt}>
+      <span className={styles.listeningHint}>
+        <SpeakerIcon muted={false} />
+        발음을 듣고 철자를 입력하세요
+      </span>
+      {active && (
+        <button
+          type="button"
+          className={styles.replayButton}
+          // 숨은 모바일 입력의 포커스를 뺏어 키보드가 닫히지 않게
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => speak(word)}
+        >
+          다시 듣기 <kbd>tab</kbd>
+        </button>
+      )}
+    </span>
+  );
+}
 
 function Meaning({ entry }: { entry: WordEntry }) {
   const posSet = [...new Set(entry.senses.map((s) => s.pos).filter(Boolean))];
@@ -486,7 +557,9 @@ function WordGlyphs({
         const done = i < typedLen;
         const isCursor = active && i === typedLen && word.status !== "done";
 
-        if (mode === "quiz") {
+        // 퀴즈·리스닝: 빈 슬롯에 입력이 그대로 박힌다. 퀴즈만 첫 글자
+        // 고스트를 보여주고, 리스닝은 hintedUpTo(정답 보기)만 따른다.
+        if (mode !== "typing") {
           const typedChar = word.typed[i];
           const wrong = done && typedChar !== ch;
           const ghost = !done && i < hintBoundary;

@@ -15,7 +15,7 @@ export interface WordEntry {
   exampleMeaning?: string;
 }
 
-export type SessionMode = "typing" | "quiz";
+export type SessionMode = "typing" | "quiz" | "listening";
 
 export interface WordState {
   entry: WordEntry;

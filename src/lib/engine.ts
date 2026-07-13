@@ -104,10 +104,10 @@ export function sessionReducer(
       const at = active.typed.length;
       const correct = action.char === target[at];
 
-      // Quiz mode tests spelling recall — every keystroke lands and the
-      // cursor always advances, right or wrong, instead of blocking until
+      // Quiz/Listening mode tests spelling recall — every keystroke lands and
+      // the cursor always advances, right or wrong, instead of blocking until
       // the correct letter is found (that's what Typing mode is for).
-      if (state.mode === "quiz") {
+      if (state.mode !== "typing") {
         const typed = active.typed + action.char;
         const done = typed.length === target.length;
         const streak = correct ? state.streak + 1 : 0;

@@ -1,7 +1,13 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { animate, motion } from "motion/react";
-import type { SessionSummary } from "@/lib/types";
+import type { SessionMode, SessionSummary } from "@/lib/types";
 import styles from "./Result.module.css";
+
+const MODE_LABEL: Record<SessionMode, string> = {
+  typing: "Typing",
+  quiz: "Quiz",
+  listening: "Listening",
+};
 
 interface Props {
   summary: SessionSummary;
@@ -37,9 +43,7 @@ export default function ResultScreen({
 
   return (
     <div className={styles.screen}>
-      <p className={styles.eyebrow}>
-        {summary.mode === "quiz" ? "Quiz" : "Typing"} 세션 완료
-      </p>
+      <p className={styles.eyebrow}>{MODE_LABEL[summary.mode]} 세션 완료</p>
 
       {/* Hero — accuracy ring */}
       <div className={styles.ringWrap}>

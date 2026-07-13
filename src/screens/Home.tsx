@@ -26,7 +26,14 @@ const MODES: Array<{
 }> = [
   { mode: "typing", key: "1", title: "Typing", desc: "단어를 보며 손에 익히기" },
   { mode: "quiz", key: "2", title: "Quiz", desc: "뜻만 보고 철자 떠올리기" },
+  { mode: "listening", key: "3", title: "Listening", desc: "발음만 듣고 철자 입력" },
 ];
+
+const MODE_ICON: Record<SessionMode, () => React.JSX.Element> = {
+  typing: KeyboardIcon,
+  quiz: SparkIcon,
+  listening: HeadphoneIcon,
+};
 
 const CUSTOM_STEP = 10;
 const CUSTOM_MIN = 10;
@@ -51,7 +58,8 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "1") onStart("typing", counts[countIdx]);
       else if (e.key === "2") onStart("quiz", counts[countIdx]);
-      else if ((e.key === "3" || e.key.toLowerCase() === "r") && pool.count > 0)
+      else if (e.key === "3") onStart("listening", counts[countIdx]);
+      else if ((e.key === "4" || e.key.toLowerCase() === "r") && pool.count > 0)
         onReview();
       else if (e.key === "ArrowLeft")
         setCountIdx((i) => (i + counts.length - 1) % counts.length);
@@ -184,7 +192,9 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
       </div>
 
       <div className={styles.modes}>
-        {MODES.map(({ mode, key, title, desc }) => (
+        {MODES.map(({ mode, key, title, desc }) => {
+          const Icon = MODE_ICON[mode];
+          return (
           <motion.button
             key={mode}
             className={styles.modeCard}
@@ -194,13 +204,14 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
             onClick={() => onStart(mode, counts[countIdx])}
           >
             <span className={styles.modeIcon} aria-hidden="true">
-              {mode === "typing" ? <KeyboardIcon /> : <SparkIcon />}
+              <Icon />
             </span>
             <span className={styles.modeTitle}>{title}</span>
             <span className={styles.modeDesc}>{desc}</span>
             <kbd className={styles.modeKey}>{key}</kbd>
           </motion.button>
-        ))}
+          );
+        })}
 
         <motion.button
           className={`${styles.modeCard} ${styles.reviewCard}`}
@@ -231,7 +242,7 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
               ? "틀린 단어, 저장한 단어 다시 풀기"
               : "틀리거나 저장한 단어가 여기에 모여요"}
           </span>
-          {pool.count > 0 && <kbd className={styles.modeKey}>3</kbd>}
+          {pool.count > 0 && <kbd className={styles.modeKey}>4</kbd>}
         </motion.button>
       </div>
 
@@ -244,7 +255,8 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
             &nbsp;·&nbsp; <kbd>↑</kbd> <kbd>↓</kbd> 갯수 조절
           </>
         )}
-        &nbsp;·&nbsp; <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> 바로 시작
+        &nbsp;·&nbsp; <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> 바로
+        시작
         {!user && pool.count > 0 && (
           <span className={styles.volatileNote}>
             &nbsp;·&nbsp; 로그인하면 틀린 단어가 저장돼요
@@ -309,6 +321,37 @@ function RepeatIcon() {
         strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function HeadphoneIcon() {
+  return (
+    <svg viewBox="0 0 28 28" width="26" height="26" fill="none">
+      <path
+        d="M5.5 17v-3a8.5 8.5 0 0 1 17 0v3"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <rect
+        x="4"
+        y="16"
+        width="5"
+        height="7.5"
+        rx="2.2"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <rect
+        x="19"
+        y="16"
+        width="5"
+        height="7.5"
+        rx="2.2"
+        stroke="currentColor"
+        strokeWidth="1.6"
       />
     </svg>
   );

@@ -93,6 +93,25 @@ describe("sessionReducer — quiz 모드", () => {
   });
 });
 
+describe("sessionReducer — listening 모드", () => {
+  it("퀴즈처럼 오타도 그대로 입력되며 커서가 전진한다", () => {
+    let s = createSession([entry("a", "cat")], "listening");
+    s = type(s, "cxt");
+    expect(s.words[0].typed).toBe("cxt");
+    expect(s.words[0].status).toBe("done");
+    expect(s.words[0].mistakes).toBe(1);
+  });
+
+  it("REVEAL(정답 보기)이 퀴즈와 동일하게 동작한다", () => {
+    let s = createSession([entry("a", "cat")], "listening");
+    s = sessionReducer(s, { type: "REVEAL" });
+    expect(s.words[0].status).toBe("done");
+    expect(s.words[0].gaveUp).toBe(true);
+    expect(s.words[0].mistakes).toBe(1);
+    expect(s.words[0].hintedUpTo).toBe(3);
+  });
+});
+
 describe("summarize — 정타 통과(mastered) 판정", () => {
   it("복습 출신 + 완주 + 오타 0 만 mastered 에 들어간다", () => {
     let s = createSession(
