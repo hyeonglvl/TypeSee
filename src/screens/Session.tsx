@@ -2,7 +2,7 @@ import { memo, useEffect, useReducer, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createSession, sessionReducer, summarize } from "@/lib/engine";
 import { ensureSoundOn, speak, toggleSound, useSoundPref } from "@/lib/tts";
-import { saveWord, useReviewPool } from "@/lib/reviewStore";
+import { easeProgress, saveWord, useReviewPool } from "@/lib/reviewStore";
 import type {
   Pos,
   SessionMode,
@@ -72,7 +72,7 @@ export default function SessionScreen({
     createSession(words, mode, reviewIds, retentionIds),
   );
   const soundOn = useSoundPref();
-  const pool = useReviewPool(); // TS-1 EF 디버그 배지용
+  const pool = useReviewPool(); // 복습 배지 + 익힘 단계 점 표시용
   const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -356,7 +356,7 @@ const WordCard = memo(function WordCard({
   /** 복습 풀 출신 중 실제로 틀린 적 있는 단어. */
   wrongReview: boolean;
   saved: boolean;
-  /** TS-1 ease factor — 디버그용 표시, 복습 풀 출신 단어에만 값이 있다. */
+  /** TS-1 ease factor — 익힘 단계 점 표시용, 복습 풀 출신 단어에만 값이 있다. */
   ease: number | null;
 }) {
   const active = offset === 0;
@@ -389,12 +389,12 @@ const WordCard = memo(function WordCard({
     >
       {wrongReview && (
         <span className={styles.reviewBadge}>
-          틀렸던 단어{ease !== null && ` · EF ${ease.toFixed(2)}`}
+          틀렸던 단어{ease !== null && <EaseDots ease={ease} />}
         </span>
       )}
       {saved && (
         <span className={styles.savedBadge}>
-          저장한 단어{ease !== null && ` · EF ${ease.toFixed(2)}`}
+          저장한 단어{ease !== null && <EaseDots ease={ease} />}
         </span>
       )}
       <span
@@ -430,6 +430,29 @@ const WordCard = memo(function WordCard({
     </motion.div>
   );
 });
+
+/* Ease progress ---------------------------------------------------------------
+   TS-1 ease(1.3~3.0)를 5단계 점으로 — 배지의 잉크색을 그대로 물려받는다. */
+
+function EaseDots({ ease }: { ease: number }) {
+  const step = easeProgress(ease);
+  return (
+    <span
+      className={styles.easeDots}
+      role="img"
+      aria-label={`익힘 단계 ${step} / 5`}
+    >
+      {[1, 2, 3, 4, 5].map((n) => (
+        <span
+          key={n}
+          className={
+            n <= step ? `${styles.easeDot} ${styles.easeDotOn}` : styles.easeDot
+          }
+        />
+      ))}
+    </span>
+  );
+}
 
 /* Listening prompt ----------------------------------------------------------
    완료 전 리스닝 카드의 머리 부분 — 뜻 대신 안내 문구와 다시 듣기 버튼. */

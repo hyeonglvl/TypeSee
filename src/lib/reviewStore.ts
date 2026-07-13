@@ -57,6 +57,15 @@ export function timeWeight(lastSeenAt: number | null, now: number): number {
   );
 }
 
+/** ease 1.3~3.0 → 1..5 익힘 단계 — 세션 카드 배지의 점 진행도에 쓴다.
+ *  floor 라서 실제로 올라야 단계가 상승한다 (1.3→1, 2.5→3, 3.0→5). */
+export function easeProgress(ease: number): number {
+  return Math.max(
+    1,
+    Math.min(5, 1 + Math.floor(((ease - EASE_MIN) / (EASE_MASTER - EASE_MIN)) * 4)),
+  );
+}
+
 /** 세션 추첨 최종 가중치 = ease 가중치 × 시간 가중치. */
 export function sessionWeight(
   ease: number,

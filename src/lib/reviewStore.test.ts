@@ -8,6 +8,7 @@ import {
   appearanceWeight,
   clearAll,
   clearHistoryAll,
+  easeProgress,
   getReviewPool,
   recordSession,
   saveWord,
@@ -180,6 +181,28 @@ describe("appearanceWeight", () => {
 
   it("졸업 직전 단어도 0 이 아닌 가중치를 가진다", () => {
     expect(appearanceWeight(EASE_MASTER)).toBeGreaterThan(0);
+  });
+});
+
+describe("easeProgress — 익힘 단계", () => {
+  it("경계값: 최저 1, 초기 3, 마스터 5", () => {
+    expect(easeProgress(EASE_MIN)).toBe(1);
+    expect(easeProgress(EASE_INIT)).toBe(3);
+    expect(easeProgress(EASE_MASTER)).toBe(5);
+  });
+
+  it("ease 를 따라 단조 증가한다", () => {
+    let prev = 0;
+    for (let ease = EASE_MIN; ease <= EASE_MASTER; ease += 0.05) {
+      const step = easeProgress(ease);
+      expect(step).toBeGreaterThanOrEqual(prev);
+      prev = step;
+    }
+  });
+
+  it("범위 밖 값도 1~5 로 클램프된다", () => {
+    expect(easeProgress(0)).toBe(1);
+    expect(easeProgress(4)).toBe(5);
   });
 });
 
