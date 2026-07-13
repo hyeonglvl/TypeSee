@@ -46,19 +46,6 @@ export async function signInWithUsername(username: string, password: string) {
   return data;
 }
 
-export type OAuthProvider = "github" | "google";
-
-/** Redirects the page to the provider; the session lands via onAuthStateChange. */
-export async function signInWithProvider(provider: OAuthProvider) {
-  const sb = getSupabase();
-  if (!sb) throw new Error("로그인 기능이 설정되지 않았습니다");
-  const { error } = await sb.auth.signInWithOAuth({
-    provider,
-    options: { redirectTo: window.location.origin },
-  });
-  if (error) throw error;
-}
-
 export async function signOut() {
   const sb = getSupabase();
   if (!sb) return;

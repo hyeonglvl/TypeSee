@@ -76,7 +76,7 @@ describe("sessionReducer — quiz 모드", () => {
   it("정답 보기로 완료한 단어는 troubleWords 에 gaveUp 으로 표시된다", () => {
     let s = createSession([entry("a", "cat")], "quiz");
     s = sessionReducer(s, { type: "REVEAL" });
-    const [trouble] = summarize(s, "quiz").troubleWords;
+    const [trouble] = summarize(s).troubleWords;
     expect(trouble.entry.id).toBe("a");
     expect(trouble.gaveUp).toBe(true);
   });
@@ -92,7 +92,7 @@ describe("summarize — 정타 통과(mastered) 판정", () => {
     s = type(s, "cat"); // a: 깨끗한 통과
     s = sessionReducer(s, { type: "ADVANCE" });
     s = type(s, "xdog"); // b: 오타 1개 내고 통과
-    const summary = summarize(s, "typing");
+    const summary = summarize(s);
     expect(summary.mastered.map((w) => w.id)).toEqual(["a"]);
     expect(summary.troubleWords.map((t) => t.entry.id)).toEqual(["b"]);
   });
@@ -100,7 +100,7 @@ describe("summarize — 정타 통과(mastered) 판정", () => {
   it("복습 출신이 아니면 깨끗이 통과해도 mastered 가 아니다", () => {
     let s = createSession([entry("a", "cat")], "typing");
     s = type(s, "cat");
-    expect(summarize(s, "typing").mastered).toEqual([]);
+    expect(summarize(s).mastered).toEqual([]);
   });
 });
 

@@ -33,7 +33,6 @@ export function createSession(
     mistakes: 0,
     correctKeystrokes: 0,
     streak: 0,
-    bestStreak: 0,
     lastCompletedId: null,
   };
 }
@@ -124,7 +123,6 @@ export function sessionReducer(
             : state.correctKeystrokes,
           mistakes: correct ? state.mistakes : state.mistakes + 1,
           streak,
-          bestStreak: Math.max(state.bestStreak, streak),
           lastCompletedId: done ? active.entry.id : state.lastCompletedId,
         };
       }
@@ -153,7 +151,6 @@ export function sessionReducer(
         }),
         correctKeystrokes: state.correctKeystrokes + 1,
         streak,
-        bestStreak: Math.max(state.bestStreak, streak),
         lastCompletedId: done ? active.entry.id : state.lastCompletedId,
       };
     }
@@ -166,7 +163,7 @@ function replaceActive(state: SessionState, next: WordState): SessionState {
   return { ...state, words };
 }
 
-export function summarize(state: SessionState, mode: SessionMode): SessionSummary {
+export function summarize(state: SessionState): SessionSummary {
   const wrongWords = state.words.filter((w) => w.mistakes > 0).length;
   const wrongRate =
     state.words.length === 0 ? 0 : wrongWords / state.words.length;
@@ -203,7 +200,7 @@ export function summarize(state: SessionState, mode: SessionMode): SessionSummar
     .map((w) => w.entry);
 
   return {
-    mode,
+    mode: state.mode,
     totalWords: state.words.length,
     wordsCompleted: state.words.filter((w) => w.status === "done").length,
     wrongRate,

@@ -41,7 +41,6 @@ export interface SessionState {
   mistakes: number;
   correctKeystrokes: number;
   streak: number;
-  bestStreak: number;
   lastCompletedId: string | null;
 }
 

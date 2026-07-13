@@ -80,7 +80,7 @@ export default function SessionScreen({
   onExitRef.current = onExit;
   const mobileInputRef = useRef<HTMLInputElement>(null);
 
-  const exit = () => onExitRef.current(summarize(stateRef.current, mode));
+  const exit = () => onExitRef.current(summarize(stateRef.current));
 
   const handleSpace = () => {
     const id = stateRef.current.words[stateRef.current.currentIndex].entry.id;
@@ -177,7 +177,7 @@ export default function SessionScreen({
   useEffect(() => {
     if (!finished) return;
     const t = setTimeout(
-      () => onFinish(summarize(state, mode)),
+      () => onFinish(summarize(state)),
       FINISH_HOLD_MS,
     );
     return () => clearTimeout(t);
