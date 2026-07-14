@@ -1,8 +1,8 @@
 import { memo, useEffect, useReducer, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createSession, sessionReducer, summarize } from "@/lib/engine";
-import { speak, toggleSound, useSoundPref } from "@/lib/tts";
-import { saveWord, useReviewPool } from "@/lib/reviewStore";
+import { ensureSoundOn, speak, toggleSound, useSoundPref } from "@/lib/tts";
+import { easeProgress, saveWord, useReviewPool } from "@/lib/reviewStore";
 import type {
   Pos,
   SessionMode,
@@ -16,6 +16,8 @@ interface Props {
   words: WordEntry[];
   mode: SessionMode;
   reviewIds: ReadonlySet<string>;
+  /** 마스터 유지 점검으로 섞인 단어 — 배지 없이 출제되고 틀리면 풀로 복귀. */
+  retentionIds: ReadonlySet<string>;
   onFinish: (summary: SessionSummary) => void;
   onExit: (summary: SessionSummary) => void;
 }
@@ -62,14 +64,15 @@ export default function SessionScreen({
   words,
   mode,
   reviewIds,
+  retentionIds,
   onFinish,
   onExit,
 }: Props) {
   const [state, dispatch] = useReducer(sessionReducer, null, () =>
-    createSession(words, mode, reviewIds),
+    createSession(words, mode, reviewIds, retentionIds),
   );
   const soundOn = useSoundPref();
-  const pool = useReviewPool(); // TS-1 EF 디버그 배지용
+  const pool = useReviewPool(); // 복습 배지 + 익힘 단계 점 표시용
   const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -84,13 +87,19 @@ export default function SessionScreen({
 
   const handleSpace = () => {
     const id = stateRef.current.words[stateRef.current.currentIndex].entry.id;
-    if (mode === "quiz") {
+    if (mode !== "typing") {
       dispatch({ type: "REVEAL" });
       saveWord(id);
     } else {
       saveWord(id);
       setSavedIds((prev) => new Set(prev).add(id));
     }
+  };
+
+  const replayCurrent = () => {
+    const current =
+      stateRef.current.words[stateRef.current.currentIndex];
+    if (current) speak(current.entry.word);
   };
 
   useEffect(() => {
@@ -112,6 +121,10 @@ export default function SessionScreen({
         e.preventDefault();
         if (e.repeat) return;
         handleSpace();
+      } else if (e.key === "Tab" && mode === "listening") {
+        e.preventDefault();
+        if (e.repeat) return;
+        replayCurrent();
       } else {
         const char = charFromKeydown(e);
         if (char === null) return;
@@ -127,6 +140,22 @@ export default function SessionScreen({
     return () => window.removeEventListener("keydown", onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 리스닝은 소리가 꺼져 있으면 성립하지 않는다 — 세션 시작 시 강제로 켠다.
+  // (진입-발화 effect 보다 먼저 실행되어야 첫 단어가 들린다.)
+  useEffect(() => {
+    if (mode === "listening") ensureSoundOn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 리스닝: 카드에 진입하는 순간 발음을 들려준다 (문제 출제)
+  useEffect(() => {
+    if (mode !== "listening") return;
+    const current = state.words[state.currentIndex];
+    if (!current || current.status === "done") return;
+    speak(current.entry.word);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.currentIndex]);
 
   // Focus a hidden input so mobile browsers show the on-screen keyboard —
   // without a focused input element, no software keyboard ever appears.
@@ -299,7 +328,12 @@ export default function SessionScreen({
         <span className={styles.navHints}>
           <kbd>←</kbd> 이전 단어 &nbsp;·&nbsp; <kbd>→</kbd> 건너뛰기
           &nbsp;·&nbsp; <kbd>space</kbd>{" "}
-          {mode === "quiz" ? "정답 보기" : "저장"}
+          {mode === "typing" ? "저장" : "정답 보기"}
+          {mode === "listening" && (
+            <>
+              &nbsp;·&nbsp; <kbd>tab</kbd> 다시 듣기
+            </>
+          )}
         </span>
       </footer>
     </div>
@@ -322,7 +356,7 @@ const WordCard = memo(function WordCard({
   /** 복습 풀 출신 중 실제로 틀린 적 있는 단어. */
   wrongReview: boolean;
   saved: boolean;
-  /** TS-1 ease factor — 디버그용 표시, 복습 풀 출신 단어에만 값이 있다. */
+  /** TS-1 ease factor — 익힘 단계 점 표시용, 복습 풀 출신 단어에만 값이 있다. */
   ease: number | null;
 }) {
   const active = offset === 0;
@@ -355,12 +389,12 @@ const WordCard = memo(function WordCard({
     >
       {wrongReview && (
         <span className={styles.reviewBadge}>
-          틀렸던 단어{ease !== null && ` · EF ${ease.toFixed(2)}`}
+          틀렸던 단어{ease !== null && <EaseDots ease={ease} />}
         </span>
       )}
       {saved && (
         <span className={styles.savedBadge}>
-          저장한 단어{ease !== null && ` · EF ${ease.toFixed(2)}`}
+          저장한 단어{ease !== null && <EaseDots ease={ease} />}
         </span>
       )}
       <span
@@ -371,16 +405,84 @@ const WordCard = memo(function WordCard({
             : styles.shakeLayer
         }
       >
-        <Meaning entry={word.entry} />
-        {active ? (
-          <ExampleLine word={word} mode={mode} active={active} />
+        {mode === "listening" ? (
+          // 리스닝: 완료 전엔 뜻을 숨기고, 퀴즈처럼 예문 문장 속 빈 슬롯에
+          // 받아쓴다 — 문맥이 힌트가 되고 단어 자체는 슬롯이라 안 새어나간다.
+          // 완료 후 홀드 동안 뜻을 보여줘 철자+뜻으로 마무리하게 한다.
+          <>
+            {word.status === "done" ? (
+              <Meaning entry={word.entry} />
+            ) : (
+              <ListeningPrompt word={word.entry.word} active={active} />
+            )}
+            {active ? (
+              <ExampleLine word={word} mode={mode} active={active} />
+            ) : (
+              <WordGlyphs word={word} mode={mode} active={active} />
+            )}
+          </>
         ) : (
-          <WordGlyphs word={word} mode={mode} active={active} />
+          <>
+            <Meaning entry={word.entry} />
+            {active ? (
+              <ExampleLine word={word} mode={mode} active={active} />
+            ) : (
+              <WordGlyphs word={word} mode={mode} active={active} />
+            )}
+          </>
         )}
       </span>
     </motion.div>
   );
 });
+
+/* Ease progress ---------------------------------------------------------------
+   TS-1 ease(1.3~3.0)를 5단계 점으로 — 배지의 잉크색을 그대로 물려받는다. */
+
+function EaseDots({ ease }: { ease: number }) {
+  const step = easeProgress(ease);
+  return (
+    <span
+      className={styles.easeDots}
+      role="img"
+      aria-label={`익힘 단계 ${step} / 5`}
+    >
+      {[1, 2, 3, 4, 5].map((n) => (
+        <span
+          key={n}
+          className={
+            n <= step ? `${styles.easeDot} ${styles.easeDotOn}` : styles.easeDot
+          }
+        />
+      ))}
+    </span>
+  );
+}
+
+/* Listening prompt ----------------------------------------------------------
+   완료 전 리스닝 카드의 머리 부분 — 뜻 대신 안내 문구와 다시 듣기 버튼. */
+
+function ListeningPrompt({ word, active }: { word: string; active: boolean }) {
+  return (
+    <span className={styles.listeningPrompt}>
+      <span className={styles.listeningHint}>
+        <SpeakerIcon muted={false} />
+        발음을 듣고 철자를 입력하세요
+      </span>
+      {active && (
+        <button
+          type="button"
+          className={styles.replayButton}
+          // 숨은 모바일 입력의 포커스를 뺏어 키보드가 닫히지 않게
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => speak(word)}
+        >
+          다시 듣기 <kbd>tab</kbd>
+        </button>
+      )}
+    </span>
+  );
+}
 
 function Meaning({ entry }: { entry: WordEntry }) {
   const posSet = [...new Set(entry.senses.map((s) => s.pos).filter(Boolean))];
@@ -450,7 +552,8 @@ function ExampleLine({
           <span className={styles.sentenceText}>{span.suffix}</span>
         )}
       </span>
-      {word.entry.exampleMeaning && (
+      {/* 리스닝은 해석이 답의 뜻을 미리 알려줘 받아쓰기 긴장이 풀린다 — 숨긴다 */}
+      {mode !== "listening" && word.entry.exampleMeaning && (
         <span className={styles.sentenceMeaning}>
           {word.entry.exampleMeaning}
         </span>
@@ -483,7 +586,9 @@ function WordGlyphs({
         const done = i < typedLen;
         const isCursor = active && i === typedLen && word.status !== "done";
 
-        if (mode === "quiz") {
+        // 퀴즈·리스닝: 빈 슬롯에 입력이 그대로 박힌다. 퀴즈만 첫 글자
+        // 고스트를 보여주고, 리스닝은 hintedUpTo(정답 보기)만 따른다.
+        if (mode !== "typing") {
           const typedChar = word.typed[i];
           const wrong = done && typedChar !== ch;
           const ghost = !done && i < hintBoundary;
@@ -504,7 +609,9 @@ function WordGlyphs({
               ) : ghost ? (
                 <span className={styles.glyphGhost}>{ch}</span>
               ) : (
-                " "
+                // NBSP: 일반 공백은 flex 컨테이너(슬롯)가 버려서 높이가 0이
+                // 된다 — 고스트 없는 리스닝 모드에서 슬롯이 무너지지 않게.
+                " "
               )}
             </span>
           );

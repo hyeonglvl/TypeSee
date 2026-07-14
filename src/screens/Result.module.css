@@ -181,6 +181,41 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Retention — 마스터 유지 점검 실패로 풀에 복귀한 단어 ------------------------- */
+
+.retention {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: min(560px, 88vw);
+}
+
+.retentionLabel {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-right: 4px;
+}
+
+.retentionChip {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--danger-dim);
+  border: 1px solid rgba(205, 58, 49, 0.3);
+  color: var(--danger);
+}
+
+.retentionNote {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
 /* Mastered ------------------------------------------------------------------- */
 
 .mastered {

@@ -8,11 +8,12 @@ import { STARTER_WORDS } from "@/data/words";
 import { shuffle, weightedSample } from "@/lib/engine";
 import { useAuthUser } from "@/lib/auth";
 import {
-  appearanceWeight,
   attachUser,
   detachUser,
   hydrateLocal,
   recordSession,
+  sessionWeight,
+  timeWeight,
   useReviewPool,
 } from "@/lib/reviewStore";
 import {
@@ -34,11 +35,16 @@ type Phase =
       words: WordEntry[];
       mode: SessionMode;
       reviewIds: ReadonlySet<string>;
+      retentionIds: ReadonlySet<string>;
       config: SessionConfig;
     }
   | { step: "result"; summary: SessionSummary; config: SessionConfig };
 
 const REVIEW_MIX_RATIO = 3; // up to 1/3 of a normal session comes from the pool
+// 마스터 유지 점검: 마스터한 지·마지막으로 본 지 이 기간이 지난 단어만
+// 일반 세션의 fresh 몫에서 한두 개 재출현시켜 아직 기억하는지 확인한다.
+const RETENTION_MIN_MS = 3 * 86_400_000;
+const EMPTY_IDS: ReadonlySet<string> = new Set();
 
 const screenMotion = {
   initial: { opacity: 0, y: 14, scale: 0.99 },
@@ -69,25 +75,52 @@ export default function App() {
 
   const startNormal = useCallback(
     (mode: SessionMode, count: number) => {
-      // TS-1: 복습 몫은 ease 가 낮은(자주 틀리는) 단어일수록 잘 뽑히고,
-      // 직전 세션에서 막 정타 통과한 단어는 한 세션 쉰다.
+      // TS-1: 복습 몫은 ease 가 낮은(자주 틀리는) 단어일수록, 그리고 오래
+      // 안 본 단어일수록 잘 뽑히고, 직전 세션에서 막 정타 통과한 단어는
+      // 한 세션 쉰다.
+      const now = Date.now();
       const fromPool = weightedSample(
         STARTER_WORDS.filter(
           (w) => pool.ids.has(w.id) && !pool.inCooldown(w.id),
         ),
-        (w) => appearanceWeight(pool.easeOf(w.id)),
+        (w) => sessionWeight(pool.easeOf(w.id), pool.lastSeenAtOf(w.id), now),
         Math.floor(count / REVIEW_MIX_RATIO),
       );
       const pickedIds = new Set(fromPool.map((w) => w.id));
+
+      // 마스터 유지 점검: 오래 안 본 마스터 단어를 배지 없이(블라인드) 섞어
+      // 아직 기억하는지 확인한다. fresh 몫을 대체하므로 복습 1/3 몫은 그대로.
+      const retention = weightedSample(
+        STARTER_WORDS.filter((w) => {
+          const masteredAt = pool.masteredAtOf(w.id);
+          if (masteredAt === null || pool.inCooldown(w.id)) return false;
+          const seen = pool.lastSeenAtOf(w.id) ?? masteredAt;
+          return (
+            now - masteredAt >= RETENTION_MIN_MS &&
+            now - seen >= RETENTION_MIN_MS
+          );
+        }),
+        (w) => timeWeight(pool.lastSeenAtOf(w.id), now),
+        count >= 20 ? 2 : 1,
+      );
+      const retentionIds: ReadonlySet<string> = new Set(
+        retention.map((w) => w.id),
+      );
+
       const fresh = shuffle(
-        STARTER_WORDS.filter((w) => !pickedIds.has(w.id)),
-      ).slice(0, count - fromPool.length);
+        STARTER_WORDS.filter(
+          (w) => !pickedIds.has(w.id) && !retentionIds.has(w.id),
+        ),
+      ).slice(0, count - fromPool.length - retention.length);
 
       setPhase({
         step: "session",
-        words: shuffle([...fromPool, ...fresh]),
+        words: shuffle([...fromPool, ...retention, ...fresh]),
         mode,
-        reviewIds: pool.ids,
+        // 유지 점검 단어도 reviewIds 에 넣어야 클린 통과가 summary.mastered 를
+        // 거쳐 recordSession 의 유지-통과 분기로 흐른다.
+        reviewIds: new Set([...pool.ids, ...retentionIds]),
+        retentionIds,
         config: { kind: "normal", mode, count },
       });
     },
@@ -104,6 +137,7 @@ export default function App() {
         words: shuffle(words),
         mode,
         reviewIds: new Set(words.map((w) => w.id)),
+        retentionIds: EMPTY_IDS,
         config: { kind: "review", mode },
       });
     },
@@ -148,6 +182,7 @@ export default function App() {
             words={phase.words}
             mode={phase.mode}
             reviewIds={phase.reviewIds}
+            retentionIds={phase.retentionIds}
             onExit={(summary) => {
               record(summary);
               goHome();

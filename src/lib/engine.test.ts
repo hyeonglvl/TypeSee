@@ -31,6 +31,17 @@ describe("createSession", () => {
     expect(s.words[0].fromReview).toBe(false);
     expect(s.words[1].fromReview).toBe(true);
   });
+
+  it("retentionIds 에 있는 단어만 isRetention 으로 표시한다", () => {
+    const s = createSession(
+      [entry("a", "cat"), entry("b", "dog")],
+      "typing",
+      new Set(["a", "b"]),
+      new Set(["b"]),
+    );
+    expect(s.words[0].isRetention).toBe(false);
+    expect(s.words[1].isRetention).toBe(true);
+  });
 });
 
 describe("sessionReducer — typing 모드", () => {
@@ -82,6 +93,25 @@ describe("sessionReducer — quiz 모드", () => {
   });
 });
 
+describe("sessionReducer — listening 모드", () => {
+  it("퀴즈처럼 오타도 그대로 입력되며 커서가 전진한다", () => {
+    let s = createSession([entry("a", "cat")], "listening");
+    s = type(s, "cxt");
+    expect(s.words[0].typed).toBe("cxt");
+    expect(s.words[0].status).toBe("done");
+    expect(s.words[0].mistakes).toBe(1);
+  });
+
+  it("REVEAL(정답 보기)이 퀴즈와 동일하게 동작한다", () => {
+    let s = createSession([entry("a", "cat")], "listening");
+    s = sessionReducer(s, { type: "REVEAL" });
+    expect(s.words[0].status).toBe("done");
+    expect(s.words[0].gaveUp).toBe(true);
+    expect(s.words[0].mistakes).toBe(1);
+    expect(s.words[0].hintedUpTo).toBe(3);
+  });
+});
+
 describe("summarize — 정타 통과(mastered) 판정", () => {
   it("복습 출신 + 완주 + 오타 0 만 mastered 에 들어간다", () => {
     let s = createSession(
@@ -101,6 +131,34 @@ describe("summarize — 정타 통과(mastered) 판정", () => {
     let s = createSession([entry("a", "cat")], "typing");
     s = type(s, "cat");
     expect(summarize(s).mastered).toEqual([]);
+  });
+});
+
+describe("summarize — 마스터 유지 점검(retentionMisses) 판정", () => {
+  it("유지 점검 단어를 틀리면 retentionMisses 에 들어간다", () => {
+    let s = createSession(
+      [entry("a", "cat")],
+      "typing",
+      new Set(["a"]),
+      new Set(["a"]),
+    );
+    s = type(s, "xcat"); // 오타 1개 내고 통과
+    const summary = summarize(s);
+    expect(summary.retentionMisses.map((r) => r.entry.id)).toEqual(["a"]);
+    expect(summary.mastered).toEqual([]);
+  });
+
+  it("유지 점검 단어를 깨끗이 통과하면 mastered 에만 들어간다", () => {
+    let s = createSession(
+      [entry("a", "cat")],
+      "typing",
+      new Set(["a"]),
+      new Set(["a"]),
+    );
+    s = type(s, "cat");
+    const summary = summarize(s);
+    expect(summary.retentionMisses).toEqual([]);
+    expect(summary.mastered.map((w) => w.id)).toEqual(["a"]);
   });
 });
 

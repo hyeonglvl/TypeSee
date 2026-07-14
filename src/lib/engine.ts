@@ -12,6 +12,7 @@ export function createSession(
   words: WordEntry[],
   mode: SessionMode,
   reviewIds?: ReadonlySet<string>,
+  retentionIds?: ReadonlySet<string>,
 ): SessionState {
   return {
     mode,
@@ -25,6 +26,7 @@ export function createSession(
         hintedUpTo: 0,
         gaveUp: false,
         fromReview: reviewIds?.has(entry.id) ?? false,
+        isRetention: retentionIds?.has(entry.id) ?? false,
       }),
     ),
     currentIndex: 0,
@@ -102,10 +104,10 @@ export function sessionReducer(
       const at = active.typed.length;
       const correct = action.char === target[at];
 
-      // Quiz mode tests spelling recall — every keystroke lands and the
-      // cursor always advances, right or wrong, instead of blocking until
+      // Quiz/Listening mode tests spelling recall — every keystroke lands and
+      // the cursor always advances, right or wrong, instead of blocking until
       // the correct letter is found (that's what Typing mode is for).
-      if (state.mode === "quiz") {
+      if (state.mode !== "typing") {
         const typed = active.typed + action.char;
         const done = typed.length === target.length;
         const streak = correct ? state.streak + 1 : 0;
@@ -199,6 +201,11 @@ export function summarize(state: SessionState): SessionSummary {
     .filter((w) => w.fromReview && w.status === "done" && w.mistakes === 0)
     .map((w) => w.entry);
 
+  // 마스터 유지 점검 실패 — recordSession 이 복습 풀로 강등한 단어들.
+  const retentionMisses = state.words
+    .filter((w) => w.isRetention && w.mistakes > 0)
+    .map((w) => ({ entry: w.entry, mistakes: w.mistakes }));
+
   return {
     mode: state.mode,
     totalWords: state.words.length,
@@ -209,6 +216,7 @@ export function summarize(state: SessionState): SessionSummary {
     bestStreak: bestWordStreak,
     troubleWords,
     mastered,
+    retentionMisses,
   };
 }
 
