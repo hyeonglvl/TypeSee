@@ -5,8 +5,9 @@ import {
   clearAll,
   clearSavedWord,
   clearWrongWord,
-  easeProgress,
+  easeStage,
   useReviewPool,
+  type EaseStageTone,
 } from "@/lib/reviewStore";
 import { useAuthUser } from "@/lib/auth";
 import HistorySheet from "@/screens/HistorySheet";
@@ -17,6 +18,13 @@ interface Props {
   onStart: (mode: SessionMode, words: WordEntry[]) => void;
   onBack: () => void;
 }
+
+const STAGE_CLASS: Record<EaseStageTone, string> = {
+  weak: styles.stageWeak,
+  wary: styles.stageWary,
+  stable: styles.stageStable,
+  done: styles.stageDone,
+};
 
 export default function ReviewScreen({ onStart, onBack }: Props) {
   const pool = useReviewPool();
@@ -76,16 +84,13 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
 
       {/* 틀린 단어·저장 단어를 나누지 않고 단어별 카드 하나에 그 단어의
           기록(틀린 횟수·저장 여부·익힘 단계)을 모두 보여준다.
-          호버하면 예문과 해석이 펼쳐진다. */}
-      <div className={styles.gridHead} aria-hidden="true">
-        <span className={styles.gridHeadWord}>영단어</span>
-        <span>뜻</span>
-      </div>
+          호버하면 예문·해석이 카드 위에 떠오른다. */}
       <ul className={styles.grid}>
         <AnimatePresence initial={false}>
           {entries.map((entry, i) => {
             const wrong = pool.wrongCountOf(entry.id);
             const saved = pool.isSaved(entry.id);
+            const stage = easeStage(pool.easeOf(entry.id));
             return (
               <motion.li
                 key={entry.id}
@@ -95,21 +100,24 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
                 exit={{ opacity: 0, scale: 0.94 }}
                 transition={{ delay: Math.min(i * 0.02, 0.3) }}
               >
-                <span className={styles.cardRow}>
-                  <span className={styles.word}>{entry.word}</span>
-                  <span className={styles.meaning}>
-                    {entry.senses.map((s) => s.meaning).join(" · ")}
-                  </span>
-                  <span className={styles.cardBadges}>
-                    {wrong > 0 && (
-                      <span className={styles.missBadge}>틀림 ×{wrong}</span>
-                    )}
-                    {saved && <span className={styles.savedBadge}>저장</span>}
-                  </span>
-                  <EaseDots ease={pool.easeOf(entry.id)} />
+                <span className={`${styles.stage} ${STAGE_CLASS[stage.tone]}`}>
+                  {stage.label}
+                </span>
+                <span className={styles.word}>{entry.word}</span>
+                <span className={styles.meaning}>
+                  {entry.senses.map((s) => s.meaning).join(" · ")}
+                </span>
+                <span className={styles.cardBadges}>
+                  {wrong > 0 && (
+                    <span className={styles.missBadge}>틀림 ×{wrong}</span>
+                  )}
+                  {saved && <span className={styles.savedBadge}>저장</span>}
+                  {pool.isRevealed(entry.id) && (
+                    <span className={styles.revealBadge}>정답 봄</span>
+                  )}
                 </span>
                 {entry.example && (
-                  <span className={styles.example}>
+                  <span className={styles.example} aria-hidden="true">
                     <span className={styles.exampleEn}>{entry.example}</span>
                     {entry.exampleMeaning && (
                       <span className={styles.exampleKo}>
@@ -176,26 +184,5 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
         {historyOpen && <HistorySheet onClose={() => setHistoryOpen(false)} />}
       </AnimatePresence>
     </div>
-  );
-}
-
-/* TS-1 ease(1.3~3.0)를 5단계 점으로 — 세션 카드 배지와 같은 표현. */
-function EaseDots({ ease }: { ease: number }) {
-  const step = easeProgress(ease);
-  return (
-    <span
-      className={styles.easeDots}
-      role="img"
-      aria-label={`익힘 단계 ${step} / 5`}
-    >
-      {[1, 2, 3, 4, 5].map((n) => (
-        <span
-          key={n}
-          className={
-            n <= step ? `${styles.easeDot} ${styles.easeDotOn}` : styles.easeDot
-          }
-        />
-      ))}
-    </span>
   );
 }

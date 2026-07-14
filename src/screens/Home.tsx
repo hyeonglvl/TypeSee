@@ -39,11 +39,12 @@ const COUNT_DEFAULT = 10;
 const COUNT_STEP = 5;
 const COUNT_MIN = 1;
 
-// 단어셋은 추후 추가 예정 — 현재 수록 단어는 실생활 카테고리로 취급
+// 단어셋은 추후 추가 예정 — 현재 수록 단어는 실생활 카테고리로 취급.
+// 실생활이 목록 가운데쯤 오도록 배치한다 (기본 선택은 그대로 실생활).
 const CATEGORIES = [
-  { id: "daily", label: "실생활" },
   { id: "toeic", label: "토익", soon: true },
   { id: "business", label: "비즈니스", soon: true },
+  { id: "daily", label: "실생활" },
   { id: "science", label: "과학", soon: true },
 ];
 

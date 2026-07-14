@@ -41,51 +41,37 @@
   color: var(--ink-2);
 }
 
-/* Word cards — 단어 하나에 카드 하나, '영단어 · 뜻'을 가로로 눕히고
-   호버하면 예문·해석이 펼쳐진다 ------------------------------------------- */
-
-.gridHead {
-  display: flex;
-  gap: 14px;
-  width: min(680px, 92vw);
-  padding: 0 17px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ink-3);
-  margin-bottom: -16px;
-}
-
-.gridHeadWord {
-  min-width: 150px;
-}
+/* Word cards — 한 줄에 4개, 단어 하나에 카드 하나. 호버하면 예문·해석이
+   카드 위에 떠오른다 ------------------------------------------------------ */
 
 .grid {
   list-style: none;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 9px;
-  width: min(680px, 92vw);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: min(1020px, 94vw);
   max-height: min(420px, 46vh);
   overflow-y: auto;
   scrollbar-width: thin;
   padding: 3px;
 }
 
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 12px 16px;
+  gap: 7px;
+  padding: 14px 16px 13px;
   border-radius: var(--radius-m);
   background: var(--surface);
   border: 1px solid var(--hairline);
   box-shadow: var(--shadow-card);
-}
-
-.cardRow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
 }
 
 /* 기존 대비 10% 키운 크기 — word 16→17.6, meaning 13→14.3 */
@@ -93,32 +79,40 @@
   font-family: var(--font-mono);
   font-size: 17.6px;
   font-weight: 500;
-  min-width: 150px;
   color: var(--ink);
 }
 
 .meaning {
-  flex: 1;
   font-size: 14.3px;
   color: var(--ink-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .cardBadges {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
+  margin-top: auto;
 }
 
-/* 호버에서만 펼쳐지는 예문 + 해석 */
+/* 호버 시 카드 전체를 덮으며 떠오르는 예문 + 해석. 팝오버를 카드 밖에
+   띄우면 그리드의 스크롤 클리핑에 잘리므로 카드 위를 덮는 방식으로. */
 .example {
+  position: absolute;
+  inset: -1px;
+  z-index: 2;
   display: none;
   flex-direction: column;
-  gap: 3px;
-  margin-top: 10px;
-  padding-top: 9px;
-  border-top: 1px dashed var(--hairline);
+  justify-content: center;
+  gap: 5px;
+  padding: 12px 40px 12px 16px;
+  border-radius: var(--radius-m);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: var(--shadow-pop);
 }
 
 .card:hover .example {
@@ -133,25 +127,6 @@
 .exampleKo {
   font-size: 12.5px;
   color: var(--ink-3);
-}
-
-.easeDots {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  color: var(--accent-deep);
-}
-
-.easeDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: currentColor;
-  opacity: 0.22;
-}
-
-.easeDotOn {
-  opacity: 1;
 }
 
 .missBadge {
@@ -176,10 +151,53 @@
   transition: opacity var(--dur-fast) var(--ease-out);
 }
 
+.revealBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(43, 79, 216, 0.22);
+  color: var(--accent-deep);
+}
+
+/* 우상단 익힘 단계 — ease 에 따라 틀린 느낌(빨강)→맞춘 느낌(초록) */
+.stage {
+  position: absolute;
+  top: 13px;
+  right: 15px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+/* 호버 시 같은 자리에 삭제 버튼이 뜬다 — 잠시 비켜준다 */
+.card:hover .stage {
+  opacity: 0;
+}
+
+.stageWeak {
+  color: var(--danger);
+}
+
+.stageWary {
+  color: #b45309;
+}
+
+.stageStable {
+  color: #7c8a1a;
+}
+
+.stageDone {
+  color: #2e7d32;
+}
+
 .rowDelete {
   position: absolute;
   top: 10px;
   right: 10px;
+  z-index: 3; /* 호버 예문 오버레이 위 */
   width: 26px;
   height: 26px;
   display: grid;
@@ -199,11 +217,6 @@
 .card:hover .rowDelete {
   opacity: 1;
   pointer-events: auto;
-}
-
-/* 삭제 버튼이 익힘 단계 점 자리에 뜬다 — 겹치지 않게 잠시 비켜준다 */
-.card:hover .easeDots {
-  opacity: 0;
 }
 
 .rowDelete:hover {

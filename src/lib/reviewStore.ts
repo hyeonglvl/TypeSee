@@ -13,6 +13,8 @@ interface Entry {
   wrongCount: number;
   /** Bookmarked via Space during a session, independent of wrongCount. */
   saved: boolean;
+  /** 정답 보기로 철자를 열어본 적 있는 단어 — 복습 노트 라벨용. */
+  revealed: boolean;
   /** TS-1 ease factor — 낮을수록 약한 단어라 세션에 더 자주 등장한다. */
   ease: number;
   /** 세션에서 마지막으로 실제 학습(오답·정타 통과·저장)한 시각(ms).
@@ -66,6 +68,21 @@ export function easeProgress(ease: number): number {
   );
 }
 
+/** TS-1 ease(1.3~3.0)를 4단계 라벨로 — 틀린 느낌(빨강)에서 맞춘
+ *  느낌(초록)으로. 기준점: 새 오답 2.3 → 주의, 갓 저장 2.5 → 안정,
+ *  마스터 임박 → 완성. tone 은 화면별 CSS 클래스에 매핑한다. */
+export type EaseStageTone = "weak" | "wary" | "stable" | "done";
+
+export function easeStage(ease: number): {
+  label: string;
+  tone: EaseStageTone;
+} {
+  if (ease <= 1.9) return { label: "취약 단어", tone: "weak" };
+  if (ease <= 2.4) return { label: "주의 단어", tone: "wary" };
+  if (ease <= 2.8) return { label: "안정 단어", tone: "stable" };
+  return { label: "완성 단어", tone: "done" };
+}
+
 /** 세션 추첨 최종 가중치 = ease 가중치 × 시간 가중치. */
 export function sessionWeight(
   ease: number,
@@ -105,6 +122,8 @@ export interface ReviewPool {
   masteredAtOf: (id: string) => number | null;
   wrongCountOf: (id: string) => number;
   isSaved: (id: string) => boolean;
+  /** 정답 보기로 열어본 적 있는 단어 — 복습 노트 '정답 봄' 라벨. */
+  isRevealed: (id: string) => boolean;
   easeOf: (id: string) => number;
   /** 마지막으로 실제 학습한 시각(ms) — 시간 가중치용, 미상이면 null. */
   lastSeenAtOf: (id: string) => number | null;
@@ -149,6 +168,7 @@ function buildSnapshot(): ReviewPool {
     masteredAtOf: (id) => frozen.get(id)?.masteredAt ?? null,
     wrongCountOf: (id) => frozen.get(id)?.wrongCount ?? 0,
     isSaved: (id) => frozen.get(id)?.saved ?? false,
+    isRevealed: (id) => frozen.get(id)?.revealed ?? false,
     easeOf: (id) => frozen.get(id)?.ease ?? EASE_INIT,
     lastSeenAtOf: (id) => frozen.get(id)?.lastSeenAt ?? null,
     inCooldown: (id) => frozenCooldown.has(id),
@@ -214,6 +234,7 @@ export function hydrateLocal() {
           Math.max(0, Math.floor(Number(e?.wrongCount) || 0)),
         );
         const saved = (cur?.saved ?? false) || e?.saved === true;
+        const revealed = (cur?.revealed ?? false) || e?.revealed === true;
         const rawEase = Number(e?.ease);
         const storedEase = Number.isFinite(rawEase)
           ? Math.min(Math.max(rawEase, EASE_MIN), EASE_MASTER)
@@ -239,7 +260,14 @@ export function hydrateLocal() {
         // 마스터 유지 엔트리는 wrongCount 0·saved false 라서 masteredAt 도
         // 보존 조건에 넣어야 새로고침에 증발하지 않는다.
         if (wrongCount > 0 || saved || masteredAt !== null)
-          misses.set(id, { wrongCount, saved, ease, lastSeenAt, masteredAt });
+          misses.set(id, {
+            wrongCount,
+            saved,
+            revealed,
+            ease,
+            lastSeenAt,
+            masteredAt,
+          });
       }
       if (misses.size > 0) notify();
     }
@@ -323,6 +351,7 @@ export function recordSession(
     misses.set(id, {
       wrongCount: (cur?.wrongCount ?? 0) + count,
       saved: cur?.saved ?? false,
+      revealed: cur?.revealed ?? false,
       ease: Math.max(EASE_MIN, baseEase - EASE_WRONG_STEP * count),
       lastSeenAt: now,
       masteredAt: null,
@@ -351,6 +380,7 @@ export function recordSession(
         misses.set(id, {
           wrongCount: 0,
           saved: true,
+          revealed: cur.revealed,
           ease: EASE_INIT,
           lastSeenAt: now,
           masteredAt: null,
@@ -362,6 +392,7 @@ export function recordSession(
         misses.set(id, {
           wrongCount: 0,
           saved: false,
+          revealed: cur.revealed,
           ease: EASE_MASTER,
           lastSeenAt: now,
           masteredAt: now,
@@ -392,6 +423,7 @@ export function recordSession(
       word_id: id,
       wrong_count: misses.get(id)?.wrongCount ?? 1,
       saved: misses.get(id)?.saved ?? false,
+      revealed: misses.get(id)?.revealed ?? false,
       ease_factor: misses.get(id)?.ease ?? EASE_INIT,
       last_seen_at: toIso(misses.get(id)?.lastSeenAt),
       mastered_at: toIso(misses.get(id)?.masteredAt),
@@ -422,13 +454,15 @@ export function recordSession(
   }
 }
 
-/** Bookmark a word (Space during a session) — shown as "저장" in the review list. */
-export function saveWord(id: string) {
+/** Bookmark a word (Space during a session) — shown as "저장" in the review list.
+ *  revealed=true 는 정답 보기로 저장된 경우 — 복습 노트에 '정답 봄' 라벨이 붙는다. */
+export function saveWord(id: string, revealed = false) {
   const cur = misses.get(id);
-  if (cur?.saved) return;
+  if (cur?.saved && (cur.revealed || !revealed)) return;
   misses.set(id, {
     wrongCount: cur?.wrongCount ?? 0,
     saved: true,
+    revealed: (cur?.revealed ?? false) || revealed,
     // 마스터 유지 상태였던 단어를 저장하면 활성 북마크로 복귀한다 — ease 를
     // 리셋해 자기 가중치(≈0)에 굶지 않게 (saved 마스터와 같은 규칙).
     ease: cur?.masteredAt != null ? EASE_INIT : (cur?.ease ?? EASE_INIT),
@@ -448,6 +482,7 @@ export function saveWord(id: string) {
           word_id: id,
           wrong_count: entry.wrongCount,
           saved: true,
+          revealed: entry.revealed,
           ease_factor: entry.ease,
           last_seen_at: toIso(entry.lastSeenAt),
           mastered_at: toIso(entry.masteredAt),
@@ -507,6 +542,7 @@ export function clearWrong() {
       word_id,
       wrong_count: 0,
       saved: true,
+      revealed: misses.get(word_id)?.revealed ?? false,
       ease_factor: misses.get(word_id)?.ease ?? EASE_INIT,
       last_seen_at: toIso(misses.get(word_id)?.lastSeenAt),
       mastered_at: toIso(misses.get(word_id)?.masteredAt),
@@ -552,6 +588,7 @@ export function clearSaved() {
       word_id,
       wrong_count: misses.get(word_id)?.wrongCount ?? 1,
       saved: false,
+      revealed: misses.get(word_id)?.revealed ?? false,
       ease_factor: misses.get(word_id)?.ease ?? EASE_INIT,
       last_seen_at: toIso(misses.get(word_id)?.lastSeenAt),
       mastered_at: toIso(misses.get(word_id)?.masteredAt),
@@ -583,6 +620,7 @@ export function clearWrongWord(id: string) {
               word_id: id,
               wrong_count: 0,
               saved: true,
+              revealed: cur.revealed,
               ease_factor: cur.ease,
               last_seen_at: toIso(cur.lastSeenAt),
               mastered_at: toIso(cur.masteredAt),
@@ -626,6 +664,7 @@ export function clearSavedWord(id: string) {
               word_id: id,
               wrong_count: cur.wrongCount,
               saved: false,
+              revealed: cur.revealed,
               ease_factor: cur.ease,
               last_seen_at: toIso(cur.lastSeenAt),
               mastered_at: toIso(cur.masteredAt),
@@ -680,63 +719,44 @@ export function clearHistoryAll() {
 }
 
 async function syncMissedWordsOnLogin(sb: SupabaseClient, userId: string) {
-  let rows: Array<{
+  type PoolRow = {
     word_id: string;
     wrong_count: number;
     saved?: boolean;
+    revealed?: boolean;
     ease_factor?: number;
     last_seen_at?: string | null;
     mastered_at?: string | null;
-  }>;
+  };
 
-  // Newer columns (`saved`, `ease_factor`, `last_seen_at`, `mastered_at`)
-  // may be missing on a DB that predates their migrations (see
-  // supabase/schema.sql). Fall back progressively so the pool still loads
-  // instead of wiping out on every refresh; the missing fields just won't
-  // persist remotely until the migration runs.
-  const withTimes = await sb
-    .from("missed_words")
-    .select("word_id, wrong_count, saved, ease_factor, last_seen_at, mastered_at")
-    .eq("user_id", userId);
-
-  if (!withTimes.error) {
-    rows = withTimes.data ?? [];
-  } else if (withTimes.error.code === "42703") {
-    const withEase = await sb
+  // Newer columns (`saved`, `ease_factor`, `last_seen_at`, `mastered_at`,
+  // `revealed`) may be missing on a DB that predates their migrations (see
+  // supabase/schema.sql). Fall back progressively (42703 = undefined column)
+  // so the pool still loads instead of wiping out on every refresh; the
+  // missing fields just won't persist remotely until the migration runs.
+  const selectFallbacks = [
+    "word_id, wrong_count, saved, revealed, ease_factor, last_seen_at, mastered_at",
+    "word_id, wrong_count, saved, ease_factor, last_seen_at, mastered_at",
+    "word_id, wrong_count, saved, ease_factor",
+    "word_id, wrong_count, saved",
+    "word_id, wrong_count",
+  ];
+  let rows: PoolRow[] | null = null;
+  for (const columns of selectFallbacks) {
+    const res = await sb
       .from("missed_words")
-      .select("word_id, wrong_count, saved, ease_factor")
+      .select(columns)
       .eq("user_id", userId);
-    if (!withEase.error) {
-      rows = withEase.data ?? [];
-    } else if (withEase.error.code === "42703") {
-      const withSaved = await sb
-        .from("missed_words")
-        .select("word_id, wrong_count, saved")
-        .eq("user_id", userId);
-      if (!withSaved.error) {
-        rows = withSaved.data ?? [];
-      } else if (withSaved.error.code === "42703") {
-        const legacy = await sb
-          .from("missed_words")
-          .select("word_id, wrong_count")
-          .eq("user_id", userId);
-        if (legacy.error) {
-          warnRemote(legacy.error);
-          return;
-        }
-        rows = legacy.data ?? [];
-      } else {
-        warnRemote(withSaved.error);
-        return;
-      }
-    } else {
-      warnRemote(withEase.error);
+    if (!res.error) {
+      rows = (res.data ?? []) as unknown as PoolRow[];
+      break;
+    }
+    if (res.error.code !== "42703") {
+      warnRemote(res.error);
       return;
     }
-  } else {
-    warnRemote(withTimes.error);
-    return;
   }
+  if (rows === null) return; // 모든 폴백이 42703 — 테이블 구조가 예상 밖
 
   for (const row of rows) {
     const cur = misses.get(row.word_id);
@@ -745,6 +765,7 @@ async function syncMissedWordsOnLogin(sb: SupabaseClient, userId: string) {
     misses.set(row.word_id, {
       wrongCount: Math.max(cur?.wrongCount ?? 0, row.wrong_count),
       saved: (cur?.saved ?? false) || Boolean(row.saved),
+      revealed: (cur?.revealed ?? false) || Boolean(row.revealed),
       // 양쪽에 있으면 낮은(약한) ease 가 이긴다 — 덜 외운 상태로 보는 게
       // 안전하다. 로컬에 없던 단어는 원격 값을 그대로 쓴다 (EASE_INIT
       // 상한으로 깎으면 2.5를 넘긴 진행분이 로그인마다 증발한다).
@@ -768,6 +789,7 @@ async function syncMissedWordsOnLogin(sb: SupabaseClient, userId: string) {
       word_id,
       wrong_count: entry.wrongCount,
       saved: entry.saved,
+      revealed: entry.revealed,
       ease_factor: entry.ease,
       // 재푸시는 동기화일 뿐 학습이 아니다 — 저장된 시각을 그대로 유지
       last_seen_at: toIso(entry.lastSeenAt),

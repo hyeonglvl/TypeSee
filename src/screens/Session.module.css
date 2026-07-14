@@ -151,53 +151,73 @@
   will-change: transform, opacity;
 }
 
-.reviewBadge {
+/* 카드 좌상단 상태 칩 — 해당되는 것을 전부 작게 나열한다 */
+.cardBadgeRow {
   position: absolute;
-  top: 18px;
-  left: 20px;
-  padding: 4px 11px;
+  top: 16px;
+  left: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.reviewBadge {
+  padding: 3px 9px;
   border-radius: 999px;
   background: var(--danger-dim);
   border: 1px solid rgba(205, 58, 49, 0.25);
   color: var(--danger);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 .savedBadge {
-  position: absolute;
-  top: 18px;
-  right: 20px;
-  padding: 4px 11px;
+  padding: 3px 9px;
   border-radius: 999px;
   background: var(--highlight-dim);
   border: 1px solid rgba(226, 178, 14, 0.35);
   color: #6f5500;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
-/* 익힘 단계 점 — 배지의 잉크색(currentColor)을 그대로 물려받는다 */
-.easeDots {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin-left: 7px;
-  vertical-align: 1px;
+/* 우상단 익힘 단계 — ease 에 따라 틀린 느낌(빨강)→맞춘 느낌(초록) */
+.stage {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-.easeDot {
-  width: 5px;
-  height: 5px;
+.stageWeak {
+  color: var(--danger);
+}
+
+.stageWary {
+  color: #b45309;
+}
+
+.stageStable {
+  color: #7c8a1a;
+}
+
+.stageDone {
+  color: #2e7d32;
+}
+
+.hintSeenBadge {
+  padding: 3px 9px;
   border-radius: 999px;
-  background: currentColor;
-  opacity: 0.22;
-}
-
-.easeDotOn {
-  opacity: 1;
+  background: var(--accent-dim);
+  border: 1px solid rgba(43, 79, 216, 0.22);
+  color: var(--accent-deep);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .cardActive {
@@ -344,6 +364,7 @@
    Pending letters are faint pencil; typed letters land in blue ink. */
 
 .wordRow {
+  position: relative; /* 오답 완료 시 정답을 위에 띄우는 기준 */
   display: inline-flex;
   vertical-align: middle;
   margin: 0 0.15em;
@@ -351,6 +372,19 @@
   font-size: clamp(25px, 5.2vw, 45px);
   font-weight: 500;
   letter-spacing: 0.02em;
+}
+
+/* 끝까지 쳤는데 틀렸을 때 유저 입력 위에 뜨는 정답 */
+.answerAbove {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.42em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent-deep);
+  white-space: nowrap;
 }
 
 .char {
@@ -443,6 +477,9 @@
 }
 
 .actionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   padding: 9px 20px;
   border-radius: 999px;
   border: 1px solid var(--hairline-strong);

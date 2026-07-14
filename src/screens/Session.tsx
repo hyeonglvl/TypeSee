@@ -2,7 +2,12 @@ import { memo, useEffect, useReducer, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createSession, sessionReducer, summarize } from "@/lib/engine";
 import { ensureSoundOn, speak, toggleSound, useSoundPref } from "@/lib/tts";
-import { easeProgress, saveWord, useReviewPool } from "@/lib/reviewStore";
+import {
+  easeStage,
+  saveWord,
+  useReviewPool,
+  type EaseStageTone,
+} from "@/lib/reviewStore";
 import type {
   Pos,
   SessionMode,
@@ -39,6 +44,13 @@ const GIVE_UP_HOLD_MS = 1500;
 const LISTENING_ADVANCE_HOLD_MS = 1000;
 
 const cardSpring = { type: "spring", stiffness: 280, damping: 30 } as const;
+
+const STAGE_CLASS: Record<EaseStageTone, string> = {
+  weak: styles.stageWeak,
+  wary: styles.stageWary,
+  stable: styles.stageStable,
+  done: styles.stageDone,
+};
 
 /* 한국어 IME가 켜진 채 타이핑해도 영어가 입력되게, e.key 대신 물리 키
    위치(e.code)에서 문자를 복원한다. 한글 2벌식은 QWERTY 배열 그대로라
@@ -92,7 +104,7 @@ export default function SessionScreen({
     const id = stateRef.current.words[stateRef.current.currentIndex].entry.id;
     if (mode !== "typing") {
       dispatch({ type: "REVEAL" });
-      saveWord(id);
+      saveWord(id, true); // 정답 봄 — 복습 노트에 라벨이 붙는다
     } else {
       saveWord(id);
       setSavedIds((prev) => new Set(prev).add(id));
@@ -128,6 +140,18 @@ export default function SessionScreen({
         e.preventDefault();
         if (e.repeat) return;
         replayCurrent();
+      } else if (e.key >= "0" && e.key <= "9") {
+        // 숫자는 글자로 입력받지 않는다 — 퀴즈·리스닝 액션 단축키 전용
+        e.preventDefault();
+        if (e.repeat) return;
+        if (mode === "quiz") {
+          if (e.key === "1") dispatch({ type: "HINT" });
+          else if (e.key === "2") handleSpace();
+        } else if (mode === "listening") {
+          if (e.key === "1") toggleMeaning();
+          else if (e.key === "2") dispatch({ type: "HINT" });
+          else if (e.key === "3") handleSpace();
+        }
       } else {
         const char = charFromKeydown(e);
         if (char === null) return;
@@ -160,11 +184,20 @@ export default function SessionScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.currentIndex]);
 
-  // 리스닝 '뜻 보기' — 카드가 넘어가면 다시 닫힌다
+  // 리스닝 '뜻 보기' — 카드가 넘어가면 다시 닫힌다.
+  // 키보드 핸들러(deps [])에서도 토글할 수 있게 ref 로도 함께 든다.
   const [meaningShown, setMeaningShown] = useState(false);
+  const meaningShownRef = useRef(false);
   useEffect(() => {
+    meaningShownRef.current = false;
     setMeaningShown(false);
   }, [state.currentIndex]);
+
+  const toggleMeaning = () => {
+    if (!meaningShownRef.current) dispatch({ type: "SHOW_MEANING" });
+    meaningShownRef.current = !meaningShownRef.current;
+    setMeaningShown(meaningShownRef.current);
+  };
 
   // Focus a hidden input so mobile browsers show the on-screen keyboard —
   // without a focused input element, no software keyboard ever appears.
@@ -183,7 +216,9 @@ export default function SessionScreen({
     if (chars.length === 0) return;
     for (const char of chars) {
       if (char === " ") handleSpace();
-      // 한글 등 비 ASCII 문자는 IME 조합 산출물 — 오답으로 세지 않고 무시
+      // 숫자는 단축키 전용이라 글자로 넣지 않고, 한글 등 비 ASCII 문자는
+      // IME 조합 산출물 — 어느 쪽도 오답으로 세지 않고 무시
+      else if (char >= "0" && char <= "9") continue;
       else if (char.charCodeAt(0) < 128) dispatch({ type: "TYPE_CHAR", char });
     }
   };
@@ -311,16 +346,18 @@ export default function SessionScreen({
       <div className={styles.track}>
         <AnimatePresence initial={false}>
           {visible.map((word, i) => {
-            // 복습 풀에는 틀린 단어와 저장한 단어가 섞여 있다. 복습 노트
-            // 화면과 같은 기준으로 저장 여부가 우선한다 — 저장한 단어는
-            // 틀린 적이 있어도 "저장한 단어"로 보여준다.
+            // 해당되는 상태는 전부 나열한다 — 틀렸던 단어이면서 저장한
+            // 단어일 수도 있다.
             const isSaved =
               savedIds.has(word.entry.id) ||
               (word.fromReview && pool.isSaved(word.entry.id));
             const wrongReview =
-              word.fromReview &&
-              !isSaved &&
-              pool.wrongCountOf(word.entry.id) > 0;
+              word.fromReview && pool.wrongCountOf(word.entry.id) > 0;
+            // 익힘 단계는 복습 풀에 있는(기록 있는) 단어에만 붙인다.
+            // 마스터 유지 점검 단어는 블라인드 점검이라 표시하지 않는다.
+            const stage = pool.ids.has(word.entry.id)
+              ? easeStage(pool.easeOf(word.entry.id))
+              : null;
             return (
               <WordCard
                 key={word.entry.id}
@@ -329,7 +366,7 @@ export default function SessionScreen({
                 mode={mode}
                 wrongReview={wrongReview}
                 saved={isSaved}
-                ease={word.fromReview ? pool.easeOf(word.entry.id) : null}
+                stage={stage}
                 showMeaning={
                   meaningShown && first + i === state.currentIndex
                 }
@@ -347,12 +384,9 @@ export default function SessionScreen({
               className={styles.actionButton}
               // 숨은 모바일 입력의 포커스를 뺏어 키보드가 닫히지 않게
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => {
-                if (!meaningShown) dispatch({ type: "SHOW_MEANING" });
-                setMeaningShown((v) => !v);
-              }}
+              onClick={toggleMeaning}
             >
-              {meaningShown ? "뜻 감추기" : "뜻 보기"}
+              {meaningShown ? "뜻 감추기" : "뜻 보기"} <kbd>1</kbd>
             </button>
           )}
           <button
@@ -361,7 +395,7 @@ export default function SessionScreen({
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => dispatch({ type: "HINT" })}
           >
-            힌트 보기
+            힌트 보기 <kbd>{mode === "listening" ? "2" : "1"}</kbd>
           </button>
           <button
             type="button"
@@ -369,7 +403,7 @@ export default function SessionScreen({
             onMouseDown={(e) => e.preventDefault()}
             onClick={handleSpace}
           >
-            정답 보기
+            정답 보기 <kbd>{mode === "listening" ? "3" : "2"}</kbd>
           </button>
         </div>
       )}
@@ -399,7 +433,7 @@ const WordCard = memo(function WordCard({
   mode,
   wrongReview,
   saved,
-  ease,
+  stage,
   showMeaning = false,
 }: {
   word: WordState;
@@ -408,8 +442,8 @@ const WordCard = memo(function WordCard({
   /** 복습 풀 출신 중 실제로 틀린 적 있는 단어. */
   wrongReview: boolean;
   saved: boolean;
-  /** TS-1 ease factor — 익힘 단계 점 표시용, 복습 풀 출신 단어에만 값이 있다. */
-  ease: number | null;
+  /** 익힘 단계 라벨 — 복습 풀에 기록이 있는 단어에만 값이 있다. */
+  stage: { label: string; tone: EaseStageTone } | null;
   /** 리스닝 '뜻 보기' — 완료 전에도 뜻을 노출한다. */
   showMeaning?: boolean;
 }) {
@@ -441,14 +475,18 @@ const WordCard = memo(function WordCard({
       exit={{ opacity: 0, scale: 0.35 }}
       transition={cardSpring}
     >
-      {wrongReview && (
-        <span className={styles.reviewBadge}>
-          틀렸던 단어{ease !== null && <EaseDots ease={ease} />}
+      {stage && (
+        <span className={`${styles.stage} ${STAGE_CLASS[stage.tone]}`}>
+          {stage.label}
         </span>
       )}
-      {saved && (
-        <span className={styles.savedBadge}>
-          저장한 단어{ease !== null && <EaseDots ease={ease} />}
+      {(wrongReview || saved || word.hinted) && (
+        <span className={styles.cardBadgeRow}>
+          {wrongReview && (
+            <span className={styles.reviewBadge}>틀렸던 단어</span>
+          )}
+          {saved && <span className={styles.savedBadge}>저장한 단어</span>}
+          {word.hinted && <span className={styles.hintSeenBadge}>힌트 봄</span>}
         </span>
       )}
       <span
@@ -494,29 +532,6 @@ const WordCard = memo(function WordCard({
     </motion.div>
   );
 });
-
-/* Ease progress ---------------------------------------------------------------
-   TS-1 ease(1.3~3.0)를 5단계 점으로 — 배지의 잉크색을 그대로 물려받는다. */
-
-function EaseDots({ ease }: { ease: number }) {
-  const step = easeProgress(ease);
-  return (
-    <span
-      className={styles.easeDots}
-      role="img"
-      aria-label={`익힘 단계 ${step} / 5`}
-    >
-      {[1, 2, 3, 4, 5].map((n) => (
-        <span
-          key={n}
-          className={
-            n <= step ? `${styles.easeDot} ${styles.easeDotOn}` : styles.easeDot
-          }
-        />
-      ))}
-    </span>
-  );
-}
 
 /* Listening prompt ----------------------------------------------------------
    완료 전 리스닝 카드의 머리 부분 — 뜻 대신 안내 문구와 다시 듣기 버튼. */
@@ -643,8 +658,19 @@ function WordGlyphs({
   const typedLen = word.typed.length;
   const hintBoundary = Math.max(mode === "quiz" ? 1 : 0, word.hintedUpTo);
 
+  // 끝까지 쳤는데 틀린 채 완료 — 유저 입력 위에 정답을 띄워준다.
+  // (정답 보기는 고스트가 이미 정답을 보여주므로 제외)
+  const showAnswerAbove =
+    mode !== "typing" &&
+    word.status === "done" &&
+    !word.gaveUp &&
+    word.typed.toLowerCase() !== target.toLowerCase();
+
   return (
     <span className={styles.wordRow}>
+      {showAnswerAbove && (
+        <span className={styles.answerAbove}>{target}</span>
+      )}
       {target.split("").map((ch, i) => {
         const done = i < typedLen;
         const isCursor = active && i === typedLen && word.status !== "done";
