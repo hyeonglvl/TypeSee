@@ -146,10 +146,14 @@ export default function App() {
 
   const record = useCallback((summary: SessionSummary) => {
     recordSession(
-      summary.troubleWords.map((t) => ({
-        id: t.entry.id,
-        count: Math.max(1, t.mistakes),
-      })),
+      // 힌트·뜻만 열어본 단어는 라벨용일 뿐 오답이 아니다 — 복습 풀에는
+      // 실제로 틀렸거나 정답을 본 단어만 쌓는다.
+      summary.troubleWords
+        .filter((t) => t.mistakes > 0 || t.gaveUp)
+        .map((t) => ({
+          id: t.entry.id,
+          count: Math.max(1, t.mistakes),
+        })),
       summary.mastered.map((w) => w.id),
     );
     recordDailyActivity(summary.wordsCompleted);

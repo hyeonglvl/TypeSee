@@ -25,6 +25,8 @@ export function createSession(
         lastMistakeAt: null,
         hintedUpTo: 0,
         gaveUp: false,
+        hinted: false,
+        meaningSeen: false,
         fromReview: reviewIds?.has(entry.id) ?? false,
         isRetention: retentionIds?.has(entry.id) ?? false,
       }),
@@ -65,6 +67,33 @@ export function sessionReducer(
         streak: 0,
         lastCompletedId: active.entry.id,
       };
+    }
+
+    case "HINT": {
+      // 힌트 보기: 앞 글자를 짧은 단어(≤5자)는 1개, 긴 단어는 2개씩 더
+      // 공개한다. 마지막 글자는 힌트로 열리지 않는다 — 전부 보는 건
+      // REVEAL(정답 보기)의 몫.
+      const active = state.words[state.currentIndex];
+      if (active.status === "done") return state;
+      const len = active.entry.word.length;
+      const step = len <= 5 ? 1 : 2;
+      // 퀴즈는 첫 글자가 기본 공개라 그 뒤부터 연다
+      const base = Math.max(active.hintedUpTo, state.mode === "quiz" ? 1 : 0);
+      const hintedUpTo = Math.min(len - 1, base + step);
+      if (hintedUpTo <= active.hintedUpTo && active.hinted) return state;
+      return replaceActive(state, {
+        ...active,
+        hintedUpTo: Math.max(hintedUpTo, active.hintedUpTo),
+        hinted: true,
+      });
+    }
+
+    case "SHOW_MEANING": {
+      // 리스닝 '뜻 보기' — 표시 자체는 화면 상태고, 여기서는 열어봤다는
+      // 사실만 남긴다 (결과 화면 라벨용).
+      const active = state.words[state.currentIndex];
+      if (active.status === "done" || active.meaningSeen) return state;
+      return replaceActive(state, { ...active, meaningSeen: true });
     }
 
     case "PREV_WORD":
@@ -186,19 +215,26 @@ export function summarize(state: SessionState): SessionSummary {
   const wpm =
     elapsedMs === 0 ? 0 : (state.correctKeystrokes / 5 / elapsedMs) * 60000;
 
+  // 다시 볼 단어: 틀린 단어에 더해 힌트·뜻을 열어본 단어도 라벨과 함께
+  // 올린다. mistakes 는 REVEAL 페널티 1회를 빼고 실제 오타만 남긴다.
   const troubleWords = state.words
-    .filter((w) => w.mistakes > 0)
+    .filter((w) => w.mistakes > 0 || w.hinted || w.meaningSeen)
     .sort((a, b) => b.mistakes - a.mistakes)
     .map((w) => ({
       entry: w.entry,
-      mistakes: w.mistakes,
+      mistakes: w.mistakes - (w.gaveUp ? 1 : 0),
       gaveUp: w.gaveUp,
+      hinted: w.hinted,
+      meaningSeen: w.meaningSeen,
     }));
 
-  // 정타 통과: 복습 출신 단어를 오타 없이 완주 (Space 정답 보기는 오타로
-  // 세므로 자동 제외) — TS-1 에서 ease 를 올리는 신호가 된다.
+  // 정타 통과: 복습 출신 단어를 오타·힌트 없이 완주 (Space 정답 보기는
+  // 오타로 세므로 자동 제외) — TS-1 에서 ease 를 올리는 신호가 된다.
   const mastered = state.words
-    .filter((w) => w.fromReview && w.status === "done" && w.mistakes === 0)
+    .filter(
+      (w) =>
+        w.fromReview && w.status === "done" && w.mistakes === 0 && !w.hinted,
+    )
     .map((w) => w.entry);
 
   // 마스터 유지 점검 실패 — recordSession 이 복습 풀로 강등한 단어들.

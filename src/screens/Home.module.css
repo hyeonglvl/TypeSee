@@ -41,7 +41,8 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--ink-2);
-  transition: background-color var(--dur-fast) var(--ease-out),
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
     color var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out);
 }
@@ -81,74 +82,108 @@
   letter-spacing: -0.01em;
 }
 
-/* Segmented control ------------------------------------------------------ */
+/* Lesson sentence — 오늘 [카테고리] 단어 [n]개 배우기 ---------------------- */
 
-.segment {
+.lesson {
   display: flex;
-  padding: 4px;
-  border-radius: 999px;
-  background: rgba(33, 29, 23, 0.05);
-  border: 1px solid var(--hairline);
-}
-
-.segmentItem {
-  position: relative;
-  padding: 8px 22px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 500;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+  font-size: 18px;
   color: var(--ink-2);
-  transition: color var(--dur-fast) var(--ease-out);
+  letter-spacing: -0.01em;
 }
 
-.segmentItem[aria-checked="true"] {
-  color: var(--ink);
-}
+/* 카테고리·숫자는 문장의 빈칸에 잉크로 써넣은 답 — 점선 밑줄로 편집 가능함을
+   암시하고, 포커스가 오면 잉크색 실선으로 바뀐다. */
 
-.segmentThumb {
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  background: var(--surface-raised);
-  border: 1px solid var(--hairline-strong);
-  box-shadow: 0 1px 3px rgba(33, 29, 23, 0.12);
-}
-
-.segmentLabel {
+.selectWrap {
   position: relative;
-  z-index: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.segmentCustomItem {
-  cursor: pointer;
-  padding: 4px 8px;
-}
-
-.segmentCustom {
-  position: relative;
-  z-index: 1;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
 }
 
-.stepper {
+.categorySelect {
+  appearance: none;
+  border: none;
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--ink);
+  padding: 0 17px 2px 3px;
+  border-bottom: 1.5px dashed var(--hairline-strong);
+  border-radius: 0;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.categorySelect:hover,
+.categorySelect:focus-visible {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.selectCaret {
+  position: absolute;
+  right: 3px;
+  bottom: 6px;
+  font-size: 10px;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.countBox {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 엘리베이터 버튼 — 숫자 위아래의 작은 ▲▼ */
+.countArrow {
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  color: var(--ink-3);
-  font-size: 15px;
+  width: 100%;
+  min-width: 30px;
+  height: 18px;
+  font-size: 16px;
   line-height: 1;
-  transition: color var(--dur-fast) var(--ease-out),
+  color: var(--ink-3);
+  border-radius: 4px;
+  transition:
+    color var(--dur-fast) var(--ease-out),
     background-color var(--dur-fast) var(--ease-out);
 }
 
-.stepper:hover {
+.countArrow:hover {
   color: var(--ink);
   background: rgba(33, 29, 23, 0.07);
+}
+
+.countArrow:active {
+  color: var(--accent);
+}
+
+.countInput {
+  border: none;
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: center;
+  padding: 0 0 2px;
+  border-bottom: 1.5px dashed var(--hairline-strong);
+  border-radius: 0;
+  font-variant-numeric: tabular-nums;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.countInput:hover,
+.countInput:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
 }
 
 /* Mode cards -------------------------------------------------------------- */
@@ -173,7 +208,8 @@
   border: 1px solid var(--hairline);
   box-shadow: var(--shadow-card);
   text-align: left;
-  transition: border-color var(--dur-fast) var(--ease-out),
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
     background-color var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out);
 }

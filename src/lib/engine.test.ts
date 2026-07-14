@@ -91,6 +91,26 @@ describe("sessionReducer — quiz 모드", () => {
     expect(trouble.entry.id).toBe("a");
     expect(trouble.gaveUp).toBe(true);
   });
+
+  it("HINT 는 기본 공개(첫 글자) 뒤로 짧은 단어 1글자씩 연다", () => {
+    let s = createSession([entry("a", "cat")], "quiz");
+    s = sessionReducer(s, { type: "HINT" });
+    expect(s.words[0].hintedUpTo).toBe(2);
+    // 마지막 글자는 힌트로 열리지 않는다
+    s = sessionReducer(s, { type: "HINT" });
+    expect(s.words[0].hintedUpTo).toBe(2);
+    expect(s.words[0].mistakes).toBe(0); // 힌트는 오답으로 세지 않는다
+  });
+
+  it("HINT 는 긴 단어(6자+)를 2글자씩 연다", () => {
+    let s = createSession([entry("a", "planet")], "quiz");
+    s = sessionReducer(s, { type: "HINT" });
+    expect(s.words[0].hintedUpTo).toBe(3); // 기본 1 + 2
+    s = sessionReducer(s, { type: "HINT" });
+    expect(s.words[0].hintedUpTo).toBe(5); // len-1 캡
+    s = sessionReducer(s, { type: "HINT" });
+    expect(s.words[0].hintedUpTo).toBe(5);
+  });
 });
 
 describe("sessionReducer — listening 모드", () => {
@@ -109,6 +129,16 @@ describe("sessionReducer — listening 모드", () => {
     expect(s.words[0].gaveUp).toBe(true);
     expect(s.words[0].mistakes).toBe(1);
     expect(s.words[0].hintedUpTo).toBe(3);
+  });
+});
+
+describe("sessionReducer — HINT (리스닝 모드)", () => {
+  it("기본 공개가 없어 첫 클릭이 첫 글자부터 연다", () => {
+    let s = createSession([entry("a", "cat")], "listening");
+    s = sessionReducer(s, { type: "HINT" });
+    expect(s.words[0].hintedUpTo).toBe(1);
+    s = sessionReducer(s, { type: "HINT" });
+    expect(s.words[0].hintedUpTo).toBe(2); // len-1 캡
   });
 });
 

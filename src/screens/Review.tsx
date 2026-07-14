@@ -3,10 +3,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { STARTER_WORDS } from "@/data/words";
 import {
   clearAll,
-  clearSaved,
   clearSavedWord,
-  clearWrong,
   clearWrongWord,
+  easeProgress,
   useReviewPool,
 } from "@/lib/reviewStore";
 import { useAuthUser } from "@/lib/auth";
@@ -32,16 +31,10 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
     [pool],
   );
 
-  // A word saved via Space is shown under "저장한 단어" even if it also
-  // has mistakes — the badge already prioritizes "저장" over the miss count.
-  const wrongEntries = useMemo(
-    () => entries.filter((w) => !pool.isSaved(w.id)),
-    [entries, pool],
-  );
-  const savedEntries = useMemo(
-    () => entries.filter((w) => pool.isSaved(w.id)),
-    [entries, pool],
-  );
+  const wrongCount = entries.filter(
+    (w) => pool.wrongCountOf(w.id) > 0,
+  ).length;
+  const savedCount = entries.filter((w) => pool.isSaved(w.id)).length;
 
   useEffect(() => {
     if (historyOpen) return;
@@ -72,8 +65,7 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
         </h1>
         <p className={styles.subtitle}>
           틀려서 쌓인 단어와 스페이스로 저장해둔 단어를 모아봤어요 · 틀린 단어{" "}
-          {wrongEntries.length} · 저장한 단어 {savedEntries.length} · 누적 오타{" "}
-          {totalWrong}회
+          {wrongCount} · 저장한 단어 {savedCount} · 누적 오타 {totalWrong}회
           {pool.retainedIds.size > 0 && <> · 마스터 {pool.retainedIds.size}개</>}
           {" · "}
           {user
@@ -82,111 +74,66 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
         </p>
       </header>
 
-      <div className={styles.lists}>
-        {wrongEntries.length > 0 && (
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>
-              <span>
-                틀린 단어{" "}
-                <span className={styles.sectionCount}>
-                  {wrongEntries.length}
-                </span>
-              </span>
-              <button
-                type="button"
-                className={styles.sectionClear}
-                onClick={() => {
-                  if (window.confirm("틀린 단어 기록을 모두 지울까요?"))
-                    clearWrong();
-                }}
-              >
-                모두 지우기
-              </button>
-            </h2>
-            <ul className={styles.list}>
-              <AnimatePresence initial={false}>
-                {wrongEntries.map((entry, i) => (
-                  <motion.li
-                    key={entry.id}
-                    className={styles.row}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: 12 }}
-                    transition={{ delay: Math.min(i * 0.03, 0.4) }}
-                  >
-                    <span className={styles.word}>{entry.word}</span>
-                    <span className={styles.meaning}>
-                      {entry.senses.map((s) => s.meaning).join(" · ")}
-                    </span>
-                    <span className={styles.missBadge}>
-                      ×{pool.wrongCountOf(entry.id)}
-                    </span>
-                    <button
-                      type="button"
-                      className={styles.rowDelete}
-                      aria-label={`${entry.word} 틀린 단어 기록 삭제`}
-                      onClick={() => clearWrongWord(entry.id)}
-                    >
-                      ✕
-                    </button>
-                  </motion.li>
-                ))}
-              </AnimatePresence>
-            </ul>
-          </section>
-        )}
-
-        {savedEntries.length > 0 && (
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>
-              <span>
-                저장한 단어{" "}
-                <span className={styles.sectionCount}>
-                  {savedEntries.length}
-                </span>
-              </span>
-              <button
-                type="button"
-                className={styles.sectionClear}
-                onClick={() => {
-                  if (window.confirm("저장한 단어를 모두 지울까요?"))
-                    clearSaved();
-                }}
-              >
-                모두 지우기
-              </button>
-            </h2>
-            <ul className={styles.list}>
-              <AnimatePresence initial={false}>
-                {savedEntries.map((entry, i) => (
-                  <motion.li
-                    key={entry.id}
-                    className={styles.row}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: 12 }}
-                    transition={{ delay: Math.min(i * 0.03, 0.4) }}
-                  >
-                    <span className={styles.word}>{entry.word}</span>
-                    <span className={styles.meaning}>
-                      {entry.senses.map((s) => s.meaning).join(" · ")}
-                    </span>
-                    <span className={styles.savedBadge}>저장</span>
-                    <button
-                      type="button"
-                      className={styles.rowDelete}
-                      aria-label={`${entry.word} 저장한 단어 기록 삭제`}
-                      onClick={() => clearSavedWord(entry.id)}
-                    >
-                      ✕
-                    </button>
-                  </motion.li>
-                ))}
-              </AnimatePresence>
-            </ul>
-          </section>
-        )}
+      {/* 틀린 단어·저장 단어를 나누지 않고 단어별 카드 하나에 그 단어의
+          기록(틀린 횟수·저장 여부·익힘 단계)을 모두 보여준다.
+          호버하면 예문과 해석이 펼쳐진다. */}
+      <div className={styles.gridHead} aria-hidden="true">
+        <span className={styles.gridHeadWord}>영단어</span>
+        <span>뜻</span>
       </div>
+      <ul className={styles.grid}>
+        <AnimatePresence initial={false}>
+          {entries.map((entry, i) => {
+            const wrong = pool.wrongCountOf(entry.id);
+            const saved = pool.isSaved(entry.id);
+            return (
+              <motion.li
+                key={entry.id}
+                className={styles.card}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.94 }}
+                transition={{ delay: Math.min(i * 0.02, 0.3) }}
+              >
+                <span className={styles.cardRow}>
+                  <span className={styles.word}>{entry.word}</span>
+                  <span className={styles.meaning}>
+                    {entry.senses.map((s) => s.meaning).join(" · ")}
+                  </span>
+                  <span className={styles.cardBadges}>
+                    {wrong > 0 && (
+                      <span className={styles.missBadge}>틀림 ×{wrong}</span>
+                    )}
+                    {saved && <span className={styles.savedBadge}>저장</span>}
+                  </span>
+                  <EaseDots ease={pool.easeOf(entry.id)} />
+                </span>
+                {entry.example && (
+                  <span className={styles.example}>
+                    <span className={styles.exampleEn}>{entry.example}</span>
+                    {entry.exampleMeaning && (
+                      <span className={styles.exampleKo}>
+                        {entry.exampleMeaning}
+                      </span>
+                    )}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  className={styles.rowDelete}
+                  aria-label={`${entry.word} 복습 기록 삭제`}
+                  onClick={() => {
+                    clearWrongWord(entry.id);
+                    clearSavedWord(entry.id);
+                  }}
+                >
+                  ✕
+                </button>
+              </motion.li>
+            );
+          })}
+        </AnimatePresence>
+      </ul>
 
       <div className={styles.actions}>
         <button
@@ -229,5 +176,26 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
         {historyOpen && <HistorySheet onClose={() => setHistoryOpen(false)} />}
       </AnimatePresence>
     </div>
+  );
+}
+
+/* TS-1 ease(1.3~3.0)를 5단계 점으로 — 세션 카드 배지와 같은 표현. */
+function EaseDots({ ease }: { ease: number }) {
+  const step = easeProgress(ease);
+  return (
+    <span
+      className={styles.easeDots}
+      role="img"
+      aria-label={`익힘 단계 ${step} / 5`}
+    >
+      {[1, 2, 3, 4, 5].map((n) => (
+        <span
+          key={n}
+          className={
+            n <= step ? `${styles.easeDot} ${styles.easeDotOn}` : styles.easeDot
+          }
+        />
+      ))}
+    </span>
   );
 }

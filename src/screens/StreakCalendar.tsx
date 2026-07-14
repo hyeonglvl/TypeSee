@@ -24,7 +24,11 @@ interface MonthLabel {
   text: string;
 }
 
-function buildGrid(): { cells: Cell[]; months: MonthLabel[] } {
+function buildGrid(): {
+  cells: Cell[];
+  months: MonthLabel[];
+  yearLabel: string;
+} {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const currentWeekStart = new Date(today);
@@ -51,7 +55,13 @@ function buildGrid(): { cells: Cell[]; months: MonthLabel[] } {
     }
   }
 
-  return { cells, months };
+  // 스크롤 위치와 무관하게 보이는 캡션 — 범위가 해를 걸치면 둘 다 표기
+  const startYear = gridStart.getFullYear();
+  const endYear = today.getFullYear();
+  const yearLabel =
+    startYear === endYear ? `${endYear}년` : `${startYear}–${endYear}년`;
+
+  return { cells, months, yearLabel };
 }
 
 function bucket(count: number, max: number): 0 | 1 | 2 | 3 | 4 {
@@ -66,7 +76,7 @@ function bucket(count: number, max: number): 0 | 1 | 2 | 3 | 4 {
 export default function StreakCalendar({ authenticated }: Props) {
   const streak = useStreak();
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const { cells, months } = useMemo(buildGrid, []);
+  const { cells, months, yearLabel } = useMemo(buildGrid, []);
 
   const max = useMemo(() => {
     if (!authenticated) return 0;
@@ -82,6 +92,7 @@ export default function StreakCalendar({ authenticated }: Props) {
 
   return (
     <div className={styles.wrap}>
+      <span className={styles.yearLabel}>{yearLabel}</span>
       <div
         className={`${styles.scroller} ${!authenticated ? styles.dim : ""}`}
         ref={scrollerRef}

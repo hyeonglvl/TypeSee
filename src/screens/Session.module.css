@@ -433,6 +433,35 @@
 
 /* Bottom ---------------------------------------------------------------------- */
 
+/* 카드 아래 액션 버튼 — 뜻 보기 · 힌트 보기 · 정답 보기 */
+
+.actionBar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding-bottom: 22px;
+}
+
+.actionButton {
+  padding: 9px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.actionButton:hover {
+  background: var(--surface-raised);
+  color: var(--ink);
+  box-shadow: var(--shadow-card);
+}
+
 .bottomBar {
   display: flex;
   flex-direction: column;

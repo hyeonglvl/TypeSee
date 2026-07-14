@@ -34,6 +34,9 @@ const WINDOW = 2;
 const FINISH_HOLD_MS = 700;
 const ADVANCE_HOLD_MS = 500;
 const GIVE_UP_HOLD_MS = 1500;
+// 리스닝은 맞힌 뒤에야 뜻이 보인다 — 읽을 시간을 주되 정답 봄(1.5초)보다는
+// 0.5초 빠르게 넘긴다.
+const LISTENING_ADVANCE_HOLD_MS = 1000;
 
 const cardSpring = { type: "spring", stiffness: 280, damping: 30 } as const;
 
@@ -157,6 +160,12 @@ export default function SessionScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.currentIndex]);
 
+  // 리스닝 '뜻 보기' — 카드가 넘어가면 다시 닫힌다
+  const [meaningShown, setMeaningShown] = useState(false);
+  useEffect(() => {
+    setMeaningShown(false);
+  }, [state.currentIndex]);
+
   // Focus a hidden input so mobile browsers show the on-screen keyboard —
   // without a focused input element, no software keyboard ever appears.
   useEffect(() => {
@@ -196,7 +205,11 @@ export default function SessionScreen({
     const completed = state.words.find(
       (w) => w.entry.id === state.lastCompletedId,
     );
-    const delay = completed?.gaveUp ? GIVE_UP_HOLD_MS : ADVANCE_HOLD_MS;
+    const delay = completed?.gaveUp
+      ? GIVE_UP_HOLD_MS
+      : mode === "listening"
+        ? LISTENING_ADVANCE_HOLD_MS
+        : ADVANCE_HOLD_MS;
     const t = setTimeout(() => dispatch({ type: "ADVANCE" }), delay);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -317,11 +330,49 @@ export default function SessionScreen({
                 wrongReview={wrongReview}
                 saved={isSaved}
                 ease={word.fromReview ? pool.easeOf(word.entry.id) : null}
+                showMeaning={
+                  meaningShown && first + i === state.currentIndex
+                }
               />
             );
           })}
         </AnimatePresence>
       </div>
+
+      {mode !== "typing" && (
+        <div className={styles.actionBar}>
+          {mode === "listening" && (
+            <button
+              type="button"
+              className={styles.actionButton}
+              // 숨은 모바일 입력의 포커스를 뺏어 키보드가 닫히지 않게
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                if (!meaningShown) dispatch({ type: "SHOW_MEANING" });
+                setMeaningShown((v) => !v);
+              }}
+            >
+              {meaningShown ? "뜻 감추기" : "뜻 보기"}
+            </button>
+          )}
+          <button
+            type="button"
+            className={styles.actionButton}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => dispatch({ type: "HINT" })}
+          >
+            힌트 보기
+          </button>
+          <button
+            type="button"
+            className={styles.actionButton}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleSpace}
+          >
+            정답 보기
+          </button>
+        </div>
+      )}
 
       <footer className={styles.bottomBar}>
         <StreakPill streak={state.streak} />
@@ -349,6 +400,7 @@ const WordCard = memo(function WordCard({
   wrongReview,
   saved,
   ease,
+  showMeaning = false,
 }: {
   word: WordState;
   offset: number;
@@ -358,6 +410,8 @@ const WordCard = memo(function WordCard({
   saved: boolean;
   /** TS-1 ease factor — 익힘 단계 점 표시용, 복습 풀 출신 단어에만 값이 있다. */
   ease: number | null;
+  /** 리스닝 '뜻 보기' — 완료 전에도 뜻을 노출한다. */
+  showMeaning?: boolean;
 }) {
   const active = offset === 0;
   const depth = Math.abs(offset);
@@ -410,13 +464,18 @@ const WordCard = memo(function WordCard({
           // 받아쓴다 — 문맥이 힌트가 되고 단어 자체는 슬롯이라 안 새어나간다.
           // 완료 후 홀드 동안 뜻을 보여줘 철자+뜻으로 마무리하게 한다.
           <>
-            {word.status === "done" ? (
+            {word.status === "done" || showMeaning ? (
               <Meaning entry={word.entry} />
             ) : (
               <ListeningPrompt word={word.entry.word} active={active} />
             )}
             {active ? (
-              <ExampleLine word={word} mode={mode} active={active} />
+              <ExampleLine
+                word={word}
+                mode={mode}
+                active={active}
+                showMeaning={showMeaning}
+              />
             ) : (
               <WordGlyphs word={word} mode={mode} active={active} />
             )}
@@ -533,10 +592,13 @@ function ExampleLine({
   word,
   mode,
   active,
+  showMeaning = false,
 }: {
   word: WordState;
   mode: SessionMode;
   active: boolean;
+  /** 리스닝 '뜻 보기' — 눌렀을 때만 예문 해석도 함께 보여준다. */
+  showMeaning?: boolean;
 }) {
   const span = findWordSpan(word.entry);
   if (!span) return <WordGlyphs word={word} mode={mode} active={active} />;
@@ -552,8 +614,9 @@ function ExampleLine({
           <span className={styles.sentenceText}>{span.suffix}</span>
         )}
       </span>
-      {/* 리스닝은 해석이 답의 뜻을 미리 알려줘 받아쓰기 긴장이 풀린다 — 숨긴다 */}
-      {mode !== "listening" && word.entry.exampleMeaning && (
+      {/* 리스닝은 해석이 답의 뜻을 미리 알려줘 받아쓰기 긴장이 풀린다 —
+          숨기되, 뜻 보기를 눌렀을 땐 이미 뜻이 열렸으니 함께 보여준다 */}
+      {(mode !== "listening" || showMeaning) && word.entry.exampleMeaning && (
         <span className={styles.sentenceMeaning}>
           {word.entry.exampleMeaning}
         </span>

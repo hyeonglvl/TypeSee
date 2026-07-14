@@ -41,90 +41,117 @@
   color: var(--ink-2);
 }
 
-/* Lists ----------------------------------------------------------------------- */
+/* Word cards — 단어 하나에 카드 하나, '영단어 · 뜻'을 가로로 눕히고
+   호버하면 예문·해석이 펼쳐진다 ------------------------------------------- */
 
-.lists {
+.gridHead {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 20px;
-  width: min(760px, 92vw);
+  gap: 14px;
+  width: min(680px, 92vw);
+  padding: 0 17px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  margin-bottom: -16px;
 }
 
-.section {
-  flex: 1 1 320px;
-  min-width: 260px;
+.gridHeadWord {
+  min-width: 150px;
+}
+
+.grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 9px;
+  width: min(680px, 92vw);
+  max-height: min(420px, 46vh);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 3px;
+}
+
+.card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-.sectionTitle {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink-2);
-  padding: 0 4px;
-}
-
-.sectionCount {
-  color: var(--ink-3);
-  font-variant-numeric: tabular-nums;
-}
-
-.sectionClear {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--ink-3);
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.sectionClear:hover {
-  color: var(--danger);
-}
-
-.list {
-  list-style: none;
-  width: 100%;
-  max-height: min(340px, 40vh);
-  overflow-y: auto;
+  padding: 12px 16px;
   border-radius: var(--radius-m);
   background: var(--surface);
   border: 1px solid var(--hairline);
   box-shadow: var(--shadow-card);
 }
 
-.row {
-  position: relative;
+.cardRow {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 18px;
 }
 
-.row + .row {
-  border-top: 1px dashed var(--hairline);
-}
-
+/* 기존 대비 10% 키운 크기 — word 16→17.6, meaning 13→14.3 */
 .word {
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 17.6px;
   font-weight: 500;
-  min-width: 110px;
+  min-width: 150px;
   color: var(--ink);
 }
 
 .meaning {
   flex: 1;
-  font-size: 13px;
+  font-size: 14.3px;
   color: var(--ink-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.cardBadges {
+  display: flex;
+  gap: 6px;
+}
+
+/* 호버에서만 펼쳐지는 예문 + 해석 */
+.example {
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px dashed var(--hairline);
+}
+
+.card:hover .example {
+  display: flex;
+}
+
+.exampleEn {
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.exampleKo {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.easeDots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--accent-deep);
+}
+
+.easeDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.22;
+}
+
+.easeDotOn {
+  opacity: 1;
 }
 
 .missBadge {
@@ -151,9 +178,8 @@
 
 .rowDelete {
   position: absolute;
-  top: 50%;
+  top: 10px;
   right: 10px;
-  transform: translateY(-50%);
   width: 26px;
   height: 26px;
   display: grid;
@@ -170,13 +196,13 @@
     background-color var(--dur-fast) var(--ease-out);
 }
 
-.row:hover .rowDelete {
+.card:hover .rowDelete {
   opacity: 1;
   pointer-events: auto;
 }
 
-.row:hover .missBadge,
-.row:hover .savedBadge {
+/* 삭제 버튼이 익힘 단계 점 자리에 뜬다 — 겹치지 않게 잠시 비켜준다 */
+.card:hover .easeDots {
   opacity: 0;
 }
 
