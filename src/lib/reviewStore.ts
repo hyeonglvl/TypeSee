@@ -218,8 +218,10 @@ export function hydrateLocal() {
         const storedEase = Number.isFinite(rawEase)
           ? Math.min(Math.max(rawEase, EASE_MIN), EASE_MASTER)
           : EASE_INIT;
-        // 로그인 병합과 같은 규칙: 낮은(약한) ease 쪽이 이긴다
-        const ease = Math.min(cur?.ease ?? EASE_INIT, storedEase);
+        // 로그인 병합과 같은 규칙: 양쪽에 있으면 낮은(약한) ease 가 이기고,
+        // 로컬에 없던 단어는 저장된 값을 그대로 쓴다 — EASE_INIT 상한으로
+        // 깎으면 2.5를 넘긴 클린 패스 진행분이 새로고침마다 증발한다.
+        const ease = cur ? Math.min(cur.ease, storedEase) : storedEase;
         const rawSeen = Number(e?.lastSeenAt);
         const storedSeen =
           Number.isFinite(rawSeen) && rawSeen > 0 ? rawSeen : null;
@@ -739,11 +741,14 @@ async function syncMissedWordsOnLogin(sb: SupabaseClient, userId: string) {
   for (const row of rows) {
     const cur = misses.get(row.word_id);
     const remoteMastered = fromIso(row.mastered_at);
+    const remoteEase = row.ease_factor ?? EASE_INIT;
     misses.set(row.word_id, {
       wrongCount: Math.max(cur?.wrongCount ?? 0, row.wrong_count),
       saved: (cur?.saved ?? false) || Boolean(row.saved),
-      // 낮은(약한) ease 쪽이 이긴다 — 덜 외운 상태로 보는 게 안전하다.
-      ease: Math.min(cur?.ease ?? EASE_INIT, row.ease_factor ?? EASE_INIT),
+      // 양쪽에 있으면 낮은(약한) ease 가 이긴다 — 덜 외운 상태로 보는 게
+      // 안전하다. 로컬에 없던 단어는 원격 값을 그대로 쓴다 (EASE_INIT
+      // 상한으로 깎으면 2.5를 넘긴 진행분이 로그인마다 증발한다).
+      ease: cur ? Math.min(cur.ease, remoteEase) : remoteEase,
       // 더 최근에 본 쪽이 이긴다
       lastSeenAt: laterOf(cur?.lastSeenAt ?? null, fromIso(row.last_seen_at)),
       // 한쪽이라도 활성(미마스터)이면 활성 — min-ease 와 같은 철학.
