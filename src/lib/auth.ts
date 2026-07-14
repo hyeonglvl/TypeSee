@@ -46,6 +46,18 @@ export async function signInWithUsername(username: string, password: string) {
   return data;
 }
 
+export async function signInWithGoogle() {
+  const sb = getSupabase();
+  if (!sb) throw new Error("로그인 기능이 설정되지 않았습니다");
+  // Google → Supabase 콜백 → 여기(redirectTo)로 돌아온다. 돌아온 뒤 세션은
+  // supabase-js 가 URL 에서 자동으로 집어 onAuthStateChange 로 흘러들어온다.
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: window.location.origin },
+  });
+  if (error) throw error;
+}
+
 export async function signOut() {
   const sb = getSupabase();
   if (!sb) return;

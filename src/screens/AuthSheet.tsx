@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { motion } from "motion/react";
-import { signInWithUsername, signUpWithUsername } from "@/lib/auth";
+import {
+  signInWithGoogle,
+  signInWithUsername,
+  signUpWithUsername,
+} from "@/lib/auth";
 import styles from "./AuthSheet.module.css";
 
 interface Props {
@@ -27,11 +31,24 @@ export default function AuthSheet({ onClose }: Props) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
-  // OAuth 제공자가 아직 미설정 — 활성화 시 auth.ts에 signInWithOAuth 래퍼를
-  // 추가하고 이 핸들러를 교체 (과거 구현은 git 히스토리의 signInWithProvider 참고)
+  // GitHub 는 아직 미설정 — 활성화 시 Google 과 같은 방식으로 붙인다
   const handleProvider = (label: string) => {
     setError(null);
     setNotice(`${label} 로그인은 추후 서비스 예정이에요`);
+  };
+
+  // 성공하면 페이지가 Google 로 떠나므로 성공 후처리는 없다 — 돌아온 뒤
+  // 세션 반영은 onAuthStateChange(useAuthUser)가 맡는다.
+  const handleGoogle = async () => {
+    setError(null);
+    setNotice(null);
+    setLoading(true);
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "문제가 발생했습니다");
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -96,7 +113,8 @@ export default function AuthSheet({ onClose }: Props) {
           <button
             type="button"
             className={styles.providerButton}
-            onClick={() => handleProvider("Google")}
+            disabled={loading}
+            onClick={handleGoogle}
           >
             <GoogleIcon />
             Google로 계속하기
