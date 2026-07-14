@@ -171,20 +171,26 @@ function TroubleWords({ summary }: { summary: SessionSummary }) {
     <div className={styles.trouble}>
       <p className={styles.troubleTitle}>다시 볼 단어</p>
       <ul className={styles.troubleList}>
-        {summary.troubleWords.map(({ entry, mistakes, gaveUp }) => (
-          <li key={entry.id} className={styles.troubleRow}>
-            <span className={styles.troubleWord}>{entry.word}</span>
-            <span className={styles.troubleMeaning}>
-              {entry.senses.map((s) => s.meaning).join(" · ")}
-            </span>
-            <span className={styles.troubleBadges}>
-              {gaveUp && <span className={styles.hintBadge}>정답 봄</span>}
-              {mistakes > 0 && (
-                <span className={styles.missBadge}>×{mistakes}</span>
-              )}
-            </span>
-          </li>
-        ))}
+        {summary.troubleWords.map(
+          ({ entry, mistakes, gaveUp, hinted, meaningSeen }) => (
+            <li key={entry.id} className={styles.troubleRow}>
+              <span className={styles.troubleWord}>{entry.word}</span>
+              <span className={styles.troubleMeaning}>
+                {entry.senses.map((s) => s.meaning).join(" · ")}
+              </span>
+              <span className={styles.troubleBadges}>
+                {gaveUp && <span className={styles.hintBadge}>정답 봄</span>}
+                {hinted && <span className={styles.hintBadge}>힌트 봄</span>}
+                {meaningSeen && (
+                  <span className={styles.hintBadge}>뜻 봄</span>
+                )}
+                {mistakes > 0 && (
+                  <span className={styles.missBadge}>틀림 ×{mistakes}</span>
+                )}
+              </span>
+            </li>
+          ),
+        )}
       </ul>
     </div>
   );

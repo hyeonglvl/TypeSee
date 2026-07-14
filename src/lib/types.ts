@@ -28,6 +28,10 @@ export interface WordState {
   /** Gave up via Space in quiz mode — completed as a miss, held longer so
    *  the revealed spelling can actually be read before advancing. */
   gaveUp: boolean;
+  /** 힌트 보기로 글자를 열어봤다 — 결과 화면 라벨용. */
+  hinted: boolean;
+  /** 리스닝에서 뜻 보기를 눌렀다 — 결과 화면 라벨용. */
+  meaningSeen: boolean;
   /** This word is here because the user missed it before. */
   fromReview: boolean;
   /** 마스터 유지 점검으로 뽑힌 단어 — 틀리면 복습 풀로 복귀한다. */
@@ -52,6 +56,8 @@ export type SessionAction =
   | { type: "PREV_WORD" }
   | { type: "NEXT_WORD" }
   | { type: "REVEAL" }
+  | { type: "HINT" }
+  | { type: "SHOW_MEANING" }
   | { type: "ADVANCE" };
 
 export interface SessionSummary {
@@ -66,7 +72,15 @@ export interface SessionSummary {
   wpm: number;
   /** Longest run of consecutive words typed with zero mistakes. */
   bestStreak: number;
-  troubleWords: Array<{ entry: WordEntry; mistakes: number; gaveUp: boolean }>;
+  /** 다시 볼 단어 — 틀렸거나, 정답·힌트·뜻을 열어본 단어.
+   *  mistakes 는 REVEAL 페널티를 뺀 실제 오타 수. */
+  troubleWords: Array<{
+    entry: WordEntry;
+    mistakes: number;
+    gaveUp: boolean;
+    hinted: boolean;
+    meaningSeen: boolean;
+  }>;
   /** Review words cleared without a single mistake or hint this session. */
   mastered: WordEntry[];
   /** 마스터 유지 점검에서 틀린 단어 — 복습 풀로 복귀했다. */

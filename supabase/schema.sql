@@ -6,6 +6,8 @@ create table if not exists public.missed_words (
   word_id text not null,
   wrong_count integer not null default 1,
   saved boolean not null default false,
+  -- 정답 보기로 철자를 열어본 적 있는 단어 (복습 노트 '정답 봄' 라벨)
+  revealed boolean not null default false,
   -- TS-1 ease factor: 낮을수록 약한 단어라 세션에 더 자주 등장 (범위 1.3~3.0)
   ease_factor real not null default 2.5,
   -- TS-1 시간 가중치: 세션에서 마지막으로 실제 학습한 시각 (null = 미상)
@@ -27,6 +29,9 @@ alter table public.missed_words
 -- 마스터 유지 점검: 마스터한 시각 (null = 활성/복습 중)
 alter table public.missed_words
   add column if not exists mastered_at timestamptz;
+-- 정답 보기로 철자를 열어본 적 있는 단어 (복습 노트 '정답 봄' 라벨)
+alter table public.missed_words
+  add column if not exists revealed boolean not null default false;
 
 alter table public.missed_words enable row level security;
 

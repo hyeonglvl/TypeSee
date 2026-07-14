@@ -146,10 +146,15 @@ export default function App() {
 
   const record = useCallback((summary: SessionSummary) => {
     recordSession(
-      summary.troubleWords.map((t) => ({
-        id: t.entry.id,
-        count: Math.max(1, t.mistakes),
-      })),
+      // 틀린 단어로는 실제 오타가 있는 단어만 쌓는다 — 정답 보기(Space)로
+      // 저장만 한 단어는 저장 기록으로만 남고, 힌트·뜻 열람도 라벨용일 뿐
+      // 오답이 아니다.
+      summary.troubleWords
+        .filter((t) => t.mistakes > 0)
+        .map((t) => ({
+          id: t.entry.id,
+          count: t.mistakes,
+        })),
       summary.mastered.map((w) => w.id),
     );
     recordDailyActivity(summary.wordsCompleted);

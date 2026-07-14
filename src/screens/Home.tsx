@@ -35,55 +35,63 @@ const MODE_ICON: Record<SessionMode, () => React.JSX.Element> = {
   listening: HeadphoneIcon,
 };
 
-const CUSTOM_STEP = 10;
-const CUSTOM_MIN = 10;
+const COUNT_DEFAULT = 10;
+const COUNT_STEP = 5;
+const COUNT_MIN = 1;
+
+// 단어셋은 추후 추가 예정 — 현재 수록 단어는 실생활 카테고리로 취급.
+// 실생활이 목록 가운데쯤 오도록 배치한다 (기본 선택은 그대로 실생활).
+const CATEGORIES = [
+  { id: "toeic", label: "토익", soon: true },
+  { id: "business", label: "비즈니스", soon: true },
+  { id: "daily", label: "실생활" },
+  { id: "science", label: "과학", soon: true },
+];
 
 export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
-  const [customCount, setCustomCount] = useState(() =>
-    Math.min(50, totalWords),
-  );
-  const counts = [10, 20, customCount];
-  const [countIdx, setCountIdx] = useState(0);
+  const [count, setCount] = useState(COUNT_DEFAULT);
+  // 입력 중엔 빈 문자열·미완성 숫자를 허용해야 해서 초안을 따로 든다
+  const [countDraft, setCountDraft] = useState<string | null>(null);
+  const [category, setCategory] = useState("daily");
   const [sheetOpen, setSheetOpen] = useState(false);
   const user = useAuthUser();
   const pool = useReviewPool();
 
-  const nudgeCustom = (delta: number) =>
-    setCustomCount((c) =>
-      Math.min(totalWords, Math.max(CUSTOM_MIN, c + delta)),
-    );
+  const clampCount = (n: number) =>
+    Math.min(totalWords, Math.max(COUNT_MIN, n));
+  const nudgeCount = (delta: number) => setCount((c) => clampCount(c + delta));
+
+  const commitDraft = () => {
+    if (countDraft === null) return;
+    const n = parseInt(countDraft, 10);
+    if (!Number.isNaN(n)) setCount(clampCount(n));
+    setCountDraft(null);
+  };
 
   useEffect(() => {
     if (sheetOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "1") onStart("typing", counts[countIdx]);
-      else if (e.key === "2") onStart("quiz", counts[countIdx]);
-      else if (e.key === "3") onStart("listening", counts[countIdx]);
+      // 숫자 입력칸·카테고리 셀렉트에 포커스가 있으면 단축키를 끈다
+      const t = e.target;
+      if (t instanceof HTMLInputElement || t instanceof HTMLSelectElement)
+        return;
+      if (e.key === "1") onStart("typing", count);
+      else if (e.key === "2") onStart("quiz", count);
+      else if (e.key === "3") onStart("listening", count);
       else if ((e.key === "4" || e.key.toLowerCase() === "r") && pool.count > 0)
         onReview();
-      else if (e.key === "ArrowLeft")
-        setCountIdx((i) => (i + counts.length - 1) % counts.length);
-      else if (e.key === "ArrowRight")
-        setCountIdx((i) => (i + 1) % counts.length);
-      else if (e.key === "Tab") {
+      else if (e.key === "ArrowUp") {
         e.preventDefault();
-        setCountIdx((i) =>
-          e.shiftKey
-            ? (i + counts.length - 1) % counts.length
-            : (i + 1) % counts.length,
-        );
-      } else if (e.key === "ArrowUp" && countIdx === 2) {
+        nudgeCount(COUNT_STEP);
+      } else if (e.key === "ArrowDown") {
         e.preventDefault();
-        nudgeCustom(CUSTOM_STEP);
-      } else if (e.key === "ArrowDown" && countIdx === 2) {
-        e.preventDefault();
-        nudgeCustom(-CUSTOM_STEP);
+        nudgeCount(-COUNT_STEP);
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countIdx, sheetOpen, pool.count, onStart, onReview, customCount]);
+  }, [count, sheetOpen, pool.count, onStart, onReview]);
 
   return (
     <div className={styles.screen}>
@@ -120,76 +128,81 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
         <p className={styles.tagline}>타이핑하며 눈에 새기는 영단어</p>
       </header>
 
-      <div
-        className={styles.segment}
-        role="radiogroup"
-        aria-label="단어 수 선택"
-      >
-        {[10, 20].map((count, i) => (
-          <button
-            key={count}
-            type="button"
-            role="radio"
-            aria-checked={i === countIdx}
-            className={styles.segmentItem}
-            onClick={() => setCountIdx(i)}
+      <p className={styles.lesson}>
+        오늘
+        <span className={styles.selectWrap}>
+          <select
+            className={styles.categorySelect}
+            aria-label="단어 카테고리"
+            value={category}
+            // 네이티브 select 는 가장 긴 옵션 폭으로 벌어진다 — 선택된
+            // 라벨 폭(한글 1자 ≈ 1em) + 캐럿 자리만큼으로 조인다
+            style={{
+              width: `calc(${
+                CATEGORIES.find((c) => c.id === category)?.label.length ?? 3
+              }em + 26px)`,
+            }}
+            onChange={(e) => setCategory(e.target.value)}
           >
-            {i === countIdx && (
-              <motion.span
-                layoutId="segment-thumb"
-                className={styles.segmentThumb}
-                transition={{ type: "spring", stiffness: 500, damping: 38 }}
-              />
-            )}
-            <span className={styles.segmentLabel}>{count}</span>
-          </button>
-        ))}
-
-        <div
-          role="radio"
-          aria-checked={countIdx === 2}
-          tabIndex={0}
-          className={`${styles.segmentItem} ${styles.segmentCustomItem}`}
-          onClick={() => setCountIdx(2)}
-        >
-          {countIdx === 2 && (
-            <motion.span
-              layoutId="segment-thumb"
-              className={styles.segmentThumb}
-              transition={{ type: "spring", stiffness: 500, damping: 38 }}
-            />
-          )}
-          <span className={styles.segmentCustom}>
-            <button
-              type="button"
-              className={styles.stepper}
-              aria-label="단어 수 줄이기"
-              onClick={(e) => {
-                e.stopPropagation();
-                setCountIdx(2);
-                nudgeCustom(-CUSTOM_STEP);
-              }}
-            >
-              −
-            </button>
-            <span className={styles.segmentLabel}>
-              {customCount} / {totalWords}
-            </span>
-            <button
-              type="button"
-              className={styles.stepper}
-              aria-label="단어 수 늘리기"
-              onClick={(e) => {
-                e.stopPropagation();
-                setCountIdx(2);
-                nudgeCustom(CUSTOM_STEP);
-              }}
-            >
-              +
-            </button>
+            {CATEGORIES.map((c) => (
+              <option key={c.id} value={c.id} disabled={c.soon}>
+                {c.label}
+                {c.soon && " (준비중)"}
+              </option>
+            ))}
+          </select>
+          <span className={styles.selectCaret} aria-hidden="true">
+            ▾
           </span>
-        </div>
-      </div>
+        </span>
+        단어
+        <span className={styles.countBox}>
+          <button
+            type="button"
+            className={styles.countArrow}
+            aria-label="단어 수 늘리기"
+            onClick={() => nudgeCount(COUNT_STEP)}
+          >
+            ▲
+          </button>
+          <input
+            className={styles.countInput}
+            type="text"
+            inputMode="numeric"
+            aria-label="단어 수"
+            value={countDraft ?? String(count)}
+            style={{
+              width: `${Math.max(2, (countDraft ?? String(count)).length)}ch`,
+            }}
+            onChange={(e) =>
+              setCountDraft(e.target.value.replace(/\D/g, "").slice(0, 3))
+            }
+            onFocus={(e) => e.target.select()}
+            onBlur={commitDraft}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.currentTarget.blur();
+              else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                commitDraft();
+                nudgeCount(COUNT_STEP);
+              } else if (e.key === "ArrowDown") {
+                e.preventDefault();
+                commitDraft();
+                nudgeCount(-COUNT_STEP);
+              }
+            }}
+          />
+          <button
+            type="button"
+            className={styles.countArrow}
+            aria-label="단어 수 줄이기"
+            onClick={() => nudgeCount(-COUNT_STEP)}
+          >
+            ▼
+          </button>
+        </span>
+        개 배우기
+      </p>
 
       <div className={styles.modes}>
         {MODES.map(({ mode, key, title, desc }) => {
@@ -201,7 +214,7 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
             whileHover={{ y: -3 }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", stiffness: 400, damping: 26 }}
-            onClick={() => onStart(mode, counts[countIdx])}
+            onClick={() => onStart(mode, count)}
           >
             <span className={styles.modeIcon} aria-hidden="true">
               <Icon />
@@ -225,7 +238,7 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
             <RepeatIcon />
           </span>
           <span className={styles.modeTitle}>
-            복습
+            Note
             {pool.count > 0 && (
               <motion.span
                 key={pool.count}
@@ -249,14 +262,8 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
       <StreakCalendar authenticated={!!user} />
 
       <p className={styles.footHint}>
-        <kbd>tab</kbd> <kbd>←</kbd> <kbd>→</kbd> 단어 수
-        {countIdx === 2 && (
-          <>
-            &nbsp;·&nbsp; <kbd>↑</kbd> <kbd>↓</kbd> 갯수 조절
-          </>
-        )}
-        &nbsp;·&nbsp; <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> 바로
-        시작
+        <kbd>↑</kbd> <kbd>↓</kbd> 단어 수 &nbsp;·&nbsp; <kbd>1</kbd>{" "}
+        <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> 바로 시작
         {!user && pool.count > 0 && (
           <span className={styles.volatileNote}>
             &nbsp;·&nbsp; 로그인하면 틀린 단어가 저장돼요
