@@ -406,7 +406,8 @@ const WordCard = memo(function WordCard({
         }
       >
         {mode === "listening" ? (
-          // 리스닝: 완료 전엔 뜻·예문 모두 숨긴다 (예문은 단어를 유출한다).
+          // 리스닝: 완료 전엔 뜻을 숨기고, 퀴즈처럼 예문 문장 속 빈 슬롯에
+          // 받아쓴다 — 문맥이 힌트가 되고 단어 자체는 슬롯이라 안 새어나간다.
           // 완료 후 홀드 동안 뜻을 보여줘 철자+뜻으로 마무리하게 한다.
           <>
             {word.status === "done" ? (
@@ -414,7 +415,11 @@ const WordCard = memo(function WordCard({
             ) : (
               <ListeningPrompt word={word.entry.word} active={active} />
             )}
-            <WordGlyphs word={word} mode={mode} active={active} />
+            {active ? (
+              <ExampleLine word={word} mode={mode} active={active} />
+            ) : (
+              <WordGlyphs word={word} mode={mode} active={active} />
+            )}
           </>
         ) : (
           <>
@@ -547,7 +552,8 @@ function ExampleLine({
           <span className={styles.sentenceText}>{span.suffix}</span>
         )}
       </span>
-      {word.entry.exampleMeaning && (
+      {/* 리스닝은 해석이 답의 뜻을 미리 알려줘 받아쓰기 긴장이 풀린다 — 숨긴다 */}
+      {mode !== "listening" && word.entry.exampleMeaning && (
         <span className={styles.sentenceMeaning}>
           {word.entry.exampleMeaning}
         </span>
@@ -603,7 +609,9 @@ function WordGlyphs({
               ) : ghost ? (
                 <span className={styles.glyphGhost}>{ch}</span>
               ) : (
-                " "
+                // NBSP: 일반 공백은 flex 컨테이너(슬롯)가 버려서 높이가 0이
+                // 된다 — 고스트 없는 리스닝 모드에서 슬롯이 무너지지 않게.
+                " "
               )}
             </span>
           );
