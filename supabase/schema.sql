@@ -105,3 +105,44 @@ create policy "update own daily activity" on public.daily_activity
 drop policy if exists "delete own daily activity" on public.daily_activity;
 create policy "delete own daily activity" on public.daily_activity
   for delete using (auth.uid() = user_id);
+
+-- 내 단어장 — 사용자가 직접 추가한 단어 (STARTER_WORDS 와 분리된 별도 풀).
+-- word_id 는 클라이언트가 발급하는 "custom:<uuid>" 형태.
+create table if not exists public.custom_words (
+  user_id uuid not null references auth.users (id) on delete cascade,
+  word_id text not null,
+  word text not null,
+  senses jsonb not null,
+  example text,
+  example_meaning text,
+  created_at timestamptz not null default now(),
+  primary key (user_id, word_id)
+);
+
+alter table public.custom_words enable row level security;
+
+drop policy if exists "select own custom words" on public.custom_words;
+create policy "select own custom words" on public.custom_words
+  for select using (auth.uid() = user_id);
+
+drop policy if exists "insert own custom words" on public.custom_words;
+create policy "insert own custom words" on public.custom_words
+  for insert with check (auth.uid() = user_id);
+
+drop policy if exists "update own custom words" on public.custom_words;
+create policy "update own custom words" on public.custom_words
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+drop policy if exists "delete own custom words" on public.custom_words;
+create policy "delete own custom words" on public.custom_words
+  for delete using (auth.uid() = user_id);
+
+-- 단어 자동생성(LLM) 분당 1회 제한 — 서버(/api/generate-word)만 서비스 롤
+-- 키로 접근한다. RLS 를 켠 채 정책을 하나도 두지 않아 anon/authenticated
+-- 키로는 어떤 접근도 막힌다 (서비스 롤은 RLS 를 우회한다).
+create table if not exists public.word_gen_limits (
+  identity_id text primary key,
+  last_generated_at timestamptz not null default now()
+);
+
+alter table public.word_gen_limits enable row level security;

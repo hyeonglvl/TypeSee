@@ -7,6 +7,7 @@ import {
   useAuthUser,
 } from "@/lib/auth";
 import { useReviewPool } from "@/lib/reviewStore";
+import { useCustomWords } from "@/lib/customWordsStore";
 import AuthSheet from "@/screens/AuthSheet";
 import StreakCalendar from "@/screens/StreakCalendar";
 import type { SessionMode } from "@/lib/types";
@@ -16,6 +17,7 @@ interface Props {
   totalWords: number;
   onStart: (mode: SessionMode, count: number) => void;
   onReview: () => void;
+  onMyWords: () => void;
 }
 
 const MODES: Array<{
@@ -48,7 +50,12 @@ const CATEGORIES = [
   { id: "science", label: "과학", soon: true },
 ];
 
-export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
+export default function HomeScreen({
+  totalWords,
+  onStart,
+  onReview,
+  onMyWords,
+}: Props) {
   const [count, setCount] = useState(COUNT_DEFAULT);
   // 입력 중엔 빈 문자열·미완성 숫자를 허용해야 해서 초안을 따로 든다
   const [countDraft, setCountDraft] = useState<string | null>(null);
@@ -56,6 +63,7 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const user = useAuthUser();
   const pool = useReviewPool();
+  const customWords = useCustomWords();
 
   const clampCount = (n: number) =>
     Math.min(totalWords, Math.max(COUNT_MIN, n));
@@ -80,6 +88,7 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
       else if (e.key === "3") onStart("listening", count);
       else if ((e.key === "4" || e.key.toLowerCase() === "r") && pool.count > 0)
         onReview();
+      else if (e.key === "5" && user) onMyWords();
       else if (e.key === "ArrowUp") {
         e.preventDefault();
         nudgeCount(COUNT_STEP);
@@ -91,7 +100,7 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count, sheetOpen, pool.count, onStart, onReview]);
+  }, [count, sheetOpen, pool.count, onStart, onReview, onMyWords, user]);
 
   return (
     <div className={styles.screen}>
@@ -257,13 +266,50 @@ export default function HomeScreen({ totalWords, onStart, onReview }: Props) {
           </span>
           {pool.count > 0 && <kbd className={styles.modeKey}>4</kbd>}
         </motion.button>
+
+        <motion.button
+          className={`${styles.modeCard} ${styles.reviewCard}`}
+          disabled={!user}
+          whileHover={user ? { y: -3 } : undefined}
+          whileTap={user ? { scale: 0.98 } : undefined}
+          transition={{ type: "spring", stiffness: 400, damping: 26 }}
+          onClick={() => (user ? onMyWords() : setSheetOpen(true))}
+        >
+          <span className={styles.modeIcon} aria-hidden="true">
+            <NotebookIcon />
+          </span>
+          <span className={styles.modeTitle}>
+            내 단어장
+            {user && customWords.length > 0 && (
+              <motion.span
+                key={customWords.length}
+                className={styles.reviewCount}
+                initial={{ scale: 1.3 }}
+                animate={{ scale: 1 }}
+              >
+                {customWords.length}
+              </motion.span>
+            )}
+          </span>
+          <span className={styles.modeDesc}>
+            {user ? "내가 추가한 단어로 학습하기" : "로그인하면 사용할 수 있어요"}
+          </span>
+          {user && <kbd className={styles.modeKey}>5</kbd>}
+        </motion.button>
       </div>
 
       <StreakCalendar authenticated={!!user} />
 
       <p className={styles.footHint}>
         <kbd>↑</kbd> <kbd>↓</kbd> 단어 수 &nbsp;·&nbsp; <kbd>1</kbd>{" "}
-        <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> 바로 시작
+        <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd>
+        {user && (
+          <>
+            {" "}
+            <kbd>5</kbd>
+          </>
+        )}{" "}
+        바로 시작
         {!user && pool.count > 0 && (
           <span className={styles.volatileNote}>
             &nbsp;·&nbsp; 로그인하면 틀린 단어가 저장돼요
@@ -359,6 +405,34 @@ function HeadphoneIcon() {
         rx="2.2"
         stroke="currentColor"
         strokeWidth="1.6"
+      />
+    </svg>
+  );
+}
+
+function NotebookIcon() {
+  return (
+    <svg viewBox="0 0 28 28" width="26" height="26" fill="none">
+      <rect
+        x="5.5"
+        y="3.5"
+        width="17"
+        height="21"
+        rx="2.5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <path
+        d="M9.5 9h9M9.5 13.5h9M9.5 18h6"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path
+        d="M5.5 7.5h-1M5.5 12h-1M5.5 16.5h-1M5.5 21h-1"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
       />
     </svg>
   );

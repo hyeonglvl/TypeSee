@@ -1,0 +1,442 @@
+.screen {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  padding: 32px 24px;
+}
+
+.header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.titleCount {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+/* Form ----------------------------------------------------------------- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(520px, 92vw);
+  padding: 18px;
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-card);
+}
+
+.bulkInput {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--hairline-strong);
+  background: var(--canvas);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  resize: vertical;
+  font-family: var(--font-sans);
+}
+
+.bulkInput:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.formFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.parsedCount {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.genButton {
+  padding: 10px 16px;
+  border-radius: var(--radius-m);
+  background: var(--ink);
+  color: var(--canvas);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.genButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.genError {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+/* Draft review (auto-generated, editable before saving) ------------------ */
+
+.drafts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(760px, 92vw);
+  padding: 14px;
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-card);
+}
+
+.draftRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.draftWord {
+  width: 110px;
+  flex-shrink: 0;
+  padding: 7px 10px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.draftField {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 10px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.draftField:focus,
+.draftWord:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.draftPos {
+  width: 78px;
+  flex-shrink: 0;
+  padding: 7px 6px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.draftDelete {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--ink-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline-strong);
+  transition: color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.draftDelete:hover {
+  color: var(--danger);
+  background: var(--danger-dim);
+}
+
+/* Manual add (secondary, collapsed by default) ---------------------------- */
+
+.manualToggle {
+  font-size: 13px;
+  color: var(--ink-3);
+  padding: 4px 10px;
+  border-radius: 999px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.manualToggle:hover {
+  color: var(--ink);
+}
+
+.manualForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(520px, 92vw);
+  padding: 18px;
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  border: 1px dashed var(--hairline-strong);
+}
+
+.fieldsRow {
+  display: flex;
+  gap: 8px;
+}
+
+.field {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.posSelect {
+  padding: 9px 10px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
+  font-size: 13px;
+  color: var(--ink-2);
+  max-width: 130px;
+}
+
+.saveButton {
+  margin-top: 4px;
+  padding: 10px;
+  border-radius: var(--radius-m);
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.saveButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Card grid -------------------------------------------------------------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: min(760px, 92vw);
+}
+
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.card {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover {
+  z-index: 10;
+}
+
+.card:hover .cardExample {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.cardWord {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cardMeaning {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.cardDelete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--ink-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline-strong);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.card:hover .cardDelete {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.cardDelete:hover {
+  color: var(--danger);
+  background: var(--danger-dim);
+}
+
+.cardExample {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  min-height: 100%;
+  max-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 32px 14px 16px;
+  border-radius: var(--radius-m);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: var(--shadow-pop);
+  opacity: 0;
+  pointer-events: none;
+  overflow-y: auto;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.cardExample p {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+
+.cardExampleKo {
+  color: var(--ink-3) !important;
+}
+
+/* Actions ------------------------------------------------------------------ */
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.primaryButton,
+.ghostButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
+}
+
+.primaryButton {
+  background: var(--ink);
+  color: var(--canvas);
+  box-shadow: var(--shadow-card);
+}
+
+.primaryButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-pop);
+}
+
+.primaryButton:disabled,
+.ghostButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.ghostButton {
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+}
+
+.ghostButton:hover:not(:disabled) {
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+
+.screen kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 25px;
+  height: 25px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface-raised);
+  box-shadow: 0 1.5px 0 var(--hairline-strong);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
