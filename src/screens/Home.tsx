@@ -107,7 +107,7 @@ function BraceSvg({ className }: { className?: string }) {
     >
       <path
         d="M2,3 C2,15 40,15 56,15 C74,15 122,15 148,26 C174,15 222,15 240,15 C256,15 298,15 298,3"
-        style={{ stroke: "var(--hairline-strong)" }}
+        style={{ stroke: "var(--kraft)" }}
         strokeWidth="1.6"
         strokeLinecap="round"
       />

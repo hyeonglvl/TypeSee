@@ -1,24 +1,26 @@
 /* ---------------------------------------------------------------------------
-   TypeSee v3 — "종이와 잉크" design tokens & base
-   Warm paper canvas, ink text, blue-ink accent (what you type), red-pen
-   danger (mistakes), highlighter yellow (saved). Light-only.
+   TypeSee v4 — "크래프트 저널" design tokens & base
+   v3 "종이와 잉크"의 은유는 유지하되(파란 잉크 = 내가 쓴 것, 빨간 펜 = 실수,
+   형광펜 = 저장) 종이를 한층 따뜻한 공책 질감으로: 그레인 텍스처 캔버스,
+   하드 오프셋 "스케치" 그림자, 세리프 디스플레이(Playfair) + 한글 손글씨
+   (나눔손글씨 펜) 액센트. Light-only.
    All animation is transform/opacity only.
 --------------------------------------------------------------------------- */
 
 :root {
   color-scheme: light;
 
-  /* Paper — canvas & surfaces */
-  --canvas: #f5f0e4;
-  --surface: #fdfbf5;
-  --surface-raised: #ffffff;
-  --hairline: rgba(33, 29, 23, 0.12);
-  --hairline-strong: rgba(33, 29, 23, 0.24);
+  /* Paper — canvas & surfaces (v3보다 반 톤 따뜻하게) */
+  --canvas: #f6efdf;
+  --surface: #fdfaf2;
+  --surface-raised: #fffefa;
+  --hairline: rgba(58, 47, 32, 0.13);
+  --hairline-strong: rgba(58, 47, 32, 0.26);
 
   /* Ink (text tokens — headings/body never wear the accent) */
-  --ink: #221e17;
-  --ink-2: #6e675a;
-  --ink-3: #a69d8c;
+  --ink: #2a241a;
+  --ink-2: #6c6250;
+  --ink-3: #a5987f;
 
   /* Blue-ink accent ramp — the color of what you write */
   --accent: #2b4fd8;
@@ -30,27 +32,35 @@
   --ice: #7e9bf2;
 
   /* Red pen — mistakes */
-  --danger: #cd3a31;
-  --danger-dim: rgba(205, 58, 49, 0.11);
+  --danger: #c8382e;
+  --danger-dim: rgba(200, 56, 46, 0.11);
 
   /* Highlighter — saved words */
   --highlight: #ffd43b;
   --highlight-dim: rgba(255, 212, 59, 0.4);
 
-  /* Paper shadows */
-  --shadow-card:
-    0 1px 2px rgba(33, 29, 23, 0.05),
-    0 10px 28px -14px rgba(33, 29, 23, 0.25);
-  --shadow-pop:
-    0 2px 4px rgba(33, 29, 23, 0.06),
-    0 24px 56px -20px rgba(33, 29, 23, 0.35);
+  /* Kraft — 공책 표지·마스킹 테이프 등 장식 전용 (인터랙티브는 잉크 블루) */
+  --kraft: #a9744b;
+  --kraft-dim: rgba(169, 116, 75, 0.14);
 
-  /* Type */
+  /* Paper shadows — 부드러운 낙하 그림자 + 하드 오프셋 스케치 그림자 */
+  --shadow-card:
+    3px 3px 0 rgba(58, 47, 32, 0.05),
+    0 1px 2px rgba(58, 47, 32, 0.06),
+    0 10px 26px -14px rgba(58, 47, 32, 0.25);
+  --shadow-pop:
+    4px 4px 0 rgba(58, 47, 32, 0.07),
+    0 2px 4px rgba(58, 47, 32, 0.06),
+    0 24px 52px -20px rgba(58, 47, 32, 0.33);
+
+  /* Type — next/font(layout.tsx)가 --next-font-* 를 주입한다 */
   --font-sans: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI",
     "Apple SD Gothic Neo", "Pretendard", sans-serif;
-  --font-display: "Iowan Old Style", "Palatino", "Georgia", "Times New Roman",
-    serif;
-  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+  --font-display: var(--next-font-display, "Iowan Old Style"), "Palatino",
+    "Georgia", serif;
+  --font-hand: var(--next-font-hand, "Segoe Print"), var(--font-sans);
+  --font-mono: var(--next-font-mono, ui-monospace), "SF Mono",
+    "JetBrains Mono", Menlo, monospace;
 
   /* Shape */
   --radius-s: 10px;
@@ -87,17 +97,18 @@ body {
   -webkit-user-select: none;
 }
 
-/* Graph-paper dots — one fixed layer, never repaints */
+/* Paper grain — 한 겹의 고정 레이어에 미세한 노이즈 + 아주 옅은 도트.
+   feTurbulence 노이즈를 알파로 바꿔 종이 섬유 느낌만 남긴다. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image: radial-gradient(
-    rgba(33, 29, 23, 0.07) 1px,
-    transparent 1px
-  );
-  background-size: 22px 22px;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(rgba(58, 47, 32, 0.06) 1px, transparent 1px);
+  background-size: 160px 160px, 24px 24px;
+  opacity: 0.16;
 }
 
 ::selection {

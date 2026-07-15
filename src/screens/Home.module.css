@@ -79,10 +79,11 @@
   font-style: italic;
 }
 
+/* 태그라인은 표지에 펜으로 적은 부제 — 한글 손글씨 서체 */
 .tagline {
-  font-size: 17px;
+  font-family: var(--font-hand);
+  font-size: 24px;
   color: var(--ink-2);
-  letter-spacing: -0.01em;
 }
 
 /* Lesson sentence — 오늘 [카테고리] 단어 [n]개 배우기 ---------------------- */
@@ -154,7 +155,7 @@
 
 .countArrow:hover {
   color: var(--ink);
-  background: rgba(33, 29, 23, 0.07);
+  background: rgba(58, 47, 32, 0.07);
 }
 
 .countArrow:active {
@@ -260,10 +261,12 @@
   margin-bottom: 6px;
 }
 
+/* 모드명(Typing/Quiz/…)은 전부 라틴이라 디스플레이 세리프가 안전하다 */
 .modeTitle {
+  font-family: var(--font-display);
   font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--ink);
 }
 
@@ -272,21 +275,23 @@
   color: var(--ink-2);
 }
 
-/* 로그인 전 잠금 안내 — 카드 콘텐츠는 그대로 두고, 설명 위에 아주 살짝
-   불투명·블러 처리된 알약 배지로 살짝 가려 보여준다. */
+/* 로그인 전 잠금 안내 — 카드에 비스듬히 붙인 손글씨 마스킹 테이프.
+   살짝 반투명·블러로 아래 설명을 어렴풋이 비춘다. */
 .lockBadge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  padding: 2px 10px;
   margin-bottom: 2px;
-  border-radius: 999px;
-  background: rgba(253, 251, 245, 0.55);
+  border-radius: 3px;
+  background: rgba(253, 250, 242, 0.55);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   border: 1px solid var(--hairline);
-  font-size: 12px;
-  font-weight: 600;
+  font-family: var(--font-hand);
+  font-size: 16px;
+  line-height: 1.2;
   color: var(--ink-2);
+  transform: rotate(-1.2deg);
 }
 
 .modeKey {
@@ -434,6 +439,15 @@
 
   .modeDesc {
     display: none;
+  }
+
+  /* 설명이 숨는 모바일에서 잠금 배지가 유일한 안내 — 좁은 카드에서
+     두 줄로 감기더라도 가운데 정렬로 깔끔하게 */
+  .lockBadge {
+    font-size: 13px;
+    line-height: 1.25;
+    text-align: center;
+    padding: 2px 6px;
   }
 
   .modeKey {
