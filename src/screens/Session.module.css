@@ -207,6 +207,12 @@
   border: 1px solid var(--hairline);
   box-shadow: var(--shadow-card);
   will-change: transform, opacity;
+  /* 예문이 없는 Quiz/Listening(보통·어려움)은 뜻만 있어 카드가 작게
+     잡히고, 어려움은 슬롯이 타이핑할수록 늘어나 카드가 눈에 띄게
+     커진다 — 데이터셋에서 가장 긴 단어가 다 드러난 크기를 바닥값으로
+     고정해 카드가 항상 같은 크기로 시작하게 한다. */
+  min-width: min(480px, 88vw);
+  min-height: 260px;
 }
 
 /* 완료 직후 홀드 구간에 잠깐 찍히는 채점 도장 — 우상단, 살짝 기울여
@@ -699,6 +705,10 @@
 
   .card {
     padding: 36px 22px;
+    /* 키보드가 화면 절반을 잡아먹는 모바일에서는 데스크톱 바닥값이
+       과하다 — 더 낮게 잡는다. min-width 는 min(480px, 88vw) 공식이
+       화면 폭에 맞춰 이미 알아서 줄어든다. */
+    min-height: 200px;
   }
 
   .mobileCounter {
