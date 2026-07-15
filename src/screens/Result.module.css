@@ -1,9 +1,11 @@
 .screen {
   height: 100%;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* safe: 창이 좁아져 내용이 넘칠 때도 위쪽이 스크롤로 가려지지 않게 */
+  justify-content: safe center;
   gap: 30px;
   padding: 32px 24px;
 }

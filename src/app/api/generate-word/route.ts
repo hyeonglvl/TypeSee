@@ -18,6 +18,11 @@ interface GeneratedWord {
   exampleMeaning: string;
 }
 
+interface GenerateResult {
+  results: GeneratedWord[];
+  invalidWords: string[];
+}
+
 // 내 단어장은 로그인 전용 기능이라 게스트 식별(anon id) 경로는 두지 않는다 —
 // 로그인 유저만 통과시킨다.
 async function resolveIdentity(req: Request): Promise<string | null> {
@@ -66,7 +71,7 @@ async function checkRateLimit(
   return { ok: true };
 }
 
-async function callGemini(words: string[]): Promise<GeneratedWord[]> {
+async function callGemini(words: string[]): Promise<GenerateResult> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY 가 설정되지 않았습니다");
 
@@ -75,7 +80,17 @@ async function callGemini(words: string[]): Promise<GeneratedWord[]> {
     `You are a Korean-English dictionary assistant. For each of the following ` +
     `English words/phrases, return one JSON object. Keep the same order as the ` +
     `input list and echo the original word back exactly in "word".\n${list}\n\n` +
-    `Each object: {"word": "<입력받은 단어 그대로>", "meaning": "<가장 흔한 뜻, 한국어>", ` +
+    `If an entry is clearly not a real English word or phrase — gibberish, random ` +
+    `keystrokes, or an obvious typo with no real word it could mean — set "valid" ` +
+    `to false and set "meaning"/"example"/"exampleMeaning" to empty strings ("") ` +
+    `and omit "pos". Do NOT invent a meaning or example for it. Only mark "valid": ` +
+    `false when you are confident a native speaker would not recognize it as a ` +
+    `word; when in doubt (rare words, slang, names, minor variant spellings), ` +
+    `treat it as valid.\n` +
+    `Otherwise set "valid" to true and fill in the rest — "meaning", "example", ` +
+    `and "exampleMeaning" are REQUIRED and must never be empty when "valid" is ` +
+    `true:\n` +
+    `{"word": "<입력받은 단어 그대로>", "valid": true, "meaning": "<가장 흔한 뜻, 한국어>", ` +
     `"pos": "<n|v|adj|adv|phrase 중 하나>", ` +
     `"example": "<쉬운 영어 예문 한 문장, 반드시 이 단어를 포함>", ` +
     `"exampleMeaning": "<예문의 한국어 해석>"}`;
@@ -95,12 +110,13 @@ async function callGemini(words: string[]): Promise<GeneratedWord[]> {
               type: "OBJECT",
               properties: {
                 word: { type: "STRING" },
+                valid: { type: "BOOLEAN" },
                 meaning: { type: "STRING" },
                 pos: { type: "STRING", enum: ["n", "v", "adj", "adv", "phrase"] },
                 example: { type: "STRING" },
                 exampleMeaning: { type: "STRING" },
               },
-              required: ["word", "meaning", "example", "exampleMeaning"],
+              required: ["word", "valid", "meaning", "example", "exampleMeaning"],
             },
           },
         },
@@ -118,16 +134,21 @@ async function callGemini(words: string[]): Promise<GeneratedWord[]> {
 
   const parsed = JSON.parse(text) as unknown;
   if (!Array.isArray(parsed)) throw new Error("Gemini 응답이 배열이 아닙니다");
+  if (parsed.length === 0) throw new Error("Gemini 응답에서 유효한 단어를 찾지 못했습니다");
 
   const results: GeneratedWord[] = [];
-  for (const item of parsed as Array<Partial<GeneratedWord>>) {
+  const invalidWords: string[] = [];
+  for (const item of parsed as Array<Partial<GeneratedWord> & { valid?: boolean }>) {
+    if (typeof item.word !== "string") continue;
     if (
-      typeof item.word !== "string" ||
+      item.valid === false ||
       typeof item.meaning !== "string" ||
       typeof item.example !== "string" ||
       typeof item.exampleMeaning !== "string"
-    )
+    ) {
+      invalidWords.push(item.word);
       continue;
+    }
     results.push({
       word: item.word,
       meaning: item.meaning,
@@ -136,8 +157,7 @@ async function callGemini(words: string[]): Promise<GeneratedWord[]> {
       exampleMeaning: item.exampleMeaning,
     });
   }
-  if (results.length === 0) throw new Error("Gemini 응답에서 유효한 단어를 찾지 못했습니다");
-  return results;
+  return { results, invalidWords };
 }
 
 export async function POST(req: Request) {
@@ -158,7 +178,9 @@ export async function POST(req: Request) {
     );
   }
   const cleaned = words.map((w) => (typeof w === "string" ? w.trim() : ""));
-  if (cleaned.some((w) => !WORD_RE.test(w))) {
+  const validFormat = cleaned.filter((w) => WORD_RE.test(w));
+  const malformed = cleaned.filter((w) => !WORD_RE.test(w));
+  if (validFormat.length === 0) {
     return NextResponse.json(
       { error: "영단어만 입력해주세요 (영문자, 공백/하이픈/어퍼스트로피 허용)" },
       { status: 400 },
@@ -179,8 +201,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const results = await callGemini(cleaned);
-    return NextResponse.json({ results });
+    const { results, invalidWords } = await callGemini(validFormat);
+    return NextResponse.json({
+      results,
+      invalidWords: [...malformed, ...invalidWords],
+    });
   } catch (err) {
     console.error("[TypeSee] generate-word 실패:", err);
     return NextResponse.json(

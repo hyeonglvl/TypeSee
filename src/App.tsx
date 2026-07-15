@@ -9,6 +9,7 @@ import MyWordsScreen from "@/screens/MyWords";
 import { STARTER_WORDS } from "@/data/words";
 import { shuffle, weightedSample } from "@/lib/engine";
 import { useAuthUser } from "@/lib/auth";
+import { hydrateDifficultyPref } from "@/lib/difficultyPref";
 import {
   attachUser,
   detachUser,
@@ -73,6 +74,7 @@ export default function App() {
   useEffect(() => {
     hydrateLocal();
     hydrateCustomWordsLocal();
+    hydrateDifficultyPref();
   }, []);
 
   useEffect(() => {
@@ -181,18 +183,7 @@ export default function App() {
     // 커스텀 단어는 STARTER_WORDS 에 없는 id 라서 recordSession 을 타면
     // Review.tsx 가 못 찾는 고아 항목이 복습 풀에 쌓인다 — 스트릭만 적립한다.
     if (config.kind !== "custom") {
-      recordSession(
-        // 틀린 단어로는 실제 오타가 있는 단어만 쌓는다 — 정답 보기(Space)로
-        // 저장만 한 단어는 저장 기록으로만 남고, 힌트·뜻 열람도 라벨용일 뿐
-        // 오답이 아니다.
-        summary.troubleWords
-          .filter((t) => t.mistakes > 0)
-          .map((t) => ({
-            id: t.entry.id,
-            count: t.mistakes,
-          })),
-        summary.mastered.map((w) => w.id),
-      );
+      recordSession(summary.outcomes);
     }
     recordDailyActivity(summary.wordsCompleted);
   }, []);

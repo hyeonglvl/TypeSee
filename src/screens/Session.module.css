@@ -1,6 +1,7 @@
 .screen {
   position: relative;
   height: 100%;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
@@ -85,11 +86,68 @@
   gap: 14px;
 }
 
+.autoAdvanceToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 12px 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  white-space: nowrap;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.autoAdvanceToggle:hover {
+  color: var(--ink);
+  background: var(--surface-raised);
+}
+
+.autoAdvanceToggle[aria-pressed="true"] {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
+.switchTrack {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--hairline-strong);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.switchTrack[data-on="true"] {
+  background: var(--accent);
+}
+
+.switchThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.switchTrack[data-on="true"] .switchThumb {
+  transform: translateX(14px);
+}
+
 .soundToggle {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   border-radius: 999px;
   color: var(--ink-3);
   transition:
@@ -149,6 +207,18 @@
   border: 1px solid var(--hairline);
   box-shadow: var(--shadow-card);
   will-change: transform, opacity;
+}
+
+/* 완료 직후 홀드 구간에 잠깐 찍히는 채점 도장 — 우상단, 살짝 기울여
+   손으로 찍은 느낌 */
+.gradeMark {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 56px;
+  height: 56px;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 2px rgba(33, 29, 23, 0.15));
 }
 
 /* 카드 좌상단 상태 칩 — 해당되는 것을 전부 작게 나열한다 */
@@ -444,6 +514,12 @@
   box-shadow: inset 0 -3px 0 var(--accent);
 }
 
+/* normal·hard: 완료 전 채점을 미루는 동안의 중립 톤 — 입력은 됐지만
+   맞았는지 틀렸는지는 아직 보여주지 않는다. */
+.slotTyped {
+  box-shadow: inset 0 -3px 0 var(--ink-3);
+}
+
 .slotWrong {
   box-shadow: inset 0 -3px 0 var(--danger);
 }
@@ -459,6 +535,12 @@
 .glyphWrong {
   color: var(--danger);
   animation: pop 200ms var(--ease-out);
+}
+
+/* normal·hard: 완료 전엔 정답/오답을 가리지 않고 회색으로만 보여준다 —
+   글자를 채점된 파란색으로 바로 보여주면 각 글자가 맞았다는 착각을 준다. */
+.glyphTyped {
+  color: var(--ink-2);
 }
 
 .glyphGhost {
@@ -556,6 +638,50 @@
   color: var(--ink-2);
 }
 
+/* 단어 카드와 액션 바(힌트·정답·저장) 사이 전용 줄 — 자동 넘기기가
+   꺼진 채 카드가 완료되면 이 자리에 버튼이 뜬다. 버튼이 있든 없든
+   높이를 고정해 카드 위치가 위아래로 흔들리지 않게 한다. */
+.nextCardRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 54px; /* 버튼 높이(40) + 아래 여백(14) — 버튼 유무와 무관하게 고정 */
+  padding-bottom: 14px;
+}
+
+/* 자동 넘기기가 꺼졌을 때 다음 카드로 넘어가는 유일한 방법이라, 놓치지
+   않게 눈에 띄는 강조 버튼으로 보여준다. */
+.nextCardButton {
+  background: var(--accent);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+  animation: nextCardPulse 1.6s ease-in-out infinite;
+}
+
+.nextCardButton:hover {
+  background: var(--accent-deep);
+  color: #fff;
+  box-shadow: var(--shadow-pop);
+}
+
+.nextCardButton kbd {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: none;
+  color: #fff;
+}
+
+@keyframes nextCardPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(43, 79, 216, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(43, 79, 216, 0);
+  }
+}
+
 /* Mobile — bigger type, roomier tap targets ---------------------------------- */
 
 @media (max-width: 640px) {
@@ -622,9 +748,28 @@
     font-size: 17px;
   }
 
+  .autoAdvanceToggle {
+    font-size: 14px;
+    padding: 8px 14px 8px 16px;
+  }
+
+  .switchTrack {
+    width: 38px;
+    height: 22px;
+  }
+
+  .switchThumb {
+    width: 18px;
+    height: 18px;
+  }
+
+  .switchTrack[data-on="true"] .switchThumb {
+    transform: translateX(16px);
+  }
+
   .soundToggle {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
 
   .exitButton {

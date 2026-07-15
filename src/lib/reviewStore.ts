@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabase } from "./supabase";
+import type { WordOutcomeTier } from "./types";
 
 /**
  * Pool of missed + manually-saved words.
@@ -31,7 +32,10 @@ interface Entry {
 export const EASE_INIT = 2.5;
 export const EASE_MIN = 1.3;
 export const EASE_MASTER = 3.0;
-const EASE_WRONG_STEP = 0.2;
+/** major(끝까지 오답·정답 보기) 판정의 하락폭. */
+const EASE_MAJOR_STEP = 0.2;
+/** minor(정답이지만 오타/힌트가 있었음) 판정의 하락폭 — major 보다 가볍다. */
+const EASE_MINOR_STEP = 0.1;
 const EASE_RIGHT_STEP = 0.25;
 
 /** TS-1 세션 추첨 가중치 — ease 가 낮을수록 제곱으로 커진다. */
@@ -336,27 +340,30 @@ export function useHistoryPool(): HistoryPool {
 }
 
 export function recordSession(
-  missed: Array<{ id: string; count: number }>,
-  passed: string[],
+  outcomes: Array<{ id: string; tier: WordOutcomeTier; revealed: boolean }>,
 ) {
-  if (missed.length === 0 && passed.length === 0) return;
+  if (outcomes.length === 0) return;
   const now = Date.now();
 
-  for (const { id, count } of missed) {
+  const missed = outcomes.filter((o) => o.tier !== "clean");
+  const passed = outcomes.filter((o) => o.tier === "clean").map((o) => o.id);
+
+  for (const { id, tier, revealed } of missed) {
     const cur = misses.get(id);
     // 마스터 유지 점검 실패는 새 오답처럼 EASE_INIT 기준으로 강등한다 —
-    // 3.0 에서 −0.2 만 내리면 정타 한 번에 재마스터돼 점검이 무력해진다.
+    // 3.0 에서 조금만 내리면 정타 한 번에 재마스터돼 점검이 무력해진다.
     const baseEase =
       cur?.masteredAt != null ? EASE_INIT : (cur?.ease ?? EASE_INIT);
+    const step = tier === "major" ? EASE_MAJOR_STEP : EASE_MINOR_STEP;
     misses.set(id, {
-      wrongCount: (cur?.wrongCount ?? 0) + count,
+      wrongCount: (cur?.wrongCount ?? 0) + 1,
       saved: cur?.saved ?? false,
-      revealed: cur?.revealed ?? false,
-      ease: Math.max(EASE_MIN, baseEase - EASE_WRONG_STEP * count),
+      revealed: (cur?.revealed ?? false) || revealed,
+      ease: Math.max(EASE_MIN, baseEase - step),
       lastSeenAt: now,
       masteredAt: null,
     });
-    history.set(id, (history.get(id) ?? 0) + count);
+    history.set(id, (history.get(id) ?? 0) + 1);
   }
   // TS-1: 정타 통과는 ease 를 올릴 뿐, EASE_MASTER 도달 전까지는 풀에 남아
   // 낮아진 확률로 계속 등장한다. A saved (bookmarked) word stays in the pool
@@ -454,18 +461,30 @@ export function recordSession(
   }
 }
 
-/** Bookmark a word (Space during a session) — shown as "저장" in the review list.
- *  revealed=true 는 정답 보기로 저장된 경우 — 복습 노트에 '정답 봄' 라벨이 붙는다. */
+/** Bookmark a word (Typing 모드 "저장하기", 키 1) — 복습 노트에 "저장" 으로
+ *  표시된다. saved 플래그를 설정하는 유일한 경로다.
+ *  revealed 파라미터는 saveWord 를 통해 새로 켜지는 경로가 더 이상 없다
+ *  (정답 보기는 recordSession 이 세션 종료 시 처리한다) — 이미 켜져 있던
+ *  값을 보존하는 용도로만 남아 있다. */
 export function saveWord(id: string, revealed = false) {
   const cur = misses.get(id);
   if (cur?.saved && (cur.revealed || !revealed)) return;
+  // 마스터 유지 상태였던 단어를 저장하면 활성 북마크로 복귀한다 — ease 를
+  // 리셋해 자기 가중치(≈0)에 굶지 않게 (saved 마스터와 같은 규칙).
+  const baseEase = cur?.masteredAt != null ? EASE_INIT : (cur?.ease ?? EASE_INIT);
+  // 정답 보기로 처음 넘어온 거라면 "몰랐다"는 뜻이라 오답 한 번과 같은
+  // 폭으로 ease 를 낮춘다 — 중립값(EASE_INIT)을 그대로 쓰면 방금 모르고
+  // 넘긴 단어가 바로 '안정 단어'로 표시되는 모순이 생긴다. 이미
+  // revealed 였던 단어(재노출)나 순수 북마크 저장은 그대로 둔다.
+  const ease =
+    revealed && !cur?.revealed
+      ? Math.max(EASE_MIN, baseEase - EASE_MAJOR_STEP)
+      : baseEase;
   misses.set(id, {
     wrongCount: cur?.wrongCount ?? 0,
     saved: true,
     revealed: (cur?.revealed ?? false) || revealed,
-    // 마스터 유지 상태였던 단어를 저장하면 활성 북마크로 복귀한다 — ease 를
-    // 리셋해 자기 가중치(≈0)에 굶지 않게 (saved 마스터와 같은 규칙).
-    ease: cur?.masteredAt != null ? EASE_INIT : (cur?.ease ?? EASE_INIT),
+    ease,
     lastSeenAt: Date.now(), // 저장하는 순간 화면에 떠 있는 단어다
     masteredAt: null,
   });

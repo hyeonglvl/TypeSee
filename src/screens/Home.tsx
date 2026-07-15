@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import {
-  displayName,
-  isAuthAvailable,
-  signOut,
-  useAuthUser,
-} from "@/lib/auth";
+import { displayName, isAuthAvailable, signOut, useAuthUser } from "@/lib/auth";
 import { useReviewPool } from "@/lib/reviewStore";
 import { useCustomWords } from "@/lib/customWordsStore";
+import {
+  setDifficulty,
+  useDifficultyPref,
+  type Difficulty,
+} from "@/lib/difficultyPref";
 import AuthSheet from "@/screens/AuthSheet";
 import StreakCalendar from "@/screens/StreakCalendar";
 import type { SessionMode } from "@/lib/types";
@@ -26,9 +26,19 @@ const MODES: Array<{
   title: string;
   desc: string;
 }> = [
-  { mode: "typing", key: "1", title: "Typing", desc: "단어를 보며 손에 익히기" },
+  {
+    mode: "typing",
+    key: "1",
+    title: "Typing",
+    desc: "단어를 보며 손에 익히기",
+  },
   { mode: "quiz", key: "2", title: "Quiz", desc: "뜻만 보고 철자 떠올리기" },
-  { mode: "listening", key: "3", title: "Listening", desc: "발음만 듣고 철자 입력" },
+  {
+    mode: "listening",
+    key: "3",
+    title: "Listening",
+    desc: "발음만 듣고 철자 입력",
+  },
 ];
 
 const MODE_ICON: Record<SessionMode, () => React.JSX.Element> = {
@@ -36,6 +46,74 @@ const MODE_ICON: Record<SessionMode, () => React.JSX.Element> = {
   quiz: SparkIcon,
   listening: HeadphoneIcon,
 };
+
+function renderModeCard(
+  { mode, key, title, desc }: (typeof MODES)[number],
+  count: number,
+  onStart: (mode: SessionMode, count: number) => void,
+) {
+  const Icon = MODE_ICON[mode];
+  return (
+    <motion.button
+      key={mode}
+      className={styles.modeCard}
+      whileHover={{ y: -3 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 26 }}
+      onClick={() => onStart(mode, count)}
+    >
+      <span className={styles.modeIcon} aria-hidden="true">
+        <Icon />
+      </span>
+      <span className={styles.modeTitle}>{title}</span>
+      <span className={styles.modeDesc}>{desc}</span>
+      <kbd className={styles.modeKey}>{key}</kbd>
+    </motion.button>
+  );
+}
+
+const DIFFICULTY_OPTIONS: Array<{ value: Difficulty; label: string }> = [
+  { value: "easy", label: "쉬움" },
+  { value: "normal", label: "보통" },
+  { value: "hard", label: "어려움" },
+];
+
+function DifficultyControl({ value }: { value: Difficulty }) {
+  return (
+    <span className={styles.difficultyControl} role="group" aria-label="난이도">
+      {DIFFICULTY_OPTIONS.map(({ value: v, label }) => (
+        <button
+          key={v}
+          type="button"
+          className={styles.difficultyOption}
+          aria-pressed={value === v}
+          onClick={() => setDifficulty(v)}
+        >
+          {label}
+        </button>
+      ))}
+    </span>
+  );
+}
+
+function BraceSvg({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 300 28"
+      preserveAspectRatio="none"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M2,3 C2,15 40,15 56,15 C74,15 122,15 148,26 C174,15 222,15 240,15 C256,15 298,15 298,3"
+        style={{ stroke: "var(--hairline-strong)" }}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
 const COUNT_DEFAULT = 10;
 const COUNT_STEP = 5;
@@ -64,6 +142,7 @@ export default function HomeScreen({
   const user = useAuthUser();
   const pool = useReviewPool();
   const customWords = useCustomWords();
+  const difficulty = useDifficultyPref();
 
   const clampCount = (n: number) =>
     Math.min(totalWords, Math.max(COUNT_MIN, n));
@@ -145,11 +224,11 @@ export default function HomeScreen({
             aria-label="단어 카테고리"
             value={category}
             // 네이티브 select 는 가장 긴 옵션 폭으로 벌어진다 — 선택된
-            // 라벨 폭(한글 1자 ≈ 1em) + 캐럿 자리만큼으로 조인다
+            // 라벨 폭(한글 1자 ≈ 1em) 만큼으로 조인다
             style={{
               width: `calc(${
                 CATEGORIES.find((c) => c.id === category)?.label.length ?? 3
-              }em + 26px)`,
+              }em + 10px)`,
             }}
             onChange={(e) => setCategory(e.target.value)}
           >
@@ -160,9 +239,6 @@ export default function HomeScreen({
               </option>
             ))}
           </select>
-          <span className={styles.selectCaret} aria-hidden="true">
-            ▾
-          </span>
         </span>
         단어
         <span className={styles.countBox}>
@@ -214,26 +290,16 @@ export default function HomeScreen({
       </p>
 
       <div className={styles.modes}>
-        {MODES.map(({ mode, key, title, desc }) => {
-          const Icon = MODE_ICON[mode];
-          return (
-          <motion.button
-            key={mode}
-            className={styles.modeCard}
-            whileHover={{ y: -3 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 400, damping: 26 }}
-            onClick={() => onStart(mode, count)}
-          >
-            <span className={styles.modeIcon} aria-hidden="true">
-              <Icon />
-            </span>
-            <span className={styles.modeTitle}>{title}</span>
-            <span className={styles.modeDesc}>{desc}</span>
-            <kbd className={styles.modeKey}>{key}</kbd>
-          </motion.button>
-          );
-        })}
+        {renderModeCard(MODES[0], count, onStart)}
+
+        <div className={styles.quizListeningGroup}>
+          <div className={styles.quizListeningCards}>
+            {renderModeCard(MODES[1], count, onStart)}
+            {renderModeCard(MODES[2], count, onStart)}
+          </div>
+          <BraceSvg className={styles.brace} />
+          <DifficultyControl value={difficulty} />
+        </div>
 
         <motion.button
           className={`${styles.modeCard} ${styles.reviewCard}`}
@@ -259,6 +325,9 @@ export default function HomeScreen({
               </motion.span>
             )}
           </span>
+          {!user && (
+            <span className={styles.lockBadge}>로그인하면 사용할 수 있어요</span>
+          )}
           <span className={styles.modeDesc}>
             {pool.count > 0
               ? "틀린 단어, 저장한 단어 다시 풀기"
@@ -291,8 +360,11 @@ export default function HomeScreen({
               </motion.span>
             )}
           </span>
+          {!user && (
+            <span className={styles.lockBadge}>로그인하면 사용할 수 있어요</span>
+          )}
           <span className={styles.modeDesc}>
-            {user ? "내가 추가한 단어로 학습하기" : "로그인하면 사용할 수 있어요"}
+            AI 를 이용해 내가 추가한 단어로 학습하기
           </span>
           {user && <kbd className={styles.modeKey}>5</kbd>}
         </motion.button>
@@ -441,7 +513,13 @@ function NotebookIcon() {
 function UserIcon() {
   return (
     <svg viewBox="0 0 20 20" width="15" height="15" fill="none">
-      <circle cx="10" cy="6.5" r="3.2" stroke="currentColor" strokeWidth="1.5" />
+      <circle
+        cx="10"
+        cy="6.5"
+        r="3.2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
       <path
         d="M3.5 17c1.2-3.2 3.9-4.8 6.5-4.8s5.3 1.6 6.5 4.8"
         stroke="currentColor"

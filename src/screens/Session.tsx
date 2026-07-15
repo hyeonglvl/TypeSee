@@ -3,6 +3,11 @@ import { AnimatePresence, motion } from "motion/react";
 import { createSession, sessionReducer, summarize } from "@/lib/engine";
 import { ensureSoundOn, speak, toggleSound, useSoundPref } from "@/lib/tts";
 import {
+  toggleAutoAdvance,
+  useAutoAdvancePref,
+} from "@/lib/autoAdvancePref";
+import { useDifficultyPref, type Difficulty } from "@/lib/difficultyPref";
+import {
   easeStage,
   saveWord,
   useReviewPool,
@@ -87,6 +92,8 @@ export default function SessionScreen({
     createSession(words, mode, reviewIds, retentionIds),
   );
   const soundOn = useSoundPref();
+  const autoAdvance = useAutoAdvancePref();
+  const difficulty = useDifficultyPref();
   const pool = useReviewPool(); // 복습 배지 + 익힘 단계 점 표시용
   const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(
     () => new Set(),
@@ -100,15 +107,26 @@ export default function SessionScreen({
 
   const exit = () => onExitRef.current(summarize(stateRef.current));
 
-  const handleSpace = () => {
+  // 정답 보기(퀴즈·리스닝의 포기) — 예전엔 space 였고, 지금은 숫자 단축키·
+  // 액션 버튼 전용이다. 북마크(저장)는 건드리지 않는다 — "정답 봄" 라벨과
+  // EF 하락은 세션 종료 시 summarize()/recordSession 이 처리한다.
+  const revealAnswer = () => {
+    dispatch({ type: "REVEAL" });
+  };
+
+  // 단어 저장(북마크) — 타이핑 모드 전용, 예전엔 space 였고 지금은 "1".
+  const saveCurrent = () => {
     const id = stateRef.current.words[stateRef.current.currentIndex].entry.id;
-    if (mode !== "typing") {
-      dispatch({ type: "REVEAL" });
-      saveWord(id, true); // 정답 봄 — 복습 노트에 라벨이 붙는다
-    } else {
-      saveWord(id);
-      setSavedIds((prev) => new Set(prev).add(id));
-    }
+    saveWord(id);
+    setSavedIds((prev) => new Set(prev).add(id));
+  };
+
+  // space 의 새 역할: 완료된 카드만 다음으로 넘긴다 — 자동 넘기기가 꺼져
+  // 있을 때의 주 조작이자, 켜져 있을 때는 대기 시간을 건너뛰는 단축키.
+  const nextCard = () => {
+    const current = stateRef.current.words[stateRef.current.currentIndex];
+    if (current.status !== "done") return;
+    dispatch({ type: "ADVANCE" });
   };
 
   const replayCurrent = () => {
@@ -135,22 +153,24 @@ export default function SessionScreen({
       } else if (e.key === " ") {
         e.preventDefault();
         if (e.repeat) return;
-        handleSpace();
+        nextCard();
       } else if (e.key === "Tab" && mode === "listening") {
         e.preventDefault();
         if (e.repeat) return;
         replayCurrent();
       } else if (e.key >= "0" && e.key <= "9") {
-        // 숫자는 글자로 입력받지 않는다 — 퀴즈·리스닝 액션 단축키 전용
+        // 숫자는 글자로 입력받지 않는다 — 모드별 액션 단축키 전용
         e.preventDefault();
         if (e.repeat) return;
         if (mode === "quiz") {
           if (e.key === "1") dispatch({ type: "HINT" });
-          else if (e.key === "2") handleSpace();
+          else if (e.key === "2") revealAnswer();
         } else if (mode === "listening") {
           if (e.key === "1") toggleMeaning();
           else if (e.key === "2") dispatch({ type: "HINT" });
-          else if (e.key === "3") handleSpace();
+          else if (e.key === "3") revealAnswer();
+        } else if (mode === "typing") {
+          if (e.key === "1") saveCurrent();
         }
       } else {
         const char = charFromKeydown(e);
@@ -215,7 +235,7 @@ export default function SessionScreen({
     e.target.value = "";
     if (chars.length === 0) return;
     for (const char of chars) {
-      if (char === " ") handleSpace();
+      if (char === " ") nextCard();
       // 숫자는 단축키 전용이라 글자로 넣지 않고, 한글 등 비 ASCII 문자는
       // IME 조합 산출물 — 어느 쪽도 오답으로 세지 않고 무시
       else if (char >= "0" && char <= "9") continue;
@@ -237,6 +257,7 @@ export default function SessionScreen({
   // spelling can actually be read.
   useEffect(() => {
     if (state.lastCompletedId === null) return;
+    if (!autoAdvance) return; // 꺼져 있으면 space(또는 버튼)로만 넘어간다
     const completed = state.words.find(
       (w) => w.entry.id === state.lastCompletedId,
     );
@@ -248,7 +269,7 @@ export default function SessionScreen({
     const t = setTimeout(() => dispatch({ type: "ADVANCE" }), delay);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.lastCompletedId]);
+  }, [state.lastCompletedId, autoAdvance]);
 
   const finished = state.finishedAt !== null;
   useEffect(() => {
@@ -279,6 +300,11 @@ export default function SessionScreen({
   const first = Math.max(0, state.currentIndex - WINDOW);
   const last = Math.min(total - 1, state.currentIndex + WINDOW);
   const visible = state.words.slice(first, last + 1);
+
+  // 자동 넘기기가 꺼진 채 카드가 완료되면 다음으로 넘길 방법이 space
+  // 뿐이라, 놓치지 않게 액션 바에 큼직한 버튼으로도 보여준다.
+  const showNextCardButton =
+    !autoAdvance && state.words[state.currentIndex]?.status === "done";
 
   return (
     <div className={styles.screen} onClick={focusMobileInput}>
@@ -326,6 +352,21 @@ export default function SessionScreen({
         <span className={styles.topRight}>
           <button
             type="button"
+            className={styles.autoAdvanceToggle}
+            aria-label="자동 넘기기"
+            aria-pressed={autoAdvance}
+            onClick={toggleAutoAdvance}
+          >
+            자동 넘기기
+            <span
+              className={styles.switchTrack}
+              data-on={autoAdvance ? "true" : "false"}
+            >
+              <span className={styles.switchThumb} />
+            </span>
+          </button>
+          <button
+            type="button"
             className={styles.soundToggle}
             aria-label={soundOn ? "발음 끄기" : "발음 켜기"}
             aria-pressed={soundOn}
@@ -364,9 +405,11 @@ export default function SessionScreen({
                 word={word}
                 offset={first + i - state.currentIndex}
                 mode={mode}
+                difficulty={difficulty}
                 wrongReview={wrongReview}
                 saved={isSaved}
                 stage={stage}
+                justCompleted={state.lastCompletedId === word.entry.id}
                 showMeaning={
                   meaningShown && first + i === state.currentIndex
                 }
@@ -376,19 +419,42 @@ export default function SessionScreen({
         </AnimatePresence>
       </div>
 
-      {mode !== "typing" && (
-        <div className={styles.actionBar}>
-          {mode === "listening" && (
-            <button
-              type="button"
-              className={styles.actionButton}
-              // 숨은 모바일 입력의 포커스를 뺏어 키보드가 닫히지 않게
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={toggleMeaning}
-            >
-              {meaningShown ? "뜻 감추기" : "뜻 보기"} <kbd>1</kbd>
-            </button>
-          )}
+      <div className={styles.nextCardRow}>
+        {showNextCardButton && (
+          <button
+            type="button"
+            className={`${styles.actionButton} ${styles.nextCardButton}`}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={nextCard}
+          >
+            다음 카드 <kbd>space</kbd>
+          </button>
+        )}
+      </div>
+
+      <div className={styles.actionBar}>
+        {mode === "listening" && (
+          <button
+            type="button"
+            className={styles.actionButton}
+            // 숨은 모바일 입력의 포커스를 뺏어 키보드가 닫히지 않게
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={toggleMeaning}
+          >
+            {meaningShown ? "뜻 감추기" : "뜻 보기"} <kbd>1</kbd>
+          </button>
+        )}
+        {mode === "typing" && (
+          <button
+            type="button"
+            className={styles.actionButton}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={saveCurrent}
+          >
+            저장하기 <kbd>1</kbd>
+          </button>
+        )}
+        {mode !== "typing" && (
           <button
             type="button"
             className={styles.actionButton}
@@ -397,23 +463,23 @@ export default function SessionScreen({
           >
             힌트 보기 <kbd>{mode === "listening" ? "2" : "1"}</kbd>
           </button>
+        )}
+        {mode !== "typing" && (
           <button
             type="button"
             className={styles.actionButton}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={handleSpace}
+            onClick={revealAnswer}
           >
             정답 보기 <kbd>{mode === "listening" ? "3" : "2"}</kbd>
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       <footer className={styles.bottomBar}>
         <StreakPill streak={state.streak} />
         <span className={styles.navHints}>
-          <kbd>←</kbd> 이전 단어 &nbsp;·&nbsp; <kbd>→</kbd> 건너뛰기
-          &nbsp;·&nbsp; <kbd>space</kbd>{" "}
-          {mode === "typing" ? "저장" : "정답 보기"}
+          <kbd>←</kbd> 이전 단어 &nbsp;·&nbsp; 다음 단어 <kbd>→</kbd>
           {mode === "listening" && (
             <>
               &nbsp;·&nbsp; <kbd>tab</kbd> 다시 듣기
@@ -431,19 +497,25 @@ const WordCard = memo(function WordCard({
   word,
   offset,
   mode,
+  difficulty,
   wrongReview,
   saved,
   stage,
+  justCompleted,
   showMeaning = false,
 }: {
   word: WordState;
   offset: number;
   mode: SessionMode;
+  difficulty: Difficulty;
   /** 복습 풀 출신 중 실제로 틀린 적 있는 단어. */
   wrongReview: boolean;
   saved: boolean;
   /** 익힘 단계 라벨 — 복습 풀에 기록이 있는 단어에만 값이 있다. */
   stage: { label: string; tone: EaseStageTone } | null;
+  /** 이 단어가 세션에서 가장 최근에 완료된 단어다 — 다음 카드로 넘어가기
+   *  전 홀드 구간에서만 참이라, 정오답 도장을 잠깐 찍었다 지우는 데 쓴다. */
+  justCompleted: boolean;
   /** 리스닝 '뜻 보기' — 완료 전에도 뜻을 노출한다. */
   showMeaning?: boolean;
 }) {
@@ -453,6 +525,16 @@ const WordCard = memo(function WordCard({
   // Neighbors sit right at the screen edge so the track's overflow:hidden
   // clips them to a ~50% sliver; anything past that is pushed fully offstage.
   const xVw = depth === 0 ? 0 : depth === 1 ? sign * 52 : sign * 90;
+  const correct =
+    word.status === "done" &&
+    !word.gaveUp &&
+    word.typed.toLowerCase() === word.entry.word.toLowerCase();
+  // normal·hard 는 완료 전까지 정오답을 가리는데, 오타마다 흔들리면 그
+  // 자체가 "지금 틀렸다"는 즉시 피드백이 되어버린다 — 단어가 끝날 때까지는
+  // 흔들리지 않는다. easy·typing 모드는 원래대로 즉시 흔들린다.
+  const suppressShake =
+    mode !== "typing" && difficulty !== "easy" && word.status !== "done";
+  const shaking = word.lastMistakeAt !== null && !suppressShake;
 
   return (
     <motion.div
@@ -475,6 +557,21 @@ const WordCard = memo(function WordCard({
       exit={{ opacity: 0, scale: 0.35 }}
       transition={cardSpring}
     >
+      <AnimatePresence>
+        {active && justCompleted && (
+          <motion.span
+            key="gradeMark"
+            className={styles.gradeMark}
+            initial={{ opacity: 0, scale: 0.4, rotate: -26 }}
+            animate={{ opacity: 1, scale: 1, rotate: -10 }}
+            exit={{ opacity: 0, scale: 0.7 }}
+            transition={{ type: "spring", stiffness: 500, damping: 22 }}
+            aria-hidden="true"
+          >
+            {correct ? <CheckStampIcon /> : <CrossStampIcon />}
+          </motion.span>
+        )}
+      </AnimatePresence>
       {stage && (
         <span className={`${styles.stage} ${STAGE_CLASS[stage.tone]}`}>
           {stage.label}
@@ -492,9 +589,7 @@ const WordCard = memo(function WordCard({
       <span
         key={word.lastMistakeAt ?? -1}
         className={
-          word.lastMistakeAt !== null
-            ? `${styles.shakeLayer} ${styles.shaking}`
-            : styles.shakeLayer
+          shaking ? `${styles.shakeLayer} ${styles.shaking}` : styles.shakeLayer
         }
       >
         {mode === "listening" ? (
@@ -507,24 +602,42 @@ const WordCard = memo(function WordCard({
             ) : (
               <ListeningPrompt word={word.entry.word} active={active} />
             )}
-            {active ? (
+            {active && difficulty === "easy" ? (
               <ExampleLine
                 word={word}
                 mode={mode}
                 active={active}
+                difficulty={difficulty}
                 showMeaning={showMeaning}
               />
             ) : (
-              <WordGlyphs word={word} mode={mode} active={active} />
+              <WordGlyphs
+                word={word}
+                mode={mode}
+                active={active}
+                difficulty={difficulty}
+              />
             )}
           </>
         ) : (
           <>
             <Meaning entry={word.entry} />
-            {active ? (
-              <ExampleLine word={word} mode={mode} active={active} />
+            {/* Typing 은 난이도 스캐폴딩(Quiz/Listening 전용) 대상이 아니라
+                항상 예문을 보여준다 — 난이도가 갈리는 건 Quiz뿐. */}
+            {active && (mode === "typing" || difficulty === "easy") ? (
+              <ExampleLine
+                word={word}
+                mode={mode}
+                active={active}
+                difficulty={difficulty}
+              />
             ) : (
-              <WordGlyphs word={word} mode={mode} active={active} />
+              <WordGlyphs
+                word={word}
+                mode={mode}
+                active={active}
+                difficulty={difficulty}
+              />
             )}
           </>
         )}
@@ -607,16 +720,21 @@ function ExampleLine({
   word,
   mode,
   active,
+  difficulty,
   showMeaning = false,
 }: {
   word: WordState;
   mode: SessionMode;
   active: boolean;
+  difficulty: Difficulty;
   /** 리스닝 '뜻 보기' — 눌렀을 때만 예문 해석도 함께 보여준다. */
   showMeaning?: boolean;
 }) {
   const span = findWordSpan(word.entry);
-  if (!span) return <WordGlyphs word={word} mode={mode} active={active} />;
+  if (!span)
+    return (
+      <WordGlyphs word={word} mode={mode} active={active} difficulty={difficulty} />
+    );
 
   return (
     <span className={styles.sentenceBlock}>
@@ -624,7 +742,7 @@ function ExampleLine({
         {span.prefix && (
           <span className={styles.sentenceText}>{span.prefix}</span>
         )}
-        <WordGlyphs word={word} mode={mode} active={active} />
+        <WordGlyphs word={word} mode={mode} active={active} difficulty={difficulty} />
         {span.suffix && (
           <span className={styles.sentenceText}>{span.suffix}</span>
         )}
@@ -649,14 +767,33 @@ function WordGlyphs({
   word,
   mode,
   active,
+  difficulty,
 }: {
   word: WordState;
   mode: SessionMode;
   active: boolean;
+  difficulty: Difficulty;
 }) {
   const target = word.entry.word;
   const typedLen = word.typed.length;
-  const hintBoundary = Math.max(mode === "quiz" ? 1 : 0, word.hintedUpTo);
+  // 자동으로 노출되는 첫 글자 고스트 — easy 는 Quiz·Listening 둘 다,
+  // normal 은 지금처럼 Quiz만, hard 는 자동 고스트 없음. 유저가 힌트
+  // 버튼으로 연 hintedUpTo 는 난이도와 무관하게 항상 반영된다.
+  const baselineGhost =
+    difficulty === "hard" ? 0 : difficulty === "easy" ? 1 : mode === "quiz" ? 1 : 0;
+  const hintBoundary = Math.max(baselineGhost, word.hintedUpTo);
+
+  // hard: 정답 길이를 미리 드러내지 않는다 — 타이핑한 만큼(+커서 하나)과
+  // 힌트로 열린 만큼만 슬롯을 그린다. 완료 시점엔 quiz/listening 모두
+  // 키 입력이 그대로 typed 에 쌓이는 구조라 typedLen 이 이미 target.length
+  // 와 같아져 전체가 자연히 드러난다.
+  const revealLen =
+    mode !== "typing" && difficulty === "hard"
+      ? Math.min(
+          target.length,
+          Math.max(hintBoundary, typedLen + (word.status === "done" ? 0 : 1)),
+        )
+      : target.length;
 
   // 끝까지 쳤는데 틀린 채 완료 — 유저 입력 위에 정답을 띄워준다.
   // (정답 보기는 고스트가 이미 정답을 보여주므로 제외)
@@ -666,12 +803,18 @@ function WordGlyphs({
     !word.gaveUp &&
     word.typed.toLowerCase() !== target.toLowerCase();
 
+  // easy 는 타이핑하는 즉시 정오답이 드러나지만, normal·hard 는 한 글자씩
+  // 파랗게 보이면 "이미 맞았다"는 착각을 준다 — 단어를 다 입력해 완료된
+  // 순간(status==='done')에야 정오답을 색으로 갈라 보여준다. 그 전까진
+  // 입력된 글자 모두 회색 "입력됨" 톤.
+  const revealGrading = difficulty === "easy" || word.status === "done";
+
   return (
     <span className={styles.wordRow}>
       {showAnswerAbove && (
         <span className={styles.answerAbove}>{target}</span>
       )}
-      {target.split("").map((ch, i) => {
+      {Array.from({ length: revealLen }, (_, i) => target[i]).map((ch, i) => {
         const done = i < typedLen;
         const isCursor = active && i === typedLen && word.status !== "done";
 
@@ -679,20 +822,28 @@ function WordGlyphs({
         // 고스트를 보여주고, 리스닝은 hintedUpTo(정답 보기)만 따른다.
         if (mode !== "typing") {
           const typedChar = word.typed[i];
-          const wrong = done && typedChar !== ch;
+          const wrong = done && typedChar !== ch && revealGrading;
           const ghost = !done && i < hintBoundary;
           return (
             <span
               key={i}
               className={[
                 styles.slot,
-                done ? styles.slotDone : "",
+                done ? (revealGrading ? styles.slotDone : styles.slotTyped) : "",
                 wrong ? styles.slotWrong : "",
                 isCursor ? styles.slotCursor : "",
               ].join(" ")}
             >
               {done ? (
-                <span className={wrong ? styles.glyphWrong : styles.glyphPop}>
+                <span
+                  className={`${styles.glyphPop} ${
+                    !revealGrading
+                      ? styles.glyphTyped
+                      : wrong
+                        ? styles.glyphWrong
+                        : ""
+                  }`}
+                >
                   {typedChar}
                 </span>
               ) : ghost ? (
@@ -722,6 +873,37 @@ function WordGlyphs({
         );
       })}
     </span>
+  );
+}
+
+/* Grading stamps — 완료 직후 홀드 구간에 잠깐 찍히는 정오답 도장.
+   글자 색만으로는 "지금 막 완료됐다"와 "타이핑 중"이 구분되지 않아서
+   생긴 요청 — 채점 도장처럼 눈에 띄는 신호를 더한다. -------------------- */
+
+function CheckStampIcon() {
+  return (
+    <svg viewBox="0 0 40 40" width="56" height="56" fill="none">
+      <path
+        d="M9 21l7 7 15-17"
+        stroke="var(--accent-deep)"
+        strokeWidth="4.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CrossStampIcon() {
+  return (
+    <svg viewBox="0 0 40 40" width="56" height="56" fill="none">
+      <path
+        d="M10 10l20 20M30 10L10 30"
+        stroke="var(--danger)"
+        strokeWidth="4.5"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 
@@ -757,7 +939,7 @@ function StreakPill({ streak }: { streak: number }) {
 
 function SpeakerIcon({ muted }: { muted: boolean }) {
   return (
-    <svg viewBox="0 0 22 22" width="17" height="17" fill="none">
+    <svg viewBox="0 0 22 22" width="19" height="19" fill="none">
       <path
         d="M4 8.5v5h3l4 3.5v-12l-4 3.5H4z"
         stroke="currentColor"

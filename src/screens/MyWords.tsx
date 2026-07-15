@@ -16,7 +16,7 @@ interface Props {
 
 const COOLDOWN_KEY = "typesee:word-gen-cooldown-until";
 const COOLDOWN_MS = 60_000;
-const MAX_WORDS_PER_CALL = 20;
+const MAX_WORDS_PER_CALL = 100;
 
 const POS_OPTIONS: Array<{ value: Pos | ""; label: string }> = [
   { value: "", label: "품사" },
@@ -72,7 +72,10 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
   const [mExample, setMExample] = useState("");
   const [mExampleMeaning, setMExampleMeaning] = useState("");
 
-  const cooldownRemaining = Math.max(0, Math.ceil((cooldownUntil - now) / 1000));
+  const cooldownRemaining = Math.max(
+    0,
+    Math.ceil((cooldownUntil - now) / 1000),
+  );
 
   useEffect(() => {
     if (cooldownRemaining <= 0) return;
@@ -82,11 +85,22 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onBack();
+      if (e.key === "Escape") {
+        onBack();
+        return;
+      }
+      // 입력칸·셀렉트에 포커스가 있으면 숫자 단축키를 끈다
+      const t = e.target;
+      if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement)
+        return;
+      if (words.length === 0) return;
+      if (e.key === "1") onStart("typing", words);
+      else if (e.key === "2") onStart("quiz", words);
+      else if (e.key === "3") onStart("listening", words);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onBack]);
+  }, [onBack, onStart, words]);
 
   const startCooldown = (ms: number) => {
     const until = Date.now() + ms;
@@ -105,7 +119,9 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
     setGenError(null);
     try {
       const sb = getSupabase();
-      const token = sb ? (await sb.auth.getSession()).data.session?.access_token : null;
+      const token = sb
+        ? (await sb.auth.getSession()).data.session?.access_token
+        : null;
       if (!token) {
         setGenError("로그인이 필요해요");
         return;
@@ -133,6 +149,7 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
         example: string;
         exampleMeaning: string;
       }>;
+      const invalidWords = (body.invalidWords ?? []) as string[];
       setDrafts((cur) => [
         ...cur,
         ...results.map(
@@ -146,6 +163,9 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
           }),
         ),
       ]);
+      if (invalidWords.length > 0) {
+        setGenError(`${invalidWords.join(", ")}는 단어가 아닌 것 같아 추가하지 않았어요`);
+      }
       setBulkInput("");
       startCooldown(COOLDOWN_MS);
     } catch {
@@ -156,7 +176,9 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
   };
 
   const updateDraft = (key: string, patch: Partial<Draft>) => {
-    setDrafts((cur) => cur.map((d) => (d.key === key ? { ...d, ...patch } : d)));
+    setDrafts((cur) =>
+      cur.map((d) => (d.key === key ? { ...d, ...patch } : d)),
+    );
   };
 
   const removeDraft = (key: string) => {
@@ -177,7 +199,11 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
   };
 
   const canSaveManual = useMemo(
-    () => mWord.trim() && mMeaning.trim() && mExample.trim() && mExampleMeaning.trim(),
+    () =>
+      mWord.trim() &&
+      mMeaning.trim() &&
+      mExample.trim() &&
+      mExampleMeaning.trim(),
     [mWord, mMeaning, mExample, mExampleMeaning],
   );
 
@@ -202,17 +228,21 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
       <header className={styles.header}>
         <p className={styles.eyebrow}>내 단어장</p>
         <h1 className={styles.title}>
-          직접 추가한 단어 <span className={styles.titleCount}>{words.length}</span>개
+          직접 추가한 단어{" "}
+          <span className={styles.titleCount}>{words.length}</span>개
         </h1>
         <p className={styles.subtitle}>
-          단어를 쉼표나 줄바꿈으로 구분해서 여러 개 넣으면 한 번에 뜻과 예문을 채워줘요 · 기존 625개 단어와는 별도로 관리돼요
+          단어를 쉼표나 줄바꿈으로 구분해서 여러 개 넣으면 한 번에 뜻과 예문을
+          채워줘요 · 기존 625개 단어와는 별도로 관리돼요
         </p>
       </header>
 
       <div className={styles.form}>
         <textarea
           className={styles.bulkInput}
-          placeholder={"영단어를 쉼표나 줄바꿈으로 구분해서 입력\n예: resilient, ambiguous, thrive"}
+          placeholder={
+            "영단어를 쉼표나 줄바꿈으로 구분해서 입력\n예: resilient, ambiguous, thrive"
+          }
           value={bulkInput}
           onChange={(e) => setBulkInput(e.target.value)}
           rows={3}
@@ -224,7 +254,9 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
           <button
             type="button"
             className={styles.genButton}
-            disabled={parsedWords.length === 0 || generating || cooldownRemaining > 0}
+            disabled={
+              parsedWords.length === 0 || generating || cooldownRemaining > 0
+            }
             onClick={handleGenerate}
           >
             {generating
@@ -257,7 +289,9 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
                   className={styles.draftField}
                   placeholder="뜻"
                   value={d.meaning}
-                  onChange={(e) => updateDraft(d.key, { meaning: e.target.value })}
+                  onChange={(e) =>
+                    updateDraft(d.key, { meaning: e.target.value })
+                  }
                 />
                 <select
                   className={styles.draftPos}
@@ -276,7 +310,9 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
                   className={styles.draftField}
                   placeholder="예문"
                   value={d.example}
-                  onChange={(e) => updateDraft(d.key, { example: e.target.value })}
+                  onChange={(e) =>
+                    updateDraft(d.key, { example: e.target.value })
+                  }
                 />
                 <input
                   className={styles.draftField}
@@ -351,7 +387,11 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
             value={mExampleMeaning}
             onChange={(e) => setMExampleMeaning(e.target.value)}
           />
-          <button type="submit" className={styles.saveButton} disabled={!canSaveManual}>
+          <button
+            type="submit"
+            className={styles.saveButton}
+            disabled={!canSaveManual}
+          >
             단어장에 추가
           </button>
         </form>
@@ -383,7 +423,9 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
                 {w.example && (
                   <div className={styles.cardExample}>
                     <p>{w.example}</p>
-                    {w.exampleMeaning && <p className={styles.cardExampleKo}>{w.exampleMeaning}</p>}
+                    {w.exampleMeaning && (
+                      <p className={styles.cardExampleKo}>{w.exampleMeaning}</p>
+                    )}
                   </div>
                 )}
               </motion.div>
@@ -398,21 +440,21 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
           disabled={words.length === 0}
           onClick={() => onStart("typing", words)}
         >
-          Typing 시작
+          Typing 시작 <kbd>1</kbd>
         </button>
         <button
           className={styles.ghostButton}
           disabled={words.length === 0}
           onClick={() => onStart("quiz", words)}
         >
-          Quiz 시작
+          Quiz 시작 <kbd>2</kbd>
         </button>
         <button
           className={styles.ghostButton}
           disabled={words.length === 0}
           onClick={() => onStart("listening", words)}
         >
-          Listening 시작
+          Listening 시작 <kbd>3</kbd>
         </button>
         <button className={styles.ghostButton} onClick={onBack}>
           뒤로 <kbd>esc</kbd>

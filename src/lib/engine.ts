@@ -4,6 +4,7 @@ import type {
   SessionState,
   SessionSummary,
   WordEntry,
+  WordOutcomeTier,
   WordState,
 } from "./types";
 
@@ -77,8 +78,16 @@ export function sessionReducer(
       if (active.status === "done") return state;
       const len = active.entry.word.length;
       const step = len <= 5 ? 1 : 2;
-      // 퀴즈는 첫 글자가 기본 공개라 그 뒤부터 연다
-      const base = Math.max(active.hintedUpTo, state.mode === "quiz" ? 1 : 0);
+      // 퀴즈는 첫 글자가 기본 공개라 그 뒤부터 연다. 이미 입력해버린
+      // 글자(맞았든 틀렸든)는 힌트가 새로 열어줄 필요가 없으니, 커서
+      // 위치(typed.length)보다는 항상 앞서서 다음 글자를 공개한다 —
+      // 안 그러면 입력이 힌트 경계를 앞질렀을 때 힌트가 이미 지나간
+      // 자리만 가리켜서 눌러도 아무 효과가 없어 보인다.
+      const base = Math.max(
+        active.hintedUpTo,
+        active.typed.length,
+        state.mode === "quiz" ? 1 : 0,
+      );
       const hintedUpTo = Math.min(len - 1, base + step);
       if (hintedUpTo <= active.hintedUpTo && active.hinted) return state;
       return replaceActive(state, {
@@ -188,6 +197,19 @@ export function sessionReducer(
   }
 }
 
+/** 단어 하나의 세션 결과를 3단계로 분류한다 — EF/복습 풀 갱신의 유일한 판정
+ *  기준. status==='done'인 단어에만 호출한다(미완료 단어는 typed 가 정답과
+ *  다를 수밖에 없어 판정이 무의미하다).
+ *  Typing 모드는 오타 시 커서가 막혀 typed 가 항상 정답과 일치하므로 구조상
+ *  major 가 나오지 않는다(clean/minor만). */
+export function classify(word: WordState): WordOutcomeTier {
+  if (word.gaveUp) return "major";
+  const correct = word.typed.toLowerCase() === word.entry.word.toLowerCase();
+  if (!correct) return "major";
+  if (word.hinted || word.mistakes > 0) return "minor";
+  return "clean";
+}
+
 function replaceActive(state: SessionState, next: WordState): SessionState {
   const words = state.words.slice();
   words[state.currentIndex] = next;
@@ -228,19 +250,31 @@ export function summarize(state: SessionState): SessionSummary {
       meaningSeen: w.meaningSeen,
     }));
 
-  // 정타 통과: 복습 출신 단어를 오타·힌트 없이 완주 (Space 정답 보기는
-  // 오타로 세므로 자동 제외) — TS-1 에서 ease 를 올리는 신호가 된다.
-  const mastered = state.words
-    .filter(
-      (w) =>
-        w.fromReview && w.status === "done" && w.mistakes === 0 && !w.hinted,
-    )
-    .map((w) => w.entry);
+  const doneWords = state.words.filter((w) => w.status === "done");
+  const tiered = doneWords.map((w) => ({ word: w, tier: classify(w) }));
+
+  // EF/복습 풀 갱신용. clean 은 이미 풀에 있던(fromReview) 단어만 포함한다 —
+  // 풀에 없던 새 단어의 clean 통과는 올릴 ease 가 애초에 없다(recordSession
+  // 의 `if (!cur) continue` 가드로도 걸러지지만, 여기서 미리 제외해야
+  // Supabase 삭제 쿼리에 무관한 id 가 섞여 들어가지 않는다).
+  const outcomes = tiered
+    .filter(({ word, tier }) => tier !== "clean" || word.fromReview)
+    .map(({ word, tier }) => ({
+      id: word.entry.id,
+      tier,
+      revealed: word.gaveUp,
+    }));
+
+  // 정타 통과: 복습 출신 단어를 오타·힌트 없이 완주 — TS-1 에서 ease 를
+  // 올리는 신호가 된다.
+  const mastered = tiered
+    .filter(({ word, tier }) => tier === "clean" && word.fromReview)
+    .map(({ word }) => word.entry);
 
   // 마스터 유지 점검 실패 — recordSession 이 복습 풀로 강등한 단어들.
-  const retentionMisses = state.words
-    .filter((w) => w.isRetention && w.mistakes > 0)
-    .map((w) => ({ entry: w.entry, mistakes: w.mistakes }));
+  const retentionMisses = tiered
+    .filter(({ word, tier }) => word.isRetention && tier !== "clean")
+    .map(({ word }) => ({ entry: word.entry, mistakes: word.mistakes }));
 
   return {
     mode: state.mode,
@@ -253,6 +287,7 @@ export function summarize(state: SessionState): SessionSummary {
     troubleWords,
     mastered,
     retentionMisses,
+    outcomes,
   };
 }
 

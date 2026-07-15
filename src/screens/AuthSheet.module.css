@@ -155,6 +155,15 @@
 .notice {
   font-size: 13px;
   color: var(--accent-deep);
+  line-height: 1.5;
+}
+
+.inlineLink {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .submit {

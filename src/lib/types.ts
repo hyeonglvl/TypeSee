@@ -60,6 +60,11 @@ export type SessionAction =
   | { type: "SHOW_MEANING" }
   | { type: "ADVANCE" };
 
+/** 단어 하나의 세션 결과 3단계 — EF/복습 풀 갱신의 유일한 판정 기준.
+ *  clean: 오타·힌트 없이 정답. minor: 정답이지만 오타가 있었거나 힌트를
+ *  씀. major: 힌트를 썼어도 결국 오답, 또는 정답 보기(gaveUp). */
+export type WordOutcomeTier = "clean" | "minor" | "major";
+
 export interface SessionSummary {
   mode: SessionMode;
   totalWords: number;
@@ -85,4 +90,7 @@ export interface SessionSummary {
   mastered: WordEntry[];
   /** 마스터 유지 점검에서 틀린 단어 — 복습 풀로 복귀했다. */
   retentionMisses: Array<{ entry: WordEntry; mistakes: number }>;
-} 
+  /** 단어별 EF/복습 풀 갱신 신호 — recordSession 에 그대로 넘긴다.
+   *  clean 은 이미 복습 풀에 있던(fromReview) 단어에만 포함된다. */
+  outcomes: Array<{ id: string; tier: WordOutcomeTier; revealed: boolean }>;
+}

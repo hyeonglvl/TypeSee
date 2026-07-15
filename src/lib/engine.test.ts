@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  classify,
   createSession,
   sessionReducer,
   shuffle,
@@ -111,6 +112,16 @@ describe("sessionReducer — quiz 모드", () => {
     s = sessionReducer(s, { type: "HINT" });
     expect(s.words[0].hintedUpTo).toBe(5);
   });
+
+  it("힌트 경계보다 앞서 입력해버린 뒤에도 HINT 는 커서 너머 새 글자를 연다", () => {
+    // 이전엔 힌트 경계가 이미 입력한 글자 뒤에 남아있어, 눌러도 전부
+    // typed 로 가려진 자리만 가리켜서 아무 효과가 없어 보였다.
+    let s = createSession([entry("a", "planet")], "quiz");
+    s = type(s, "pla"); // 힌트 없이 기본 공개(1글자)보다 훨씬 앞서 입력
+    s = sessionReducer(s, { type: "HINT" });
+    expect(s.words[0].hintedUpTo).toBeGreaterThan(s.words[0].typed.length);
+    expect(s.words[0].hintedUpTo).toBe(5); // typed.length(3) + step(2)
+  });
 });
 
 describe("sessionReducer — listening 모드", () => {
@@ -189,6 +200,104 @@ describe("summarize — 마스터 유지 점검(retentionMisses) 판정", () => 
     const summary = summarize(s);
     expect(summary.retentionMisses).toEqual([]);
     expect(summary.mastered.map((w) => w.id)).toEqual(["a"]);
+  });
+});
+
+describe("classify — 단어 하나의 3단계 판정", () => {
+  it("타이핑: 오타·힌트 없이 정답 → clean", () => {
+    let s = createSession([entry("a", "cat")], "typing");
+    s = type(s, "cat");
+    expect(classify(s.words[0])).toBe("clean");
+  });
+
+  it("타이핑: 오타 후 재시도로 결국 정답(커서가 막혀 typed 는 늘 정답) → minor", () => {
+    let s = createSession([entry("a", "cat")], "typing");
+    s = type(s, "c");
+    s = type(s, "x"); // 오타 — 커서가 막혀 typed 에는 안 남는다
+    s = type(s, "at");
+    expect(s.words[0].typed).toBe("cat");
+    expect(s.words[0].mistakes).toBe(1);
+    expect(classify(s.words[0])).toBe("minor");
+  });
+
+  it("퀴즈: 오타·힌트 없이 정답 → clean", () => {
+    let s = createSession([entry("a", "cat")], "quiz");
+    s = type(s, "cat");
+    expect(classify(s.words[0])).toBe("clean");
+  });
+
+  it("퀴즈: 힌트를 쓰고도 결국 정답 → minor", () => {
+    let s = createSession([entry("a", "cat")], "quiz");
+    s = sessionReducer(s, { type: "HINT" });
+    s = type(s, "cat");
+    expect(classify(s.words[0])).toBe("minor");
+  });
+
+  it("퀴즈: 오타를 냈다가 백스페이스로 고쳐 결국 정답 → minor", () => {
+    let s = createSession([entry("a", "cat")], "quiz");
+    s = type(s, "cx");
+    s = sessionReducer(s, { type: "BACKSPACE" });
+    s = type(s, "at");
+    expect(s.words[0].typed).toBe("cat");
+    expect(s.words[0].mistakes).toBe(1);
+    expect(classify(s.words[0])).toBe("minor");
+  });
+
+  it("퀴즈: 힌트를 썼어도 끝까지 오답이면 major", () => {
+    let s = createSession([entry("a", "cat")], "quiz");
+    s = sessionReducer(s, { type: "HINT" });
+    s = type(s, "cxt");
+    expect(s.words[0].typed).toBe("cxt");
+    expect(classify(s.words[0])).toBe("major");
+  });
+
+  it("퀴즈: 정답 보기(gaveUp) → major", () => {
+    let s = createSession([entry("a", "cat")], "quiz");
+    s = sessionReducer(s, { type: "REVEAL" });
+    expect(classify(s.words[0])).toBe("major");
+  });
+});
+
+describe("summarize — outcomes(EF/복습 풀 갱신 신호)", () => {
+  it("복습 출신 단어의 clean 통과는 outcomes 에 tier:clean 으로 들어간다", () => {
+    let s = createSession([entry("a", "cat")], "typing", new Set(["a"]));
+    s = type(s, "cat");
+    expect(summarize(s).outcomes).toEqual([
+      { id: "a", tier: "clean", revealed: false },
+    ]);
+  });
+
+  it("복습 출신이 아닌 새 단어의 clean 통과는 outcomes 에서 제외된다", () => {
+    let s = createSession([entry("a", "cat")], "typing");
+    s = type(s, "cat");
+    expect(summarize(s).outcomes).toEqual([]);
+  });
+
+  it("복습 출신이 아니어도 minor/major 는 outcomes 에 포함된다", () => {
+    let s = createSession([entry("a", "cat"), entry("b", "dog")], "quiz");
+    s = type(s, "cxt"); // a: 끝까지 완료했지만 오답 → major
+    s = sessionReducer(s, { type: "ADVANCE" });
+    s = sessionReducer(s, { type: "HINT" });
+    s = type(s, "dog"); // b: 힌트 쓰고 정답 → minor
+    const outcomes = summarize(s).outcomes;
+    expect(outcomes.find((o) => o.id === "a")).toEqual({
+      id: "a",
+      tier: "major",
+      revealed: false,
+    });
+    expect(outcomes.find((o) => o.id === "b")).toEqual({
+      id: "b",
+      tier: "minor",
+      revealed: false,
+    });
+  });
+
+  it("gaveUp(정답 보기) 단어는 outcomes 에 revealed:true 로 표시된다", () => {
+    let s = createSession([entry("a", "cat")], "quiz");
+    s = sessionReducer(s, { type: "REVEAL" });
+    expect(summarize(s).outcomes).toEqual([
+      { id: "a", tier: "major", revealed: true },
+    ]);
   });
 });
 

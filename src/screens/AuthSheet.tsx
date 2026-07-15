@@ -5,6 +5,12 @@ import {
   signInWithUsername,
   signUpWithUsername,
 } from "@/lib/auth";
+import {
+  detectInAppBrowser,
+  inAppBrowserLabel,
+  openInExternalBrowser,
+  type InAppBrowser,
+} from "@/lib/inAppBrowser";
 import styles from "./AuthSheet.module.css";
 
 interface Props {
@@ -20,6 +26,7 @@ export default function AuthSheet({ onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [inAppBrowser] = useState<InAppBrowser | null>(() => detectInAppBrowser());
   const firstFieldRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -42,6 +49,14 @@ export default function AuthSheet({ onClose }: Props) {
   const handleGoogle = async () => {
     setError(null);
     setNotice(null);
+    // 카카오톡/인스타그램 등 인앱 웹뷰에서는 Google 이 OAuth 자체를
+    // disallowed_useragent 로 거부하므로 시도조차 하지 않고 안내한다.
+    if (inAppBrowser) {
+      setError(
+        `${inAppBrowserLabel(inAppBrowser)} 인앱 브라우저에서는 Google 로그인이 지원되지 않아요. 우측 상단 메뉴에서 '다른 브라우저로 열기'를 눌러주세요.`,
+      );
+      return;
+    }
     setLoading(true);
     try {
       await signInWithGoogle();
@@ -100,6 +115,26 @@ export default function AuthSheet({ onClose }: Props) {
         <p className={styles.subtitle}>
           로그인하면 틀렸던 단어가 저장되어 어디서든 복습할 수 있어요
         </p>
+
+        {inAppBrowser && (
+          <p className={styles.notice}>
+            {inAppBrowserLabel(inAppBrowser)} 인앱 브라우저에서는 Google 로그인이 막혀 있어요.
+            {inAppBrowser === "kakaotalk" ? (
+              <>
+                {" "}
+                <button
+                  type="button"
+                  className={styles.inlineLink}
+                  onClick={() => openInExternalBrowser(inAppBrowser)}
+                >
+                  외부 브라우저로 열기
+                </button>
+              </>
+            ) : (
+              " 우측 상단 메뉴에서 '다른 브라우저로 열기'를 눌러주세요."
+            )}
+          </p>
+        )}
 
         <div className={styles.providers}>
           <button
