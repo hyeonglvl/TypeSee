@@ -1,470 +1,388 @@
+/* Home — v5 "Manuscript": 상단 헤어라인 바 + 좁은 중앙 칼럼 + 그룹 리스트.
+   카드 그리드 대신 Linear 식 행(row) 목록 — 아이콘 · 제목/설명 · 단축키. */
+
 .screen {
-  position: relative;
   height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  /* safe: 창이 좁아져 내용이 넘칠 때도 위쪽이 스크롤로 가려지지 않게 —
-     들어가면 가운데 정렬, 안 들어가면 위 정렬로 자동 전환된다. */
-  justify-content: safe center;
-  gap: 26px;
-  padding: 20px 24px;
 }
 
-/* Account (top-right) ------------------------------------------------------ */
+/* ── 상단 바 ─────────────────────────────────────────────────────────── */
 
-.accountArea {
-  position: absolute;
-  top: 20px;
-  right: 24px;
+.topBar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0 var(--sp-5);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
 }
 
-.userChip {
+.brand {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+}
+
+.brandAccent {
+  color: var(--ink);
+}
+
+.topActions {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  border-radius: 999px;
-  background: var(--accent-dim);
-  border: 1px solid rgba(43, 79, 216, 0.2);
-  color: var(--accent-deep);
-  font-size: 13px;
-  font-weight: 600;
+  gap: var(--sp-3);
 }
 
-.accountButton {
-  padding: 7px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--hairline-strong);
-  background: var(--surface);
-  font-size: 13px;
+.userName {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-sm);
   font-weight: 500;
-  color: var(--ink-2);
+  color: var(--fg-mute);
+}
+
+.textButton {
+  padding: 6px 12px;
+  border-radius: var(--r-s);
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--fg-mute);
   transition:
-    background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
+    color var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
 }
 
-.accountButton:hover {
-  background: var(--surface-raised);
-  color: var(--ink);
-  box-shadow: var(--shadow-card);
+.textButton:hover {
+  color: var(--fg);
+  background: var(--panel-hover);
+  border-color: var(--line-strong);
 }
 
-/* Hero --------------------------------------------------------------------- */
+/* ── 본문 칼럼 ───────────────────────────────────────────────────────── */
 
-.hero {
-  text-align: center;
+.main {
+  width: min(600px, calc(100vw - var(--sp-5) * 2));
+  margin: 0 auto;
+  padding: var(--sp-7) 0 var(--sp-6);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--sp-5);
 }
 
-.wordmark {
-  font-family: var(--font-display);
-  font-size: clamp(48px, 6vw, 66px);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  color: var(--ink);
+.greeting {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--fg-faint);
 }
 
-.wordmarkAccent {
-  color: var(--accent);
-  font-style: italic;
-}
-
-/* 태그라인은 표지에 펜으로 적은 부제 — 한글 손글씨 서체 */
-.tagline {
-  font-family: var(--font-hand);
-  font-size: 24px;
-  color: var(--ink-2);
-}
-
-/* Lesson sentence — 오늘 [카테고리] 단어 [n]개 배우기 ---------------------- */
-
-.lesson {
+/* 오늘 [카테고리] 단어 [n]개 배우기 — 조용한 컴포저 한 줄 */
+.composer {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 7px;
-  font-size: 24px;
-  font-family: var(--font-hand);
-  color: var(--ink-2);
-  letter-spacing: -0.01em;
+  gap: var(--sp-2);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--fg);
 }
 
-/* 카테고리·숫자는 문장의 빈칸에 잉크로 써넣은 답 — 점선 밑줄로 편집 가능함을
-   암시하고, 포커스가 오면 잉크색 실선으로 바뀐다. */
-
-.selectWrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.categorySelect {
+.composerSelect {
   appearance: none;
   border: none;
-  background: transparent;
-  font-family: var(--font-display);
-  font-family: var(--font-hand);
-  font-size: 22px;
-  /* font-weight: 800; */
-  color: var(--ink);
+  background: var(--ink-soft);
+  border-radius: var(--r-s);
+  padding: 2px 8px 3px;
+  font: inherit;
+  color: var(--ink-deep);
   text-align: center;
-  padding: 0 4px 2px 4px;
-  border-bottom: 1.4px dashed var(--hairline-strong);
-  border-radius: 0;
   cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease-out);
+  transition: background-color var(--dur-1) var(--ease);
 }
 
-.categorySelect:hover,
-.categorySelect:focus-visible {
-  outline: none;
-
-  border-bottom-color: var(--accent);
+.composerSelect:hover {
+  background: color-mix(in srgb, var(--ink) 15%, transparent);
 }
 
 .countBox {
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
+  gap: 2px;
+  background: var(--ink-soft);
+  border-radius: var(--r-s);
+  padding: 2px 4px 3px;
 }
 
-/* 엘리베이터 버튼 — 숫자 위아래의 작은 ▲▼ */
-.countArrow {
-  display: grid;
-
-  place-items: center;
-  width: 100%;
-  min-width: 30px;
-  height: 12px;
-  font-size: 12px;
-  line-height: 1;
-  color: var(--ink-3);
-  border-radius: 4px;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-
-.countArrow:hover {
-  color: var(--ink);
-  background: rgba(58, 47, 32, 0.07);
-}
-
-.countArrow:active {
-  color: var(--accent);
-}
-
-.countInput {
+.countField {
   border: none;
   background: transparent;
-  font-family: var(--font-display);
-  font-family: var(--font-hand);
-
-  font-size: 22px;
-  font-weight: 400;
-  color: var(--ink);
+  font: inherit;
+  color: var(--ink-deep);
   text-align: center;
-  padding: 0 0 2px;
-  border-bottom: 1.5px dashed var(--hairline-strong);
-  border-radius: 0;
   font-variant-numeric: tabular-nums;
-  transition: border-color var(--dur-fast) var(--ease-out);
 }
 
-.countInput:hover,
-.countInput:focus {
+.countField:focus {
   outline: none;
-  border-bottom-color: var(--accent);
 }
 
-/* Mode cards -------------------------------------------------------------- */
-
-.modes {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-  /* flex 기본값(stretch)이면 브레이스+난이도 컨트롤까지 딸린
-     Quiz/Listening 그룹의 키에 맞춰 다른 카드들도 늘어나 바닥에 빈
-     공간이 생긴다 — 각 카드가 자기 콘텐츠 높이만큼만 차지하게 한다. */
-  align-items: flex-start;
+.stepBtn {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 10px;
+  color: var(--ink-deep);
+  opacity: 0.55;
+  transition:
+    opacity var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease);
 }
 
-.modeCard {
-  position: relative;
+.stepBtn:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+/* ── 그룹 리스트 ─────────────────────────────────────────────────────── */
+
+.section {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  width: min(212px, 27vw);
-  padding: 14px 22px 14px;
-  border-radius: var(--radius-l);
-  background: var(--surface);
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow-card);
+  gap: var(--sp-2);
+}
+
+.sectionLabel {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  padding-left: 2px;
+}
+
+.list {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  overflow: hidden;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--sp-4);
+  width: 100%;
+  padding: var(--sp-4) var(--sp-4);
   text-align: left;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
+  transition: background-color var(--dur-1) var(--ease);
 }
 
-.modeCard:hover:not(:disabled) {
-  background: var(--surface-raised);
-  border-color: var(--hairline-strong);
-  box-shadow: var(--shadow-pop);
+.row + .row,
+.row + .difficultyRow,
+.difficultyRow + .row {
+  border-top: 1px solid var(--line);
 }
 
-.reviewCard:disabled {
-  opacity: 0.5;
-  cursor: default;
-  box-shadow: none;
+.row:hover:not(:disabled) {
+  background: var(--panel-hover);
 }
 
-.reviewCard:not(:disabled) {
-  border-color: rgba(43, 79, 216, 0.3);
+.row:active:not(:disabled) {
+  background: var(--ink-soft);
 }
 
-.reviewCard:not(:disabled) .modeIcon {
-  color: var(--accent);
+.row:disabled {
+  opacity: 0.55;
 }
 
-.reviewCount {
+.rowIcon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-s);
+  background: var(--ink-soft);
+  color: var(--ink);
+}
+
+.row:disabled .rowIcon {
+  background: rgba(31, 27, 20, 0.06);
+  color: var(--fg-faint);
+}
+
+.rowBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rowTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-md);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+
+.rowDesc {
+  font-size: var(--text-sm);
+  color: var(--fg-mute);
+}
+
+.rowMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.countPill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 8px;
-  margin-left: 9px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 7px;
   border-radius: 999px;
-  background: var(--highlight);
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 700;
-  vertical-align: 3px;
+  background: var(--ink);
+  color: #fff;
+  font-size: var(--text-xs);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+.lockChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--fg-mute);
+  white-space: nowrap;
+}
+
+/* 난이도 — Quiz·Listening 밑에 붙는 조용한 설정 행 */
+.difficultyRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-4) var(--sp-2) calc(34px + var(--sp-4) * 2);
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+}
+
+.difficultyLabel {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--fg-faint);
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.segBtn {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--fg-mute);
+  transition:
+    color var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease);
+}
+
+.segBtn:hover {
+  color: var(--fg);
+}
+
+.segBtn[aria-pressed="true"] {
+  background: var(--panel-hover);
+  color: var(--ink-deep);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(31, 27, 20, 0.08);
+}
+
+/* ── 하단 힌트 ───────────────────────────────────────────────────────── */
+
+.footHint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: var(--text-xs);
+  color: var(--fg-faint);
+  padding-bottom: var(--sp-4);
 }
 
 .volatileNote {
-  color: var(--ink-3);
+  color: var(--fg-faint);
 }
 
-.modeIcon {
-  color: var(--accent);
-  margin-bottom: 6px;
-}
+/* ── 모바일 ─────────────────────────────────────────────────────────── */
 
-/* 모드명(Typing/Quiz/…)은 전부 라틴이라 디스플레이 세리프가 안전하다 */
-.modeTitle {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-}
-
-.modeDesc {
-  font-size: 13px;
-  color: var(--ink-2);
-}
-
-/* 로그인 전 잠금 안내 — 카드에 비스듬히 붙인 손글씨 마스킹 테이프.
-   살짝 반투명·블러로 아래 설명을 어렴풋이 비춘다. */
-.lockBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  margin-bottom: 2px;
-  border-radius: 3px;
-  background: rgba(253, 250, 242, 0.55);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  border: 1px solid var(--hairline);
-  font-family: var(--font-hand);
-  font-size: 16px;
-  line-height: 1.2;
-  color: var(--ink-2);
-  transform: rotate(-1.2deg);
-}
-
-.modeKey {
-  position: absolute;
-  top: 14px;
-  right: 16px;
-}
-
-/* Quiz/Listening brace group ------------------------------------------------
-   Quiz·Listening 카드 두 개를 하나의 flex item으로 묶어, 반응형에서 항상
-   같은 줄에 붙어 있게 하고 그 아래 브레이스+난이도 컨트롤을 매단다. */
-
-.quizListeningGroup {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.quizListeningCards {
-  display: flex;
-  gap: 16px;
-}
-
-.brace {
-  width: 100%;
-  height: 22px;
-  display: block;
-}
-
-.difficultyControl {
-  display: inline-flex;
-  padding: 3px;
-  gap: 2px;
-  border-radius: 999px;
-  border: 1px solid var(--hairline-strong);
-  background: var(--surface);
-}
-
-.difficultyOption {
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink-2);
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-
-.difficultyOption:hover {
-  color: var(--ink);
-}
-
-.difficultyOption[aria-pressed="true"] {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* kbd — keycap look -------------------------------------------------------- */
-
-.screen kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  border-radius: 6px;
-  border: 1px solid var(--hairline-strong);
-  background: var(--surface-raised);
-  box-shadow: 0 1.5px 0 var(--hairline-strong);
-  font-family: var(--font-sans);
-  font-size: 12px;
-  color: var(--ink-2);
-}
-
-.footHint {
-  font-size: 13px;
-  color: var(--ink-3);
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-/* Mobile — the streak calendar adds enough height that some phones clip
-   top/bottom; let the whole screen scroll instead. */
 @media (max-width: 640px) {
-  .screen {
-    height: auto;
-    min-height: 100%;
-    overflow-y: auto;
-    justify-content: flex-start;
-    padding: 28px 18px;
-    gap: 28px;
+  .topBar {
+    padding: 0 var(--sp-4);
   }
 
-  /* 3 mode cards side by side instead of wrapping 2+1 (the lone 3rd
-     card centering under the gap read as broken alignment). */
-  .modes {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    width: 100%;
-    max-width: 420px;
-    /* 모바일은 설명이 숨겨져 카드끼리 높이가 고르니, 데스크톱과 달리
-       그리드 셀을 맞춰 늘여도 빈 공간 문제가 없다 — 원래 느낌 유지 */
-    align-items: stretch;
+  .main {
+    width: calc(100vw - var(--sp-4) * 2);
+    padding-top: var(--sp-5);
+    gap: var(--sp-4);
   }
 
-  .modeCard {
-    width: auto;
-    padding: 16px 8px 14px;
-    align-items: center;
+  .composer {
+    font-size: var(--text-lg);
+  }
+
+  .row {
+    padding: var(--sp-3) var(--sp-3);
+    gap: var(--sp-3);
+  }
+
+  .difficultyRow {
+    padding-left: var(--sp-3);
+    flex-wrap: wrap;
+  }
+
+  .rowDesc {
+    font-size: var(--text-xs);
+  }
+
+  .lockChip {
+    max-width: 130px;
+    white-space: normal;
     text-align: center;
-    gap: 8px;
-  }
-
-  /* Quiz/Listening 브레이스 그룹을 풀어서 두 카드가 다시 3열 그리드의
-     개별 셀로 돌아가게 하고, 난이도 컨트롤만 카드 그리드 맨 아래
-     전체 폭으로 남긴다. */
-  .quizListeningGroup,
-  .quizListeningCards {
-    display: contents;
-  }
-
-  .brace {
-    display: none;
-  }
-
-  .difficultyControl {
-    grid-column: 1 / -1;
-    order: 99;
-    justify-self: center;
-    margin-top: 8px;
-  }
-
-  .modeIcon {
-    margin-bottom: 0;
-  }
-
-  .modeTitle {
-    font-size: 15px;
-  }
-
-  .modeDesc {
-    display: none;
-  }
-
-  /* 설명이 숨는 모바일에서 잠금 배지가 유일한 안내 — 좁은 카드에서
-     두 줄로 감기더라도 가운데 정렬로 깔끔하게 */
-  .lockBadge {
-    font-size: 13px;
     line-height: 1.25;
-    text-align: center;
-    padding: 2px 6px;
-  }
-
-  .modeKey {
-    top: 8px;
-    right: 8px;
-  }
-
-  .reviewCount {
-    min-width: 18px;
-    height: 18px;
-    margin-left: 5px;
-    font-size: 11px;
   }
 }

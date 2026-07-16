@@ -47,31 +47,6 @@ const MODE_ICON: Record<SessionMode, () => React.JSX.Element> = {
   listening: HeadphoneIcon,
 };
 
-function renderModeCard(
-  { mode, key, title, desc }: (typeof MODES)[number],
-  count: number,
-  onStart: (mode: SessionMode, count: number) => void,
-) {
-  const Icon = MODE_ICON[mode];
-  return (
-    <motion.button
-      key={mode}
-      className={styles.modeCard}
-      whileHover={{ y: -3 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 400, damping: 26 }}
-      onClick={() => onStart(mode, count)}
-    >
-      <span className={styles.modeIcon} aria-hidden="true">
-        <Icon />
-      </span>
-      <span className={styles.modeTitle}>{title}</span>
-      <span className={styles.modeDesc}>{desc}</span>
-      <kbd className={styles.modeKey}>{key}</kbd>
-    </motion.button>
-  );
-}
-
 const DIFFICULTY_OPTIONS: Array<{ value: Difficulty; label: string }> = [
   { value: "easy", label: "쉬움" },
   { value: "normal", label: "보통" },
@@ -80,12 +55,12 @@ const DIFFICULTY_OPTIONS: Array<{ value: Difficulty; label: string }> = [
 
 function DifficultyControl({ value }: { value: Difficulty }) {
   return (
-    <span className={styles.difficultyControl} role="group" aria-label="난이도">
+    <span className={styles.segmented} role="group" aria-label="난이도">
       {DIFFICULTY_OPTIONS.map(({ value: v, label }) => (
         <button
           key={v}
           type="button"
-          className={styles.difficultyOption}
+          className={styles.segBtn}
           aria-pressed={value === v}
           onClick={() => setDifficulty(v)}
         >
@@ -93,25 +68,6 @@ function DifficultyControl({ value }: { value: Difficulty }) {
         </button>
       ))}
     </span>
-  );
-}
-
-function BraceSvg({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 300 28"
-      preserveAspectRatio="none"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M2,3 C2,15 40,15 56,15 C74,15 122,15 148,26 C174,15 222,15 240,15 C256,15 298,15 298,3"
-        style={{ stroke: "var(--kraft)" }}
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
   );
 }
 
@@ -185,46 +141,67 @@ export default function HomeScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [count, sheetOpen, pool.count, onStart, onReview, onMyWords, user]);
 
+  const modeRow = ({ mode, key, title, desc }: (typeof MODES)[number]) => {
+    const Icon = MODE_ICON[mode];
+    return (
+      <button
+        key={mode}
+        type="button"
+        className={styles.row}
+        onClick={() => onStart(mode, count)}
+      >
+        <span className={styles.rowIcon} aria-hidden="true">
+          <Icon />
+        </span>
+        <span className={styles.rowBody}>
+          <span className={styles.rowTitle}>{title}</span>
+          <span className={styles.rowDesc}>{desc}</span>
+        </span>
+        <span className={styles.rowMeta}>
+          <kbd>{key}</kbd>
+        </span>
+      </button>
+    );
+  };
+
   return (
     <div className={styles.screen}>
-      <div className={styles.accountArea}>
-        {user ? (
-          <>
-            <span className={styles.userChip}>
-              <UserIcon />
-              {displayName(user)}
-            </span>
-            <button
-              className={styles.accountButton}
-              onClick={() => signOut().catch(console.error)}
-            >
-              로그아웃
-            </button>
-          </>
-        ) : (
-          isAuthAvailable() && (
-            <button
-              className={styles.accountButton}
-              onClick={() => setSheetOpen(true)}
-            >
-              로그인
-            </button>
-          )
-        )}
-      </div>
-
-      <header className={styles.hero}>
-        <h1 className={styles.wordmark}>
-          Type<span className={styles.wordmarkAccent}>See</span>
-        </h1>
-        <p className={styles.tagline}>타이핑하며 눈에 새기는 영단어</p>
+      <header className={styles.topBar}>
+        <span className={styles.brand}>
+          Type<span className={styles.brandAccent}>See</span>
+        </span>
+        <span className={styles.topActions}>
+          {user ? (
+            <>
+              <span className={styles.userName}>
+                <UserIcon />
+                {displayName(user)}
+              </span>
+              <button
+                className={styles.textButton}
+                onClick={() => signOut().catch(console.error)}
+              >
+                로그아웃
+              </button>
+            </>
+          ) : (
+            isAuthAvailable() && (
+              <button
+                className={styles.textButton}
+                onClick={() => setSheetOpen(true)}
+              >
+                로그인
+              </button>
+            )
+          )}
+        </span>
       </header>
 
-      <p className={styles.lesson}>
-        오늘
-        <span className={styles.selectWrap}>
+      <main className={styles.main}>
+        <p className={styles.composer}>
+          오늘
           <select
-            className={styles.categorySelect}
+            className={styles.composerSelect}
             aria-label="단어 카테고리"
             value={category}
             // 네이티브 select 는 가장 긴 옵션 폭으로 벌어진다 — 선택된
@@ -232,7 +209,7 @@ export default function HomeScreen({
             style={{
               width: `calc(${
                 CATEGORIES.find((c) => c.id === category)?.label.length ?? 3
-              }em + 10px)`,
+              }em + 20px)`,
             }}
             onChange={(e) => setCategory(e.target.value)}
           >
@@ -243,138 +220,149 @@ export default function HomeScreen({
               </option>
             ))}
           </select>
-        </span>
-        단어
-        <span className={styles.countBox}>
-          <button
-            type="button"
-            className={styles.countArrow}
-            aria-label="단어 수 늘리기"
-            onClick={() => nudgeCount(COUNT_STEP)}
-          >
-            ▲
-          </button>
-          <input
-            className={styles.countInput}
-            type="text"
-            inputMode="numeric"
-            aria-label="단어 수"
-            value={countDraft ?? String(count)}
-            style={{
-              width: `${Math.max(2, (countDraft ?? String(count)).length)}ch`,
-            }}
-            onChange={(e) =>
-              setCountDraft(e.target.value.replace(/\D/g, "").slice(0, 3))
-            }
-            onFocus={(e) => e.target.select()}
-            onBlur={commitDraft}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") e.currentTarget.blur();
-              else if (e.key === "ArrowUp") {
-                e.preventDefault();
-                commitDraft();
-                nudgeCount(COUNT_STEP);
-              } else if (e.key === "ArrowDown") {
-                e.preventDefault();
-                commitDraft();
-                nudgeCount(-COUNT_STEP);
+          단어
+          <span className={styles.countBox}>
+            <button
+              type="button"
+              className={styles.stepBtn}
+              aria-label="단어 수 줄이기"
+              onClick={() => nudgeCount(-COUNT_STEP)}
+            >
+              ▼
+            </button>
+            <input
+              className={styles.countField}
+              type="text"
+              inputMode="numeric"
+              aria-label="단어 수"
+              value={countDraft ?? String(count)}
+              style={{
+                width: `${Math.max(2, (countDraft ?? String(count)).length)}ch`,
+              }}
+              onChange={(e) =>
+                setCountDraft(e.target.value.replace(/\D/g, "").slice(0, 3))
               }
-            }}
-          />
-          <button
-            type="button"
-            className={styles.countArrow}
-            aria-label="단어 수 줄이기"
-            onClick={() => nudgeCount(-COUNT_STEP)}
-          >
-            ▼
-          </button>
-        </span>
-        개 배우기
-      </p>
+              onFocus={(e) => e.target.select()}
+              onBlur={commitDraft}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") e.currentTarget.blur();
+                else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  commitDraft();
+                  nudgeCount(COUNT_STEP);
+                } else if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  commitDraft();
+                  nudgeCount(-COUNT_STEP);
+                }
+              }}
+            />
+            <button
+              type="button"
+              className={styles.stepBtn}
+              aria-label="단어 수 늘리기"
+              onClick={() => nudgeCount(COUNT_STEP)}
+            >
+              ▲
+            </button>
+          </span>
+          개 배우기
+        </p>
 
-      <div className={styles.modes}>
-        {renderModeCard(MODES[0], count, onStart)}
-
-        <div className={styles.quizListeningGroup}>
-          <div className={styles.quizListeningCards}>
-            {renderModeCard(MODES[1], count, onStart)}
-            {renderModeCard(MODES[2], count, onStart)}
+        <section className={styles.section}>
+          <span className={styles.sectionLabel}>학습 모드</span>
+          <div className={styles.list}>
+            {modeRow(MODES[0])}
+            {modeRow(MODES[1])}
+            {modeRow(MODES[2])}
+            <div className={styles.difficultyRow}>
+              <span className={styles.difficultyLabel}>
+                Quiz · Listening 난이도
+              </span>
+              <DifficultyControl value={difficulty} />
+            </div>
           </div>
-          <BraceSvg className={styles.brace} />
-          <DifficultyControl value={difficulty} />
-        </div>
+        </section>
 
-        <motion.button
-          className={`${styles.modeCard} ${styles.reviewCard}`}
-          disabled={!user || pool.count === 0}
-          whileHover={user && pool.count > 0 ? { y: -3 } : undefined}
-          whileTap={user && pool.count > 0 ? { scale: 0.98 } : undefined}
-          transition={{ type: "spring", stiffness: 400, damping: 26 }}
-          onClick={onReview}
-        >
-          <span className={styles.modeIcon} aria-hidden="true">
-            <RepeatIcon />
-          </span>
-          <span className={styles.modeTitle}>
-            Note
-            {user && pool.count > 0 && (
-              <motion.span
-                key={pool.count}
-                className={styles.reviewCount}
-                initial={{ scale: 1.3 }}
-                animate={{ scale: 1 }}
-              >
-                {pool.count}
-              </motion.span>
-            )}
-          </span>
-          {!user && (
-            <span className={styles.lockBadge}>로그인하면 사용할 수 있어요</span>
-          )}
-          <span className={styles.modeDesc}>
-            {pool.count > 0
-              ? "틀린 단어, 저장한 단어 다시 풀기"
-              : "틀리거나 저장한 단어가 여기에 모여요"}
-          </span>
-          {user && pool.count > 0 && <kbd className={styles.modeKey}>4</kbd>}
-        </motion.button>
+        <section className={styles.section}>
+          <span className={styles.sectionLabel}>보관함</span>
+          <div className={styles.list}>
+            <button
+              type="button"
+              className={styles.row}
+              disabled={!user || pool.count === 0}
+              onClick={onReview}
+            >
+              <span className={styles.rowIcon} aria-hidden="true">
+                <RepeatIcon />
+              </span>
+              <span className={styles.rowBody}>
+                <span className={styles.rowTitle}>
+                  Note
+                  {user && pool.count > 0 && (
+                    <motion.span
+                      key={pool.count}
+                      className={styles.countPill}
+                      initial={{ scale: 1.3 }}
+                      animate={{ scale: 1 }}
+                    >
+                      {pool.count}
+                    </motion.span>
+                  )}
+                </span>
+                <span className={styles.rowDesc}>
+                  {pool.count > 0
+                    ? "틀린 단어, 저장한 단어 다시 풀기"
+                    : "틀리거나 저장한 단어가 여기에 모여요"}
+                </span>
+              </span>
+              <span className={styles.rowMeta}>
+                {!user && (
+                  <span className={styles.lockChip}>로그인 필요</span>
+                )}
+                {user && pool.count > 0 && <kbd>4</kbd>}
+              </span>
+            </button>
 
-        <motion.button
-          className={`${styles.modeCard} ${styles.reviewCard}`}
-          disabled={!user}
-          whileHover={user ? { y: -3 } : undefined}
-          whileTap={user ? { scale: 0.98 } : undefined}
-          transition={{ type: "spring", stiffness: 400, damping: 26 }}
-          onClick={() => (user ? onMyWords() : setSheetOpen(true))}
-        >
-          <span className={styles.modeIcon} aria-hidden="true">
-            <NotebookIcon />
-          </span>
-          <span className={styles.modeTitle}>
-            내 단어장
-            {user && customWords.length > 0 && (
-              <motion.span
-                key={customWords.length}
-                className={styles.reviewCount}
-                initial={{ scale: 1.3 }}
-                animate={{ scale: 1 }}
-              >
-                {customWords.length}
-              </motion.span>
-            )}
-          </span>
-          {!user && (
-            <span className={styles.lockBadge}>로그인하면 사용할 수 있어요</span>
-          )}
-          <span className={styles.modeDesc}>
-            AI 를 이용해 내가 추가한 단어로 학습하기
-          </span>
-          {user && <kbd className={styles.modeKey}>5</kbd>}
-        </motion.button>
-      </div>
+            <button
+              type="button"
+              className={styles.row}
+              disabled={!user}
+              onClick={() => (user ? onMyWords() : setSheetOpen(true))}
+            >
+              <span className={styles.rowIcon} aria-hidden="true">
+                <NotebookIcon />
+              </span>
+              <span className={styles.rowBody}>
+                <span className={styles.rowTitle}>
+                  내 단어장
+                  {user && customWords.length > 0 && (
+                    <motion.span
+                      key={customWords.length}
+                      className={styles.countPill}
+                      initial={{ scale: 1.3 }}
+                      animate={{ scale: 1 }}
+                    >
+                      {customWords.length}
+                    </motion.span>
+                  )}
+                </span>
+                <span className={styles.rowDesc}>
+                  AI 를 이용해 내가 추가한 단어로 학습하기
+                </span>
+              </span>
+              <span className={styles.rowMeta}>
+                {!user && (
+                  <span className={styles.lockChip}>로그인 필요</span>
+                )}
+                {user && <kbd>5</kbd>}
+              </span>
+            </button>
+          </div>
+        </section>
 
-      <StreakCalendar authenticated={!!user} />
+        <StreakCalendar authenticated={!!user} />
+      </main>
 
       <p className={styles.footHint}>
         <kbd>↑</kbd> <kbd>↓</kbd> 단어 수 &nbsp;·&nbsp; <kbd>1</kbd>{" "}
@@ -402,7 +390,7 @@ export default function HomeScreen({
 
 function KeyboardIcon() {
   return (
-    <svg viewBox="0 0 28 28" width="26" height="26" fill="none">
+    <svg viewBox="0 0 28 28" width="20" height="20" fill="none">
       <rect
         x="2.5"
         y="7"
@@ -410,12 +398,12 @@ function KeyboardIcon() {
         height="14"
         rx="3"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
       />
       <path
         d="M6.5 11h1.5M11 11h1.5M15.5 11h1.5M20 11h1.5M6.5 14.5h1.5M11 14.5h1.5M15.5 14.5h1.5M20 14.5h1.5M9 17.8h10"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
         strokeLinecap="round"
       />
     </svg>
@@ -424,11 +412,11 @@ function KeyboardIcon() {
 
 function SparkIcon() {
   return (
-    <svg viewBox="0 0 28 28" width="26" height="26" fill="none">
+    <svg viewBox="0 0 28 28" width="20" height="20" fill="none">
       <path
         d="M14 3.5l2.6 7.9 7.9 2.6-7.9 2.6-2.6 7.9-2.6-7.9L3.5 14l7.9-2.6L14 3.5z"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
         strokeLinejoin="round"
       />
     </svg>
@@ -437,17 +425,17 @@ function SparkIcon() {
 
 function RepeatIcon() {
   return (
-    <svg viewBox="0 0 28 28" width="26" height="26" fill="none">
+    <svg viewBox="0 0 28 28" width="20" height="20" fill="none">
       <path
         d="M7 10.5h12.5a3 3 0 0 1 3 3v1M21 17.5H8.5a3 3 0 0 1-3-3v-1"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
         strokeLinecap="round"
       />
       <path
         d="M17.5 7l3 3.5-3 3.5M10.5 14l-3 3.5 3 3.5"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -457,11 +445,11 @@ function RepeatIcon() {
 
 function HeadphoneIcon() {
   return (
-    <svg viewBox="0 0 28 28" width="26" height="26" fill="none">
+    <svg viewBox="0 0 28 28" width="20" height="20" fill="none">
       <path
         d="M5.5 17v-3a8.5 8.5 0 0 1 17 0v3"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
         strokeLinecap="round"
       />
       <rect
@@ -471,7 +459,7 @@ function HeadphoneIcon() {
         height="7.5"
         rx="2.2"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
       />
       <rect
         x="19"
@@ -480,7 +468,7 @@ function HeadphoneIcon() {
         height="7.5"
         rx="2.2"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
       />
     </svg>
   );
@@ -488,7 +476,7 @@ function HeadphoneIcon() {
 
 function NotebookIcon() {
   return (
-    <svg viewBox="0 0 28 28" width="26" height="26" fill="none">
+    <svg viewBox="0 0 28 28" width="20" height="20" fill="none">
       <rect
         x="5.5"
         y="3.5"
@@ -496,18 +484,18 @@ function NotebookIcon() {
         height="21"
         rx="2.5"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
       />
       <path
         d="M9.5 9h9M9.5 13.5h9M9.5 18h6"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
         strokeLinecap="round"
       />
       <path
         d="M5.5 7.5h-1M5.5 12h-1M5.5 16.5h-1M5.5 21h-1"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
         strokeLinecap="round"
       />
     </svg>
@@ -516,7 +504,7 @@ function NotebookIcon() {
 
 function UserIcon() {
   return (
-    <svg viewBox="0 0 20 20" width="15" height="15" fill="none">
+    <svg viewBox="0 0 20 20" width="14" height="14" fill="none">
       <circle
         cx="10"
         cy="6.5"

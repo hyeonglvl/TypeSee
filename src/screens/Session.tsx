@@ -885,7 +885,7 @@ function CheckStampIcon() {
     <svg viewBox="0 0 40 40" width="56" height="56" fill="none">
       <path
         d="M9 21l7 7 15-17"
-        stroke="var(--accent-deep)"
+        stroke="var(--ink-deep)"
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -899,7 +899,7 @@ function CrossStampIcon() {
     <svg viewBox="0 0 40 40" width="56" height="56" fill="none">
       <path
         d="M10 10l20 20M30 10L10 30"
-        stroke="var(--danger)"
+        stroke="var(--err)"
         strokeWidth="4.5"
         strokeLinecap="round"
       />

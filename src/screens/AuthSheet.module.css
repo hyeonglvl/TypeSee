@@ -1,10 +1,12 @@
+/* AuthSheet — v5 "Manuscript": 헤어라인 모달 패널, 단단한 인풋, 잉크 CTA. */
+
 .backdrop {
   position: fixed;
   inset: 0;
   z-index: 100;
   display: grid;
   place-items: center;
-  background: rgba(38, 33, 26, 0.4);
+  background: rgba(32, 27, 19, 0.45);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -12,35 +14,34 @@
 .sheet {
   position: relative;
   width: min(400px, calc(100vw - 40px));
-  padding: 36px 34px 32px;
-  border-radius: var(--radius-l);
-  background: var(--surface-raised);
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow-pop);
+  padding: var(--sp-6) var(--sp-6) var(--sp-6);
+  border-radius: var(--r-l);
+  background: var(--panel-hover);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sheet);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--sp-4);
 }
 
 .title {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--ink);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fg);
 }
 
 .subtitle {
-  font-size: 14px;
+  font-size: var(--text-base);
   line-height: 1.5;
-  color: var(--ink-2);
-  margin-top: -10px;
+  color: var(--fg-mute);
+  margin-top: calc(var(--sp-2) * -1);
 }
 
 .providers {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--sp-2);
 }
 
 .providerButton {
@@ -48,70 +49,69 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 12px 0;
-  border-radius: var(--radius-s);
-  border: 1px solid var(--hairline-strong);
-  background: var(--surface);
-  font-size: 14px;
+  padding: 11px 0;
+  border-radius: var(--r-s);
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  font-size: var(--text-base);
   font-weight: 500;
-  color: var(--ink);
-  transition: background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
+  color: var(--fg);
+  transition:
+    background-color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
 }
 
 .providerButton:hover {
-  background: var(--surface-raised);
-  box-shadow: var(--shadow-card);
+  background: var(--bg);
 }
 
 .divider {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--sp-3);
 }
 
 .divider > span:first-child,
 .divider > span:last-child {
   flex: 1;
   height: 1px;
-  background: var(--hairline);
+  background: var(--line);
 }
 
 .dividerLabel {
-  font-size: 12px;
-  color: var(--ink-3);
+  font-size: var(--text-xs);
+  color: var(--fg-faint);
 }
 
 .modeSwitch {
   display: flex;
-  padding: 4px;
-  border-radius: 12px;
-  background: rgba(58, 47, 32, 0.05);
-  border: 1px solid var(--hairline);
+  padding: 3px;
+  border-radius: var(--r-s);
+  background: var(--bg);
+  border: 1px solid var(--line);
 }
 
 .modeButton {
   position: relative;
   flex: 1;
-  padding: 8px 0;
-  border-radius: 9px;
-  font-size: 14px;
+  padding: 7px 0;
+  border-radius: 4px;
+  font-size: var(--text-base);
   font-weight: 500;
-  color: var(--ink-2);
+  color: var(--fg-mute);
 }
 
 .modeButton[aria-selected="true"] {
-  color: var(--ink);
+  color: var(--fg);
 }
 
 .modeThumb {
   position: absolute;
   inset: 0;
-  border-radius: 9px;
-  background: var(--surface-raised);
-  border: 1px solid var(--hairline-strong);
-  box-shadow: 0 1px 3px rgba(58, 47, 32, 0.12);
+  border-radius: 4px;
+  background: var(--panel-hover);
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 1px 2px rgba(31, 27, 20, 0.08);
 }
 
 .modeLabel {
@@ -122,95 +122,90 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--sp-3);
 }
 
 .input {
   font: inherit;
-  font-size: 15px;
-  color: var(--ink);
-  background: var(--surface);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-s);
-  padding: 13px 16px;
+  font-size: var(--text-md);
+  color: var(--fg);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 12px 14px;
   outline: none;
-  transition: border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
+  transition:
+    border-color var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease);
 }
 
 .input::placeholder {
-  color: var(--ink-3);
+  color: var(--fg-faint);
 }
 
 .input:focus {
-  border-color: var(--accent);
-  background: var(--surface-raised);
+  border-color: var(--ink);
+  background: var(--panel-hover);
 }
 
 .error {
-  font-size: 13px;
-  color: var(--danger);
+  font-size: var(--text-sm);
+  color: var(--err);
 }
 
 .notice {
-  font-size: 13px;
-  color: var(--accent-deep);
+  font-size: var(--text-sm);
+  color: var(--ink-deep);
   line-height: 1.5;
 }
 
 .inlineLink {
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--accent-deep);
+  color: var(--ink-deep);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .submit {
-  margin-top: 4px;
-  padding: 13px 0;
-  border-radius: 999px;
+  margin-top: var(--sp-1);
+  padding: 12px 0;
+  border-radius: var(--r-m);
   background: var(--ink);
-  color: var(--canvas);
-  font-size: 15px;
+  color: #fff;
+  font-size: var(--text-md);
   font-weight: 600;
-  box-shadow: var(--shadow-card);
-  transition: transform var(--dur-fast) var(--ease-out),
-    opacity var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
+  transition:
+    background-color var(--dur-1) var(--ease),
+    opacity var(--dur-1) var(--ease);
 }
 
 .submit:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-pop);
-}
-
-.submit:active {
-  transform: scale(0.98);
+  background: var(--ink-deep);
 }
 
 .submit:disabled {
   opacity: 0.55;
-  transform: none;
   cursor: default;
 }
 
 .close {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: var(--sp-3);
+  right: var(--sp-3);
   width: 30px;
   height: 30px;
   display: grid;
   place-items: center;
-  border-radius: 999px;
-  color: var(--ink-3);
-  font-size: 13px;
-  transition: background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
+  border-radius: var(--r-s);
+  color: var(--fg-faint);
+  font-size: var(--text-sm);
+  transition:
+    background-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
 }
 
 .close:hover {
-  background: rgba(58, 47, 32, 0.06);
-  color: var(--ink);
+  background: rgba(31, 27, 20, 0.05);
+  color: var(--fg);
 }

@@ -59,7 +59,7 @@ export default function ResultScreen({
             cy={RING_SIZE / 2}
             r={RING_R}
             fill="none"
-            stroke="var(--accent-dim)"
+            stroke="var(--ink-soft)"
             strokeWidth={RING_STROKE}
           />
           <motion.circle
@@ -67,7 +67,7 @@ export default function ResultScreen({
             cy={RING_SIZE / 2}
             r={RING_R}
             fill="none"
-            stroke="var(--accent)"
+            stroke="var(--ink)"
             strokeWidth={RING_STROKE}
             strokeLinecap="round"
             transform={`rotate(-90 ${RING_SIZE / 2} ${RING_SIZE / 2})`}

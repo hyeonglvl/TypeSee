@@ -1,76 +1,80 @@
 /* ---------------------------------------------------------------------------
-   TypeSee v4 — "크래프트 저널" design tokens & base
-   v3 "종이와 잉크"의 은유는 유지하되(파란 잉크 = 내가 쓴 것, 빨간 펜 = 실수,
-   형광펜 = 저장) 종이를 한층 따뜻한 공책 질감으로: 그레인 텍스처 캔버스,
-   하드 오프셋 "스케치" 그림자, 세리프 디스플레이(Playfair) + 한글 손글씨
-   (나눔손글씨 펜) 액센트. Light-only.
-   All animation is transform/opacity only.
+   TypeSee v5 — "Manuscript" design tokens & base
+   방향: Linear 류의 절제된 도구 미니멀리즘 × 종이·크래프트 온기.
+   구조는 그림자가 아니라 헤어라인이 만든다. 색은 잉크 계열 전경 + 단 하나의
+   포인트(잉크 바이올렛)만 쓰고, 빨강(실수)·형광펜(저장)은 기능색으로만 남긴다.
+   Light-only. 모든 애니메이션은 transform/opacity 전용.
 --------------------------------------------------------------------------- */
 
 :root {
   color-scheme: light;
 
-  /* Paper — canvas & surfaces (v3보다 반 톤 따뜻하게) */
-  --canvas: #f6efdf;
-  --surface: #fdfaf2;
-  --surface-raised: #fffefa;
-  --hairline: rgba(58, 47, 32, 0.13);
-  --hairline-strong: rgba(58, 47, 32, 0.26);
+  /* Surfaces — 따뜻한 원고지 캔버스 위 종이 패널 */
+  --bg: #f7f4ed;
+  --panel: #fcfbf7;
+  --panel-hover: #fffefb;
+  --line: rgba(31, 27, 20, 0.1);
+  --line-strong: rgba(31, 27, 20, 0.22);
 
-  /* Ink (text tokens — headings/body never wear the accent) */
-  --ink: #2a241a;
-  --ink-2: #6c6250;
-  --ink-3: #a5987f;
+  /* Foreground — 잉크 3단계 (본문·제목은 액센트를 입지 않는다) */
+  --fg: #201b13;
+  --fg-mute: #5f594c;
+  --fg-faint: #98917f;
 
-  /* Blue-ink accent ramp — the color of what you write */
-  --accent: #2b4fd8;
-  --accent-deep: #1d3aa8;
-  --accent-dim: rgba(43, 79, 216, 0.09);
-  --accent-glow: rgba(43, 79, 216, 0.2);
+  /* Ink violet — 단일 포인트: 타이핑된 글자·주요 CTA·포커스·진행 */
+  --ink: #4c5ad4;
+  --ink-deep: #3542b0;
+  --ink-soft: rgba(76, 90, 212, 0.09);
+  --ink-line: rgba(76, 90, 212, 0.28);
 
-  /* Lighter blue ink — gradients & progress only */
-  --ice: #7e9bf2;
+  /* 기능색 — 의미가 있을 때만 등장 */
+  --err: #c43d33; /* 빨간 펜: 오답 */
+  --err-soft: rgba(196, 61, 51, 0.1);
+  --mark: #f5c543; /* 형광펜: 저장 */
+  --mark-soft: rgba(245, 197, 67, 0.22);
+  --ok: #3e7a45; /* 완성/통과 */
+  --ok-soft: rgba(62, 122, 69, 0.12);
 
-  /* Red pen — mistakes */
-  --danger: #c8382e;
-  --danger-dim: rgba(200, 56, 46, 0.11);
+  /* Elevation — 헤어라인이 주 구조, 그림자는 떠 있는 시트에만 한 겹 */
+  --shadow-sheet:
+    0 1px 2px rgba(31, 27, 20, 0.04),
+    0 12px 32px -20px rgba(31, 27, 20, 0.25);
 
-  /* Highlighter — saved words */
-  --highlight: #ffd43b;
-  --highlight-dim: rgba(255, 212, 59, 0.4);
-
-  /* Kraft — 공책 표지·마스킹 테이프 등 장식 전용 (인터랙티브는 잉크 블루) */
-  --kraft: #a9744b;
-  --kraft-dim: rgba(169, 116, 75, 0.14);
-
-  /* Paper shadows — 부드러운 낙하 그림자 + 하드 오프셋 스케치 그림자 */
-  --shadow-card:
-    3px 3px 0 rgba(58, 47, 32, 0.05),
-    0 1px 2px rgba(58, 47, 32, 0.06),
-    0 10px 26px -14px rgba(58, 47, 32, 0.25);
-  --shadow-pop:
-    4px 4px 0 rgba(58, 47, 32, 0.07),
-    0 2px 4px rgba(58, 47, 32, 0.06),
-    0 24px 52px -20px rgba(58, 47, 32, 0.33);
-
-  /* Type — next/font(layout.tsx)가 --next-font-* 를 주입한다 */
-  --font-sans: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI",
-    "Apple SD Gothic Neo", "Pretendard", sans-serif;
-  --font-display: var(--next-font-display, "Iowan Old Style"), "Palatino",
-    "Georgia", serif;
-  --font-hand: var(--next-font-hand, "Segoe Print"), var(--font-sans);
+  /* Type — Inter(라틴)/시스템 산세리프(한글), JetBrains Mono(글리프·숫자) */
+  --font-ui: var(--next-font-ui, "Inter"), -apple-system, BlinkMacSystemFont,
+    system-ui, "Segoe UI", "Apple SD Gothic Neo", "Pretendard", sans-serif;
   --font-mono: var(--next-font-mono, ui-monospace), "SF Mono",
     "JetBrains Mono", Menlo, monospace;
 
-  /* Shape */
-  --radius-s: 10px;
-  --radius-m: 16px;
-  --radius-l: 22px;
+  /* Type scale — 컴팩트한 도구 스케일 */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 28px;
+  --text-3xl: 40px;
 
-  /* Motion */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --dur-fast: 160ms;
-  --dur-med: 320ms;
+  /* Spacing — 4px 그리드 */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* Shape — 작고 단단한 라운드 */
+  --r-s: 6px;
+  --r-m: 10px;
+  --r-l: 14px;
+
+  /* Motion — 빠르고 정확하게 */
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
 }
 
 * {
@@ -86,9 +90,10 @@ body {
 }
 
 body {
-  background: var(--canvas);
-  color: var(--ink);
-  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
@@ -97,22 +102,19 @@ body {
   -webkit-user-select: none;
 }
 
-/* Paper grain — 한 겹의 고정 레이어에 미세한 노이즈 + 아주 옅은 도트.
-   feTurbulence 노이즈를 알파로 바꿔 종이 섬유 느낌만 남긴다. */
+/* 크래프트 질감 — 거의 안 보일 만큼 옅은 종이 그레인 한 겹 (고정 레이어) */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
-    radial-gradient(rgba(58, 47, 32, 0.06) 1px, transparent 1px);
-  background-size: 160px 160px, 24px 24px;
-  opacity: 0.16;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: 0.09;
 }
 
 ::selection {
-  background: var(--accent-dim);
+  background: var(--ink-soft);
 }
 
 button {
@@ -123,11 +125,34 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: default;
+}
+
 button:focus-visible,
-[tabindex]:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  border-radius: var(--radius-s);
+[tabindex]:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: var(--r-s);
+}
+
+/* kbd — 전역 공통: 얇은 헤어라인 키캡 (Linear 식 조용한 단축키 힌트) */
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 4px;
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fg-mute);
 }
 
 @media (prefers-reduced-motion: reduce) {

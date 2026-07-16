@@ -1,44 +1,45 @@
+/* MyWords(내 단어장) — v5 "Manuscript": 헤어라인 패널 폼 + 카드 그리드. */
+
 .screen {
   height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 26px;
-  padding: 32px 24px;
+  gap: var(--sp-5);
+  padding: var(--sp-6) var(--sp-5);
 }
 
 .header {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
 .eyebrow {
-  font-size: 13px;
+  font-size: var(--text-xs);
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink-2);
+  color: var(--fg-faint);
 }
 
 .title {
-  font-family: var(--font-display);
-  font-size: 34px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--ink);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fg);
 }
 
 .titleCount {
-  color: var(--accent);
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
 .subtitle {
-  font-size: 14px;
-  color: var(--ink-2);
+  font-size: var(--text-sm);
+  color: var(--fg-mute);
 }
 
 /* Form ----------------------------------------------------------------- */
@@ -46,55 +47,61 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--sp-2);
   width: min(520px, 92vw);
-  padding: 18px;
-  border-radius: var(--radius-l);
-  background: var(--surface);
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow-card);
+  padding: var(--sp-4);
+  border-radius: var(--r-l);
+  background: var(--panel);
+  border: 1px solid var(--line);
 }
 
 .bulkInput {
   width: 100%;
-  padding: 10px 14px;
-  border-radius: var(--radius-m);
-  border: 1px solid var(--hairline-strong);
-  background: var(--canvas);
-  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: var(--text-base);
   line-height: 1.5;
-  color: var(--ink);
+  color: var(--fg);
   resize: vertical;
-  font-family: var(--font-sans);
+  font-family: var(--font-ui);
 }
 
 .bulkInput:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--ink);
+  background: var(--panel-hover);
 }
 
 .formFooter {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--sp-2);
 }
 
 .parsedCount {
-  font-size: 12px;
-  color: var(--ink-3);
+  font-size: var(--text-xs);
+  color: var(--fg-faint);
   font-variant-numeric: tabular-nums;
 }
 
 .genButton {
-  padding: 10px 16px;
-  border-radius: var(--radius-m);
+  padding: 9px 16px;
+  border-radius: var(--r-m);
   background: var(--ink);
-  color: var(--canvas);
-  font-size: 13px;
+  color: #fff;
+  font-size: var(--text-sm);
   font-weight: 600;
   white-space: nowrap;
-  transition: opacity var(--dur-fast) var(--ease-out);
+  transition:
+    background-color var(--dur-1) var(--ease),
+    opacity var(--dur-1) var(--ease);
+}
+
+.genButton:hover:not(:disabled) {
+  background: var(--ink-deep);
 }
 
 .genButton:disabled {
@@ -103,8 +110,8 @@
 }
 
 .genError {
-  font-size: 13px;
-  color: var(--danger);
+  font-size: var(--text-sm);
+  color: var(--err);
 }
 
 /* Draft review (auto-generated, editable before saving) ------------------ */
@@ -112,18 +119,17 @@
 .drafts {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--sp-2);
   width: min(760px, 92vw);
-  padding: 14px;
-  border-radius: var(--radius-l);
-  background: var(--surface);
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow-card);
+  padding: var(--sp-3);
+  border-radius: var(--r-l);
+  background: var(--panel);
+  border: 1px solid var(--line);
 }
 
 .draftRow {
   display: flex;
-  gap: 6px;
+  gap: var(--sp-1);
   align-items: center;
 }
 
@@ -131,41 +137,42 @@
   width: 110px;
   flex-shrink: 0;
   padding: 7px 10px;
-  border-radius: var(--radius-m);
-  border: 1px solid var(--hairline);
-  background: var(--canvas);
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+  background: var(--bg);
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--ink);
+  color: var(--fg);
 }
 
 .draftField {
   flex: 1;
   min-width: 0;
   padding: 7px 10px;
-  border-radius: var(--radius-m);
-  border: 1px solid var(--hairline);
-  background: var(--canvas);
-  font-size: 13px;
-  color: var(--ink);
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: var(--text-sm);
+  color: var(--fg);
 }
 
 .draftField:focus,
 .draftWord:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--ink);
+  background: var(--panel-hover);
 }
 
 .draftPos {
   width: 78px;
   flex-shrink: 0;
   padding: 7px 6px;
-  border-radius: var(--radius-m);
-  border: 1px solid var(--hairline);
-  background: var(--canvas);
-  font-size: 12px;
-  color: var(--ink-2);
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: var(--text-xs);
+  color: var(--fg-mute);
 }
 
 .draftDelete {
@@ -174,84 +181,92 @@
   height: 26px;
   display: grid;
   place-items: center;
-  border-radius: 999px;
+  border-radius: var(--r-s);
   font-size: 11px;
-  color: var(--ink-3);
-  background: var(--surface-raised);
-  border: 1px solid var(--hairline-strong);
-  transition: color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
+  color: var(--fg-faint);
+  background: var(--panel-hover);
+  border: 1px solid var(--line-strong);
+  transition:
+    color var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease);
 }
 
 .draftDelete:hover {
-  color: var(--danger);
-  background: var(--danger-dim);
+  color: var(--err);
+  background: var(--err-soft);
 }
 
 /* Manual add (secondary, collapsed by default) ---------------------------- */
 
 .manualToggle {
-  font-size: 13px;
-  color: var(--ink-3);
+  font-size: var(--text-sm);
+  color: var(--fg-faint);
   padding: 4px 10px;
-  border-radius: 999px;
-  transition: color var(--dur-fast) var(--ease-out);
+  border-radius: var(--r-s);
+  transition: color var(--dur-1) var(--ease);
 }
 
 .manualToggle:hover {
-  color: var(--ink);
+  color: var(--fg);
 }
 
 .manualForm {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--sp-2);
   width: min(520px, 92vw);
-  padding: 18px;
-  border-radius: var(--radius-l);
-  background: var(--surface);
-  border: 1px dashed var(--hairline-strong);
+  padding: var(--sp-4);
+  border-radius: var(--r-l);
+  background: var(--panel);
+  border: 1px dashed var(--line-strong);
 }
 
 .fieldsRow {
   display: flex;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
 .field {
   flex: 1;
   padding: 9px 12px;
-  border-radius: var(--radius-m);
-  border: 1px solid var(--hairline);
-  background: var(--canvas);
-  font-size: 14px;
-  color: var(--ink);
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: var(--text-base);
+  color: var(--fg);
 }
 
 .field:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--ink);
+  background: var(--panel-hover);
 }
 
 .posSelect {
   padding: 9px 10px;
-  border-radius: var(--radius-m);
-  border: 1px solid var(--hairline);
-  background: var(--canvas);
-  font-size: 13px;
-  color: var(--ink-2);
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: var(--text-sm);
+  color: var(--fg-mute);
   max-width: 130px;
 }
 
 .saveButton {
-  margin-top: 4px;
+  margin-top: var(--sp-1);
   padding: 10px;
-  border-radius: var(--radius-m);
-  background: var(--accent);
+  border-radius: var(--r-m);
+  background: var(--ink);
   color: #fff;
-  font-size: 14px;
+  font-size: var(--text-base);
   font-weight: 600;
-  transition: opacity var(--dur-fast) var(--ease-out);
+  transition:
+    background-color var(--dur-1) var(--ease),
+    opacity var(--dur-1) var(--ease);
+}
+
+.saveButton:hover:not(:disabled) {
+  background: var(--ink-deep);
 }
 
 .saveButton:disabled {
@@ -264,7 +279,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: var(--sp-3);
   width: min(760px, 92vw);
 }
 
@@ -280,15 +295,16 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 14px 16px;
-  border-radius: var(--radius-m);
-  background: var(--surface);
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow-card);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-m);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  transition: border-color var(--dur-1) var(--ease);
 }
 
 .card:hover {
   z-index: 10;
+  border-color: var(--line-strong);
 }
 
 .card:hover .cardExample {
@@ -298,14 +314,14 @@
 
 .cardWord {
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: var(--text-md);
   font-weight: 600;
-  color: var(--ink);
+  color: var(--fg);
 }
 
 .cardMeaning {
-  font-size: 13px;
-  color: var(--ink-2);
+  font-size: var(--text-sm);
+  color: var(--fg-mute);
 }
 
 .cardDelete {
@@ -317,15 +333,16 @@
   height: 22px;
   display: grid;
   place-items: center;
-  border-radius: 999px;
+  border-radius: var(--r-s);
   font-size: 11px;
-  color: var(--ink-3);
-  background: var(--surface-raised);
-  border: 1px solid var(--hairline-strong);
+  color: var(--fg-faint);
+  background: var(--panel-hover);
+  border: 1px solid var(--line-strong);
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
+  transition:
+    opacity var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
 }
 
 .card:hover .cardDelete {
@@ -334,8 +351,8 @@
 }
 
 .cardDelete:hover {
-  color: var(--danger);
-  background: var(--danger-dim);
+  color: var(--err);
+  background: var(--err-soft);
 }
 
 .cardExample {
@@ -350,33 +367,33 @@
   flex-direction: column;
   justify-content: center;
   gap: 4px;
-  padding: 14px 32px 14px 16px;
-  border-radius: var(--radius-m);
-  background: var(--surface-raised);
-  border: 1px solid var(--hairline-strong);
-  box-shadow: var(--shadow-pop);
+  padding: var(--sp-3) 32px var(--sp-3) var(--sp-4);
+  border-radius: var(--r-m);
+  background: var(--panel-hover);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-sheet);
   opacity: 0;
   pointer-events: none;
   overflow-y: auto;
-  transition: opacity var(--dur-fast) var(--ease-out);
+  transition: opacity var(--dur-1) var(--ease);
 }
 
 .cardExample p {
-  font-size: 12.5px;
-  color: var(--ink-2);
+  font-size: var(--text-xs);
+  color: var(--fg-mute);
   line-height: 1.4;
   overflow-wrap: break-word;
 }
 
 .cardExampleKo {
-  color: var(--ink-3) !important;
+  color: var(--fg-faint) !important;
 }
 
 /* Actions ------------------------------------------------------------------ */
 
 .actions {
   display: flex;
-  gap: 12px;
+  gap: var(--sp-3);
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -385,26 +402,25 @@
 .ghostButton {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  padding: 12px 22px;
-  border-radius: 999px;
-  font-size: 14px;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--r-m);
+  font-size: var(--text-base);
   font-weight: 600;
-  transition: transform var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out),
-    opacity var(--dur-fast) var(--ease-out);
+  transition:
+    background-color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease),
+    opacity var(--dur-1) var(--ease);
 }
 
 .primaryButton {
   background: var(--ink);
-  color: var(--canvas);
-  box-shadow: var(--shadow-card);
+  color: #fff;
 }
 
 .primaryButton:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-pop);
+  background: var(--ink-deep);
 }
 
 .primaryButton:disabled,
@@ -414,29 +430,13 @@
 }
 
 .ghostButton {
-  border: 1px solid var(--hairline-strong);
-  background: var(--surface);
-  color: var(--ink-2);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--fg-mute);
 }
 
 .ghostButton:hover:not(:disabled) {
-  background: var(--surface-raised);
-  color: var(--ink);
-}
-
-.screen kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 25px;
-  height: 25px;
-  padding: 0 6px;
-  border-radius: 6px;
-  border: 1px solid var(--hairline-strong);
-  background: var(--surface-raised);
-  box-shadow: 0 1.5px 0 var(--hairline-strong);
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--ink-2);
+  background: var(--panel-hover);
+  border-color: var(--line-strong);
+  color: var(--fg);
 }

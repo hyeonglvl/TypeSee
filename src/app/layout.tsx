@@ -1,29 +1,19 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import {
-  JetBrains_Mono,
-  Nanum_Pen_Script,
-  Playfair_Display,
-} from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "@/styles/global.css";
 
-/* 종이·잉크 v4 타이포 3종 — global.css 의 --font-* 토큰이 이 변수들을
-   읽는다. Playfair 는 라틴 전용(워드마크·모드명·숫자), Nanum Pen 은
-   한글 손글씨 액센트(배지·태그라인), JetBrains Mono 는 타이핑 글리프. */
-const displayFont = Playfair_Display({
+/* v5 "Manuscript" 타이포 2종 — global.css 의 --font-* 토큰이 읽는다.
+   Inter 는 라틴 UI 전반(한글은 시스템 산세리프로 폴백), JetBrains Mono 는
+   타이핑 글리프·숫자 데이터 전용. 세리프/손글씨 없음 — 절제된 도구 감각. */
+const uiFont = Inter({
   subsets: ["latin"],
-  style: ["normal", "italic"],
-  weight: ["500", "600", "700"],
-  variable: "--next-font-display",
-});
-const handFont = Nanum_Pen_Script({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--next-font-hand",
+  weight: ["400", "500", "600", "700"],
+  variable: "--next-font-ui",
 });
 const monoFont = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
   variable: "--next-font-mono",
 });
 
@@ -33,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f5f0e4",
+  themeColor: "#f7f4ed",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -46,7 +36,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     // 하이드레이션 경고를 낸다 — 이 요소의 속성 미스매치만 무시한다.
     <html
       lang="ko"
-      className={`${displayFont.variable} ${handFont.variable} ${monoFont.variable}`}
+      className={`${uiFont.variable} ${monoFont.variable}`}
       suppressHydrationWarning
     >
       <body>{children}</body>
