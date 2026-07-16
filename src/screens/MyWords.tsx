@@ -190,9 +190,13 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
       if (!d.word.trim() || !d.meaning.trim()) continue;
       addCustomWord({
         word: d.word.trim(),
-        senses: [{ meaning: d.meaning.trim(), pos: d.pos || undefined }],
-        example: d.example.trim() || undefined,
-        exampleMeaning: d.exampleMeaning.trim() || undefined,
+        senses: [
+          { meaning: d.meaning.trim(), pos: d.pos ? [d.pos] : undefined },
+        ],
+        example: d.example.trim() ? [d.example.trim()] : undefined,
+        exampleMeaning: d.exampleMeaning.trim()
+          ? [d.exampleMeaning.trim()]
+          : undefined,
       });
     }
     setDrafts([]);
@@ -212,9 +216,9 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
     if (!canSaveManual) return;
     addCustomWord({
       word: mWord.trim(),
-      senses: [{ meaning: mMeaning.trim(), pos: mPos || undefined }],
-      example: mExample.trim(),
-      exampleMeaning: mExampleMeaning.trim(),
+      senses: [{ meaning: mMeaning.trim(), pos: mPos ? [mPos] : undefined }],
+      example: [mExample.trim()],
+      exampleMeaning: [mExampleMeaning.trim()],
     });
     setMWord("");
     setMMeaning("");
@@ -420,12 +424,18 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
                 <span className={styles.cardMeaning}>
                   {w.senses.map((s) => s.meaning).join(" · ")}
                 </span>
-                {w.example && (
+                {w.example && w.example.length > 0 && (
                   <div className={styles.cardExample}>
-                    <p>{w.example}</p>
-                    {w.exampleMeaning && (
-                      <p className={styles.cardExampleKo}>{w.exampleMeaning}</p>
-                    )}
+                    {w.example.map((ex, exIdx) => (
+                      <div key={exIdx}>
+                        <p>{ex}</p>
+                        {w.exampleMeaning?.[exIdx] && (
+                          <p className={styles.cardExampleKo}>
+                            {w.exampleMeaning[exIdx]}
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </motion.div>

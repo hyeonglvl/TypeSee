@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { STARTER_WORDS } from "@/data/words";
+import { ALL_WORDS } from "@/data";
 import {
   clearAll,
   clearSavedWord,
@@ -33,7 +33,7 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
 
   const entries = useMemo(
     () =>
-      STARTER_WORDS.filter((w) => pool.ids.has(w.id)).sort(
+      ALL_WORDS.filter((w) => pool.ids.has(w.id)).sort(
         (a, b) => pool.wrongCountOf(b.id) - pool.wrongCountOf(a.id),
       ),
     [pool],
@@ -116,14 +116,18 @@ export default function ReviewScreen({ onStart, onBack }: Props) {
                     <span className={styles.revealBadge}>정답 봄</span>
                   )}
                 </span>
-                {entry.example && (
+                {entry.example && entry.example.length > 0 && (
                   <span className={styles.example} aria-hidden="true">
-                    <span className={styles.exampleEn}>{entry.example}</span>
-                    {entry.exampleMeaning && (
-                      <span className={styles.exampleKo}>
-                        {entry.exampleMeaning}
+                    {entry.example.map((ex, exIdx) => (
+                      <span key={exIdx} className={styles.examplePair}>
+                        <span className={styles.exampleEn}>{ex}</span>
+                        {entry.exampleMeaning?.[exIdx] && (
+                          <span className={styles.exampleKo}>
+                            {entry.exampleMeaning[exIdx]}
+                          </span>
+                        )}
                       </span>
-                    )}
+                    ))}
                   </span>
                 )}
                 <button

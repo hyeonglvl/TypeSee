@@ -1,4 +1,4 @@
-import { memo, useEffect, useReducer, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createSession, sessionReducer, summarize } from "@/lib/engine";
 import { ensureSoundOn, speak, toggleSound, useSoundPref } from "@/lib/tts";
@@ -37,6 +37,7 @@ const POS_LABEL: Record<Pos, string> = {
   v: "동사",
   adj: "형용사",
   adv: "부사",
+  prep: "전치사",
   phrase: "구",
 };
 
@@ -536,6 +537,17 @@ const WordCard = memo(function WordCard({
     mode !== "typing" && difficulty !== "easy" && word.status !== "done";
   const shaking = word.lastMistakeAt !== null && !suppressShake;
 
+  // 예문이 여러 개면 카드마다 하나를 랜덤으로 골라 보여준다 — 타이핑 중
+  // 리렌더에도 바뀌지 않게 단어 id 가 같은 동안은 한 번만 뽑는다.
+  const exampleCount = word.entry.example?.length ?? 0;
+  const exampleIdx = useMemo(
+    () => (exampleCount > 0 ? Math.floor(Math.random() * exampleCount) : 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [word.entry.id],
+  );
+  const example = word.entry.example?.[exampleIdx];
+  const exampleKo = word.entry.exampleMeaning?.[exampleIdx];
+
   return (
     <motion.div
       className={active ? `${styles.card} ${styles.cardActive}` : styles.card}
@@ -608,6 +620,8 @@ const WordCard = memo(function WordCard({
                 mode={mode}
                 active={active}
                 difficulty={difficulty}
+                example={example}
+                exampleKo={exampleKo}
                 showMeaning={showMeaning}
               />
             ) : (
@@ -630,6 +644,8 @@ const WordCard = memo(function WordCard({
                 mode={mode}
                 active={active}
                 difficulty={difficulty}
+                example={example}
+                exampleKo={exampleKo}
               />
             ) : (
               <WordGlyphs
@@ -672,7 +688,8 @@ function ListeningPrompt({ word, active }: { word: string; active: boolean }) {
 }
 
 function Meaning({ entry }: { entry: WordEntry }) {
-  const posSet = [...new Set(entry.senses.map((s) => s.pos).filter(Boolean))];
+  // 한 뜻이 여러 품사를 겸할 수 있어(prep+adv 등) 평탄화 후 중복 제거
+  const posSet = [...new Set(entry.senses.flatMap((s) => s.pos ?? []))];
   return (
     <span className={styles.meaningBlock}>
       <span className={styles.meaning}>
@@ -682,7 +699,7 @@ function Meaning({ entry }: { entry: WordEntry }) {
         <span className={styles.posRow}>
           {posSet.map((pos) => (
             <span key={pos} className={styles.pos}>
-              {POS_LABEL[pos as Pos]}
+              {POS_LABEL[pos]}
             </span>
           ))}
         </span>
@@ -697,9 +714,9 @@ function Meaning({ entry }: { entry: WordEntry }) {
    always had — just framed by the rest of the sentence around it. */
 
 function findWordSpan(
-  entry: WordEntry,
+  word: string,
+  example: string | undefined,
 ): { prefix: string; suffix: string } | null {
-  const { word, example } = entry;
   if (!example) return null;
   const boundary = new RegExp(`\\b${word}\\b`, "i").exec(example);
   if (boundary) {
@@ -721,16 +738,22 @@ function ExampleLine({
   mode,
   active,
   difficulty,
+  example,
+  exampleKo,
   showMeaning = false,
 }: {
   word: WordState;
   mode: SessionMode;
   active: boolean;
   difficulty: Difficulty;
+  /** 카드가 고른 예문 하나 (여러 개면 랜덤 선택된 것). */
+  example?: string;
+  /** 위 예문과 짝을 이루는 한글 해석. */
+  exampleKo?: string;
   /** 리스닝 '뜻 보기' — 눌렀을 때만 예문 해석도 함께 보여준다. */
   showMeaning?: boolean;
 }) {
-  const span = findWordSpan(word.entry);
+  const span = findWordSpan(word.entry.word, example);
   if (!span)
     return (
       <WordGlyphs word={word} mode={mode} active={active} difficulty={difficulty} />
@@ -749,10 +772,8 @@ function ExampleLine({
       </span>
       {/* 리스닝은 해석이 답의 뜻을 미리 알려줘 받아쓰기 긴장이 풀린다 —
           숨기되, 뜻 보기를 눌렀을 땐 이미 뜻이 열렸으니 함께 보여준다 */}
-      {(mode !== "listening" || showMeaning) && word.entry.exampleMeaning && (
-        <span className={styles.sentenceMeaning}>
-          {word.entry.exampleMeaning}
-        </span>
+      {(mode !== "listening" || showMeaning) && exampleKo && (
+        <span className={styles.sentenceMeaning}>{exampleKo}</span>
       )}
     </span>
   );
@@ -885,7 +906,7 @@ function CheckStampIcon() {
     <svg viewBox="0 0 40 40" width="56" height="56" fill="none">
       <path
         d="M9 21l7 7 15-17"
-        stroke="var(--ink-deep)"
+        stroke="var(--accent-deep)"
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -899,7 +920,7 @@ function CrossStampIcon() {
     <svg viewBox="0 0 40 40" width="56" height="56" fill="none">
       <path
         d="M10 10l20 20M30 10L10 30"
-        stroke="var(--err)"
+        stroke="var(--danger)"
         strokeWidth="4.5"
         strokeLinecap="round"
       />

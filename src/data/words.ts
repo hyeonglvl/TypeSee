@@ -1,6 +1,9 @@
-import type { WordEntry } from "@/lib/types";
+import type { LegacyWordEntry } from "@/lib/types";
 
-export const STARTER_WORDS: WordEntry[] = [
+/** 구세대(단수 pos·단일 예문) 포맷의 실생활 단어 — src/data/index.ts 가
+ *  WordEntry 로 변환해 카테고리 4(일상용어)로 편입한다. 새 단어는 여기가
+ *  아니라 wordjson.json 에 추가할 것. */
+export const STARTER_WORDS: LegacyWordEntry[] = [
   {
     id: "apple",
     word: "apple",

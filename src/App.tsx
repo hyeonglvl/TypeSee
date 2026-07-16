@@ -6,7 +6,7 @@ import SessionScreen from "@/screens/Session";
 import ResultScreen from "@/screens/Result";
 import ReviewScreen from "@/screens/Review";
 import MyWordsScreen from "@/screens/MyWords";
-import { STARTER_WORDS } from "@/data/words";
+import { ALL_WORDS, wordsInCategory } from "@/data";
 import { shuffle, weightedSample } from "@/lib/engine";
 import { useAuthUser } from "@/lib/auth";
 import { hydrateDifficultyPref } from "@/lib/difficultyPref";
@@ -32,7 +32,7 @@ import {
 import type { SessionMode, SessionSummary, WordEntry } from "@/lib/types";
 
 type SessionConfig =
-  | { kind: "normal"; mode: SessionMode; count: number }
+  | { kind: "normal"; mode: SessionMode; count: number; category: number }
   | { kind: "review"; mode: SessionMode }
   | { kind: "custom"; mode: SessionMode };
 
@@ -95,15 +95,15 @@ export default function App() {
   }, [phase.step, user]);
 
   const startNormal = useCallback(
-    (mode: SessionMode, count: number) => {
+    (mode: SessionMode, count: number, category: number) => {
       // TS-1: 복습 몫은 ease 가 낮은(자주 틀리는) 단어일수록, 그리고 오래
       // 안 본 단어일수록 잘 뽑히고, 직전 세션에서 막 정타 통과한 단어는
-      // 한 세션 쉰다.
+      // 한 세션 쉰다. 복습·유지 점검·새 단어 모두 선택한 카테고리 안에서만
+      // 뽑는다 — 토익 세션에 일상용어 복습이 끼어들지 않게.
       const now = Date.now();
+      const catWords = wordsInCategory(category);
       const fromPool = weightedSample(
-        STARTER_WORDS.filter(
-          (w) => pool.ids.has(w.id) && !pool.inCooldown(w.id),
-        ),
+        catWords.filter((w) => pool.ids.has(w.id) && !pool.inCooldown(w.id)),
         (w) => sessionWeight(pool.easeOf(w.id), pool.lastSeenAtOf(w.id), now),
         Math.floor(count / REVIEW_MIX_RATIO),
       );
@@ -112,7 +112,7 @@ export default function App() {
       // 마스터 유지 점검: 오래 안 본 마스터 단어를 배지 없이(블라인드) 섞어
       // 아직 기억하는지 확인한다. fresh 몫을 대체하므로 복습 1/3 몫은 그대로.
       const retention = weightedSample(
-        STARTER_WORDS.filter((w) => {
+        catWords.filter((w) => {
           const masteredAt = pool.masteredAtOf(w.id);
           if (masteredAt === null || pool.inCooldown(w.id)) return false;
           const seen = pool.lastSeenAtOf(w.id) ?? masteredAt;
@@ -129,7 +129,7 @@ export default function App() {
       );
 
       const fresh = shuffle(
-        STARTER_WORDS.filter(
+        catWords.filter(
           (w) => !pickedIds.has(w.id) && !retentionIds.has(w.id),
         ),
       ).slice(0, count - fromPool.length - retention.length);
@@ -142,7 +142,7 @@ export default function App() {
         // 거쳐 recordSession 의 유지-통과 분기로 흐른다.
         reviewIds: new Set([...pool.ids, ...retentionIds]),
         retentionIds,
-        config: { kind: "normal", mode, count },
+        config: { kind: "normal", mode, count, category },
       });
     },
     [pool],
@@ -150,7 +150,7 @@ export default function App() {
 
   const startReview = useCallback(
     (mode: SessionMode, entries?: WordEntry[]) => {
-      const words = entries ?? STARTER_WORDS.filter((w) => pool.ids.has(w.id));
+      const words = entries ?? ALL_WORDS.filter((w) => pool.ids.has(w.id));
       if (words.length === 0) return;
       setPhase({
         step: "session",
@@ -195,7 +195,6 @@ export default function App() {
       {phase.step === "home" && (
         <motion.div key="home" style={{ height: "100%" }} {...screenMotion}>
           <HomeScreen
-            totalWords={STARTER_WORDS.length}
             onStart={startNormal}
             onReview={() => setPhase({ step: "review" })}
             onMyWords={() => setPhase({ step: "myWords" })}
@@ -239,7 +238,11 @@ export default function App() {
             summary={phase.summary}
             onRetry={() => {
               if (phase.config.kind === "normal")
-                startNormal(phase.config.mode, phase.config.count);
+                startNormal(
+                  phase.config.mode,
+                  phase.config.count,
+                  phase.config.category,
+                );
               else if (phase.config.kind === "custom")
                 startCustomSession(phase.config.mode, customWords);
               else if (pool.count > 0) startReview(phase.config.mode);

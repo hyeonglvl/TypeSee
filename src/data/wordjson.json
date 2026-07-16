@@ -1,0 +1,2344 @@
+[
+  {
+    "id": "abandon",
+    "word": "abandon",
+    "senses": [
+      { "meaning": "포기하다; 버리다 (계획, 책임 등을)", "pos": ["v"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company decided to abandon the project due to budget constraints.",
+      "We cannot abandon our commitment to providing excellent customer service."
+    ],
+    "exampleMeaning": [
+      "회사는 예산 제약으로 인해 프로젝트를 포기하기로 결정했다.",
+      "우리는 우수한 고객 서비스를 제공하겠다는 약속을 저버릴 수 없다."
+    ]
+  },
+  {
+    "id": "abate",
+    "word": "abate",
+    "senses": [
+      { "meaning": "(바람, 비, 통증 등이) 약해지다, 누그러지다", "pos": ["v"] }
+    ],
+    "category": [2, 5],
+    "example": [
+      "The storm is expected to abate by tomorrow morning.",
+      "The company is working to abate the negative impact of the recent supply chain disruptions."
+    ],
+    "exampleMeaning": [
+      "폭풍은 내일 아침까지 잦아들 것으로 예상된다.",
+      "회사는 최근 공급망 차질로 인한 부정적 영향을 완화하기 위해 노력하고 있다."
+    ]
+  },
+  {
+    "id": "abbreviate",
+    "word": "abbreviate",
+    "senses": [
+      { "meaning": "줄여 쓰다; 축약하다 (표현 방식을)", "pos": ["v"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "To save space, we often abbreviate company names in internal memos.",
+      "The project manager asked the team to abbreviate the report to highlight the key findings."
+    ],
+    "exampleMeaning": [
+      "공간을 절약하기 위해 우리는 사내 메모에서 회사명을 흔히 줄여 쓴다.",
+      "프로젝트 매니저는 핵심 결과를 강조하기 위해 보고서를 줄여달라고 팀에 요청했다."
+    ]
+  },
+  {
+    "id": "abdomen",
+    "word": "abdomen",
+    "senses": [{ "meaning": "복부; 배", "pos": ["n"] }],
+    "category": [3, 5],
+    "example": [
+      "The doctor pressed lightly on the patient's abdomen.",
+      "She felt a discomfort in her lower abdomen after eating."
+    ],
+    "exampleMeaning": [
+      "의사는 환자의 복부를 가볍게 눌렀다.",
+      "그녀는 식사 후 아랫배에 불편함을 느꼈다."
+    ]
+  },
+  {
+    "id": "abdominal",
+    "word": "abdominal",
+    "senses": [{ "meaning": "복부의; 복부와 관련된", "pos": ["adj"] }],
+    "category": [2, 5],
+    "example": [
+      "The employee reported experiencing abdominal discomfort and requested a medical leave.",
+      "The company provides health insurance that covers abdominal scans and related treatments."
+    ],
+    "exampleMeaning": [
+      "그 직원은 복부 불편감을 호소하며 병가를 신청했다.",
+      "회사는 복부 검사 및 관련 치료를 보장하는 건강보험을 제공한다."
+    ]
+  },
+  {
+    "id": "abductor",
+    "word": "abductor",
+    "senses": [{ "meaning": "납치범; 유괴범", "pos": ["n"] }],
+    "category": [3, 5],
+    "example": [
+      "Police are searching for the abductor of the missing child.",
+      "The victim identified the abductor from a lineup."
+    ],
+    "exampleMeaning": [
+      "경찰은 실종된 아이의 납치범을 수색하고 있다.",
+      "피해자는 용의자 대열에서 납치범을 지목했다."
+    ]
+  },
+  {
+    "id": "abide",
+    "word": "abide",
+    "senses": [{ "meaning": "참다; 준수하다 (규칙, 협의 등을)", "pos": ["v"] }],
+    "category": [2, 5],
+    "example": [
+      "All employees must abide by the company's code of conduct.",
+      "We have agreed to abide by the arbitrator's decision."
+    ],
+    "exampleMeaning": [
+      "모든 직원은 회사의 행동 강령을 준수해야 한다.",
+      "우리는 중재인의 결정을 따르기로 합의했다."
+    ]
+  },
+  {
+    "id": "ability",
+    "word": "ability",
+    "senses": [
+      {
+        "meaning": "능력, 재능 (특정 과업 완수나 목표 달성에 필요한 기술/잠재력)",
+        "pos": ["n"]
+      }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The candidate's ability to manage projects effectively impressed the hiring manager.",
+      "To improve employee ability, the company offers various training programs."
+    ],
+    "exampleMeaning": [
+      "그 지원자가 프로젝트를 효과적으로 관리하는 능력은 채용 담당자에게 깊은 인상을 남겼다.",
+      "직원의 능력을 향상시키기 위해 회사는 다양한 교육 프로그램을 제공한다."
+    ]
+  },
+  {
+    "id": "able",
+    "word": "able",
+    "senses": [{ "meaning": "능력이 있는; 할 수 있는", "pos": ["adj", "adv"] }],
+    "category": [3, 5],
+    "example": [
+      "The candidate is able to manage multiple projects simultaneously.",
+      "She is able to speak fluent Spanish, which is a valuable asset to the team."
+    ],
+    "exampleMeaning": [
+      "그 지원자는 여러 프로젝트를 동시에 관리할 수 있다.",
+      "그녀는 스페인어를 유창하게 구사할 수 있어 팀에 소중한 자산이다."
+    ]
+  },
+  {
+    "id": "aboard",
+    "word": "aboard",
+    "senses": [
+      {
+        "meaning": "(배, 비행기, 기차 등에) 탑승한; 탑승하여",
+        "pos": ["adv", "prep"]
+      }
+    ],
+    "category": [0, 5],
+    "example": [
+      "All passengers are requested to board the flight immediately.",
+      "The team will be aboard the cargo ship to oversee the delivery."
+    ],
+    "exampleMeaning": [
+      "모든 승객은 즉시 항공편에 탑승해 주시기 바랍니다.",
+      "팀은 배송을 감독하기 위해 화물선에 탑승할 예정이다."
+    ]
+  },
+  {
+    "id": "abolish",
+    "word": "abolish",
+    "senses": [
+      { "meaning": "폐지하다; 없애다 (법률, 제도 등을)", "pos": ["v"] }
+    ],
+    "category": [2, 5],
+    "example": [
+      "The company decided to abolish the outdated policy to improve efficiency.",
+      "The government plans to abolish the tax on imported goods to boost trade."
+    ],
+    "exampleMeaning": [
+      "회사는 효율성을 높이기 위해 낡은 정책을 폐지하기로 결정했다.",
+      "정부는 무역을 촉진하기 위해 수입품에 대한 세금을 폐지할 계획이다."
+    ]
+  },
+  {
+    "id": "abort",
+    "word": "abort",
+    "senses": [
+      { "meaning": "중단하다; 취소하다 (계획, 절차 등을)", "pos": ["v"] }
+    ],
+    "category": [2, 5],
+    "example": [
+      "The project was aborted due to unforeseen budget cuts.",
+      "The pilot had to abort the takeoff due to a technical malfunction."
+    ],
+    "exampleMeaning": [
+      "그 프로젝트는 예기치 못한 예산 삭감으로 인해 중단되었다.",
+      "조종사는 기술적 결함으로 인해 이륙을 중단해야 했다."
+    ]
+  },
+  {
+    "id": "abortion",
+    "word": "abortion",
+    "senses": [{ "meaning": "낙태; 중단; 유산", "pos": ["n"] }],
+    "category": [3, 5],
+    "example": [
+      "The debate over abortion rights is a complex social and ethical issue.",
+      "The project's abortion was a result of unforeseen financial difficulties."
+    ],
+    "exampleMeaning": [
+      "낙태권을 둘러싼 논쟁은 복잡한 사회적, 윤리적 문제이다.",
+      "그 프로젝트의 중단은 예기치 못한 재정적 어려움에 따른 결과였다."
+    ]
+  },
+  {
+    "id": "about",
+    "word": "about",
+    "senses": [
+      {
+        "meaning": "~에 관한; 대략; ~주위에; 곧 ~하려는",
+        "pos": ["prep", "adv"]
+      }
+    ],
+    "category": [3, 5],
+    "example": [
+      "The meeting is about the new marketing strategy.",
+      "We expect about 50 participants at the conference."
+    ],
+    "exampleMeaning": [
+      "그 회의는 새로운 마케팅 전략에 관한 것이다.",
+      "우리는 회의에 약 50명의 참가자를 예상하고 있다."
+    ]
+  },
+  {
+    "id": "above",
+    "word": "above",
+    "senses": [
+      {
+        "meaning": "~보다 위에; ~보다 높은; 위에서 언급한",
+        "pos": ["prep", "adv", "adj", "n"]
+      }
+    ],
+    "category": [3, 5],
+    "example": [
+      "The temperature is expected to rise above 30 degrees Celsius today.",
+      "Please refer to the chart above for more details."
+    ],
+    "exampleMeaning": [
+      "오늘 기온은 섭씨 30도 이상으로 오를 것으로 예상된다.",
+      "자세한 내용은 위의 차트를 참고하시기 바랍니다."
+    ]
+  },
+  {
+    "id": "abramson",
+    "word": "abramson",
+    "senses": [
+      {
+        "meaning": "애브람슨(법률회사 또는 그 파트너를 지칭하는 고유명사)",
+        "pos": ["n"]
+      }
+    ],
+    "category": [3, 5],
+    "example": [
+      "Our company retained Abramson & Associates to review the merger agreement.",
+      "The legal team is consulting with Abramson regarding the intellectual property rights."
+    ],
+    "exampleMeaning": [
+      "우리 회사는 합병 계약서 검토를 위해 애브람슨 앤 어소시에이츠를 고용했다.",
+      "법무팀은 지적재산권과 관련하여 애브람슨과 상담하고 있다."
+    ]
+  },
+  {
+    "id": "abridgment",
+    "word": "abridgment",
+    "senses": [{ "meaning": "축약본; 요약본", "pos": ["n"] }],
+    "category": [2, 5],
+    "example": [
+      "The editor provided an abridgment of the lengthy report for the executive summary.",
+      "To save space, we included an abridgment of the original contract in the brochure."
+    ],
+    "exampleMeaning": [
+      "편집자는 경영진 요약을 위해 긴 보고서의 축약본을 제공했다.",
+      "공간을 절약하기 위해 우리는 브로셔에 원계약서의 축약본을 실었다."
+    ]
+  },
+  {
+    "id": "abroad",
+    "word": "abroad",
+    "senses": [{ "meaning": "해외에서; 해외로", "pos": ["adv", "prep"] }],
+    "category": [0, 5],
+    "example": [
+      "The company is expanding its operations abroad.",
+      "He's been working abroad for five years."
+    ],
+    "exampleMeaning": [
+      "회사는 해외에서 사업을 확장하고 있다.",
+      "그는 5년째 해외에서 근무하고 있다."
+    ]
+  },
+  {
+    "id": "abruptly",
+    "word": "abruptly",
+    "senses": [{ "meaning": "갑자기; 돌연히", "pos": ["adv"] }],
+    "category": [1, 5],
+    "example": [
+      "The meeting was abruptly canceled due to unforeseen circumstances.",
+      "The project manager abruptly ended the discussion to keep the meeting on schedule."
+    ],
+    "exampleMeaning": [
+      "회의는 예기치 못한 상황으로 인해 갑자기 취소되었다.",
+      "프로젝트 매니저는 회의 일정을 지키기 위해 갑작스럽게 논의를 끝냈다."
+    ]
+  },
+  {
+    "id": "abs",
+    "word": "abs",
+    "senses": [{ "meaning": "절대값; 총액", "pos": ["n"] }],
+    "category": [3, 5],
+    "example": [
+      "The company reported a significant increase in absolute sales figures for the quarter.",
+      "Despite the losses, the absolute value of the company's assets remains high."
+    ],
+    "exampleMeaning": [
+      "회사는 이번 분기 절대 매출액이 크게 증가했다고 보고했다.",
+      "손실에도 불구하고 회사 자산의 절대값은 여전히 높다."
+    ]
+  },
+  {
+    "id": "absence",
+    "word": "absence",
+    "senses": [{ "meaning": "결석; 부재", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "Due to his absence from the meeting, Mr. Lee missed the crucial decision.",
+      "The company policy states that excessive absences may result in disciplinary action."
+    ],
+    "exampleMeaning": [
+      "회의에 불참한 탓에 이 씨는 중요한 결정을 놓쳤다.",
+      "회사 방침에 따르면 과도한 결근은 징계 조치로 이어질 수 있다."
+    ]
+  },
+  {
+    "id": "absent",
+    "word": "absent",
+    "senses": [
+      { "meaning": "결석한; 부재중인; 결근한", "pos": ["adj", "adv"] }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The employee was absent from the meeting due to a family emergency.",
+      "He was absentmindedly reviewing the report, missing several key details."
+    ],
+    "exampleMeaning": [
+      "그 직원은 가족의 긴급한 사정으로 회의에 결석했다.",
+      "그는 넋을 놓은 채 보고서를 검토하다가 몇 가지 핵심 세부사항을 놓쳤다."
+    ]
+  },
+  {
+    "id": "absolute",
+    "word": "absolute",
+    "senses": [
+      { "meaning": "절대적인; 완전한; 명백한", "pos": ["adj", "adv"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company has an absolute commitment to providing high-quality products.",
+      "We need an absolute guarantee that the shipment will arrive on time."
+    ],
+    "exampleMeaning": [
+      "회사는 고품질 제품 제공에 대한 절대적인 의지를 가지고 있다.",
+      "우리는 배송이 제때 도착한다는 절대적인 보장이 필요하다."
+    ]
+  },
+  {
+    "id": "absolutely",
+    "word": "absolutely",
+    "senses": [
+      {
+        "meaning": "완전히; 절대적으로 (긍정이나 의심의 여지 없음을 강조)",
+        "pos": ["adv"]
+      }
+    ],
+    "category": [0, 4],
+    "example": [
+      "I absolutely agree with your proposal to streamline the workflow.",
+      "The project must be completed absolutely on time, no exceptions."
+    ],
+    "exampleMeaning": [
+      "업무 흐름을 간소화하자는 당신의 제안에 전적으로 동의합니다.",
+      "그 프로젝트는 예외 없이 반드시 제시간에 완료되어야 한다."
+    ]
+  },
+  {
+    "id": "absorb",
+    "word": "absorb",
+    "senses": [
+      {
+        "meaning": "흡수하다; (정보, 지식, 충격 등을) 받아들이다",
+        "pos": ["v"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company needs to absorb the new regulations into its operational procedures.",
+      "The sponge quickly absorbed the spilled water."
+    ],
+    "exampleMeaning": [
+      "회사는 새로운 규정을 운영 절차에 반영해야 한다.",
+      "스펀지는 엎질러진 물을 빠르게 흡수했다."
+    ]
+  },
+  {
+    "id": "absorbing",
+    "word": "absorbing",
+    "senses": [
+      { "meaning": "매우 흥미로운; 몰입하게 만드는; 흡수하는", "pos": ["adj"] }
+    ],
+    "category": [2, 5],
+    "example": [
+      "The training seminar was so absorbing that many participants stayed late to continue learning.",
+      "The report contains absorbing data that will help us make informed business decisions."
+    ],
+    "exampleMeaning": [
+      "그 교육 세미나는 매우 흥미로워서 많은 참가자들이 늦게까지 남아 학습을 계속했다.",
+      "그 보고서에는 우리가 현명한 비즈니스 결정을 내리는 데 도움이 될 흥미로운 데이터가 담겨 있다."
+    ]
+  },
+  {
+    "id": "absorption",
+    "word": "absorption",
+    "senses": [{ "meaning": "흡수; 몰두; 합병", "pos": ["n"] }],
+    "category": [2, 5],
+    "example": [
+      "The absorption of the smaller company into the large corporation boosted their market share.",
+      "Her complete absorption in the project prevented her from noticing the time."
+    ],
+    "exampleMeaning": [
+      "소규모 회사가 대기업에 흡수 합병되면서 시장 점유율이 높아졌다.",
+      "그녀는 프로젝트에 완전히 몰두한 나머지 시간이 가는 줄도 몰랐다."
+    ]
+  },
+  {
+    "id": "abstract",
+    "word": "abstract",
+    "senses": [
+      { "meaning": "추상적인; 개괄적인; 구체적이지 않은", "pos": ["adj", "n"] }
+    ],
+    "category": [2, 5],
+    "example": [
+      "The report contains some abstract ideas that require further clarification.",
+      "The marketing team needs to translate the abstract concept into concrete benefits for the customers."
+    ],
+    "exampleMeaning": [
+      "그 보고서에는 추가 설명이 필요한 다소 추상적인 개념들이 포함되어 있다.",
+      "마케팅팀은 추상적인 개념을 고객을 위한 구체적인 혜택으로 전환해야 한다."
+    ]
+  },
+  {
+    "id": "abundant",
+    "word": "abundant",
+    "senses": [{ "meaning": "풍부한; 대량의; 충분한", "pos": ["adj"] }],
+    "category": [1, 5],
+    "example": [
+      "The company has abundant resources to invest in new technologies.",
+      "We have an abundant supply of raw materials, ensuring uninterrupted production."
+    ],
+    "exampleMeaning": [
+      "회사는 신기술에 투자할 풍부한 자원을 보유하고 있다.",
+      "우리는 원자재가 풍부하여 생산이 중단 없이 이루어질 수 있다."
+    ]
+  },
+  {
+    "id": "abundantly",
+    "word": "abundantly",
+    "senses": [{ "meaning": "풍부하게; 대량으로", "pos": ["adv"] }],
+    "category": [2, 5],
+    "example": [
+      "The company has resources abundantly available to support the new project.",
+      "The warehouse is abundantly stocked with raw materials for the upcoming production run."
+    ],
+    "exampleMeaning": [
+      "회사는 새 프로젝트를 뒷받침할 자원을 풍부하게 보유하고 있다.",
+      "창고에는 다가오는 생산을 위한 원자재가 풍부하게 비축되어 있다."
+    ]
+  },
+  {
+    "id": "abuse",
+    "word": "abuse",
+    "senses": [
+      {
+        "meaning": "남용; 부적절한 사용; 학대 (권력, 자원 등을)",
+        "pos": ["v", "n"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company has a strict policy against the abuse of company resources.",
+      "The employee was terminated for abusing his authority and mistreating his colleagues."
+    ],
+    "exampleMeaning": [
+      "회사는 회사 자원 남용에 대해 엄격한 방침을 두고 있다.",
+      "그 직원은 권한을 남용하고 동료를 부당하게 대우하여 해고되었다."
+    ]
+  },
+  {
+    "id": "abusing",
+    "word": "abusing",
+    "senses": [{ "meaning": "남용하는; 부적절하게 사용하는", "pos": ["v"] }],
+    "category": [2, 5],
+    "example": [
+      "The company has a strict policy against employees abusing their expense accounts.",
+      "We cannot tolerate any manager abusing their authority over subordinates."
+    ],
+    "exampleMeaning": [
+      "회사는 직원이 경비 계정을 남용하는 것에 대해 엄격한 방침을 두고 있다.",
+      "우리는 어떤 관리자도 부하 직원에 대한 권한을 남용하는 것을 용납할 수 없다."
+    ]
+  },
+  {
+    "id": "academic",
+    "word": "academic",
+    "senses": [{ "meaning": "학문적인; 학술적인", "pos": ["adj"] }],
+    "category": [1, 5],
+    "example": [
+      "The conference focused on academic research in the field of artificial intelligence.",
+      "She has a strong academic background and is pursuing a PhD."
+    ],
+    "exampleMeaning": [
+      "그 학회는 인공지능 분야의 학술 연구에 초점을 맞췄다.",
+      "그녀는 탄탄한 학문적 배경을 가지고 있으며 박사 학위를 준비 중이다."
+    ]
+  },
+  {
+    "id": "accelerate",
+    "word": "accelerate",
+    "senses": [{ "meaning": "가속화하다; 속도를 높이다", "pos": ["v"] }],
+    "category": [1, 5],
+    "example": [
+      "The company needs to accelerate its product development to stay competitive.",
+      "Please accelerate the processing of these invoices to ensure timely payments."
+    ],
+    "exampleMeaning": [
+      "회사는 경쟁력을 유지하기 위해 제품 개발 속도를 높여야 한다.",
+      "제때 지급이 이루어지도록 이 송장들의 처리를 서둘러 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "acceleration",
+    "word": "acceleration",
+    "senses": [{ "meaning": "가속; 촉진", "pos": ["n"] }],
+    "category": [2, 5],
+    "example": [
+      "The department implemented innovative acceleration procedures to improve operational efficiency.",
+      "Senior executives discussed the acceleration implications during the monthly board meeting."
+    ],
+    "exampleMeaning": [
+      "그 부서는 운영 효율성을 높이기 위해 혁신적인 가속화 절차를 도입했다.",
+      "고위 임원진은 월례 이사회에서 가속화에 따른 영향을 논의했다."
+    ]
+  },
+  {
+    "id": "accent",
+    "word": "accent",
+    "senses": [
+      {
+        "meaning": "억양; 말투 (화자가 사용하는 방언이나 지역적 언어 특징)",
+        "pos": ["n"]
+      }
+    ],
+    "category": [0, 4],
+    "example": [
+      "Despite his slight American accent, he speaks fluent Mandarin.",
+      "The translator needs to be aware of regional accents to accurately convey the speaker's message."
+    ],
+    "exampleMeaning": [
+      "그는 약간의 미국식 억양에도 불구하고 유창한 중국어를 구사한다.",
+      "통역사는 화자의 메시지를 정확히 전달하기 위해 지역 억양을 알고 있어야 한다."
+    ]
+  },
+  {
+    "id": "accept",
+    "word": "accept",
+    "senses": [{ "meaning": "받아들이다; 동의하다; 승낙하다", "pos": ["v"] }],
+    "category": [0, 4],
+    "example": [
+      "The company will accept credit card payments from now on.",
+      "We need to accept the revised proposal to move forward with the project."
+    ],
+    "exampleMeaning": [
+      "회사는 앞으로 신용카드 결제를 받을 예정이다.",
+      "프로젝트를 진행하려면 우리는 수정된 제안을 받아들여야 한다."
+    ]
+  },
+  {
+    "id": "acceptable",
+    "word": "acceptable",
+    "senses": [
+      {
+        "meaning": "받아들일 수 있는; 만족스러운 (기준이나 기대에 부합함)",
+        "pos": ["adj"]
+      }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The project proposal was deemed acceptable by the board of directors.",
+      "While the initial budget was high, we managed to negotiate an acceptable price."
+    ],
+    "exampleMeaning": [
+      "그 프로젝트 제안서는 이사회에서 수용 가능하다고 판단되었다.",
+      "초기 예산이 높았지만 우리는 수용 가능한 가격으로 협상할 수 있었다."
+    ]
+  },
+  {
+    "id": "acceptance",
+    "word": "acceptance",
+    "senses": [{ "meaning": "수락; 동의; 승인", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "We are awaiting formal acceptance of the contract from the vendor.",
+      "The company's acceptance of the proposal will be announced next week."
+    ],
+    "exampleMeaning": [
+      "우리는 공급업체로부터 계약에 대한 공식 승인을 기다리고 있다.",
+      "회사의 제안 수락 여부는 다음 주에 발표될 예정이다."
+    ]
+  },
+  {
+    "id": "accepted",
+    "word": "accepted",
+    "senses": [{ "meaning": "받아들여진; 동의된; 승인된", "pos": ["adj"] }],
+    "category": [0, 5],
+    "example": [
+      "The proposal was accepted by the board of directors.",
+      "All expenses must be accepted by the finance department before reimbursement."
+    ],
+    "exampleMeaning": [
+      "그 제안은 이사회의 승인을 받았다.",
+      "모든 경비는 환급 전에 재무팀의 승인을 받아야 한다."
+    ]
+  },
+  {
+    "id": "accepting",
+    "word": "accepting",
+    "senses": [
+      { "meaning": "받아들이는; 동의하는; 수용하는", "pos": ["adj", "v"] }
+    ],
+    "category": [0, 4],
+    "example": [
+      "The company is accepting applications for the marketing manager position until the end of the month.",
+      "We are accepting returns within 14 days of purchase with the original receipt."
+    ],
+    "exampleMeaning": [
+      "회사는 이달 말까지 마케팅 매니저 직위에 대한 지원서를 받고 있다.",
+      "우리는 원본 영수증이 있으면 구매 후 14일 이내 반품을 받고 있다."
+    ]
+  },
+  {
+    "id": "access",
+    "word": "access",
+    "senses": [{ "meaning": "접근; 접근 권한; 이용 권한", "pos": ["n", "v"] }],
+    "category": [0, 5],
+    "example": [
+      "Employees need to access the company's database to retrieve sales figures.",
+      "The IT department is working to improve access to the online training platform."
+    ],
+    "exampleMeaning": [
+      "직원들은 매출 자료를 조회하기 위해 회사 데이터베이스에 접근해야 한다.",
+      "IT부서는 온라인 교육 플랫폼에 대한 접근성을 개선하기 위해 노력하고 있다."
+    ]
+  },
+  {
+    "id": "accessibility",
+    "word": "accessibility",
+    "senses": [
+      {
+        "meaning": "접근성 (제품, 서비스, 환경 등을 모든 사람이 쉽게 이용할 수 있는 정도)",
+        "pos": ["n"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company is committed to improving the accessibility of its website for users with disabilities.",
+      "Ensuring accessibility is a key requirement for compliance with the new regulations."
+    ],
+    "exampleMeaning": [
+      "회사는 장애가 있는 사용자를 위해 웹사이트의 접근성을 개선하는 데 힘쓰고 있다.",
+      "접근성 보장은 새로운 규정을 준수하기 위한 핵심 요건이다."
+    ]
+  },
+  {
+    "id": "accessible",
+    "word": "accessible",
+    "senses": [
+      { "meaning": "이용하기 쉬운; 접근 가능한; 부담 없는", "pos": ["adj"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company website is designed to be accessible to users with disabilities.",
+      "The report provides accessible data for quick decision-making."
+    ],
+    "exampleMeaning": [
+      "회사 웹사이트는 장애가 있는 사용자도 이용할 수 있도록 설계되었다.",
+      "그 보고서는 신속한 의사결정을 위해 이해하기 쉬운 자료를 제공한다."
+    ]
+  },
+  {
+    "id": "accessories",
+    "word": "accessories",
+    "senses": [
+      {
+        "meaning": "액세서리; 부속품 (의류, 가방 등 장식이나 매칭용 물품)",
+        "pos": ["n"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The boutique offers a wide range of accessories, including scarves, belts, and jewelry.",
+      "To increase sales, the marketing team decided to bundle the new phone with a set of accessories."
+    ],
+    "exampleMeaning": [
+      "그 부티크는 스카프, 벨트, 보석류 등 다양한 액세서리를 판매한다.",
+      "매출을 늘리기 위해 마케팅팀은 신제품 휴대폰을 액세서리 세트와 함께 묶어 팔기로 했다."
+    ]
+  },
+  {
+    "id": "accessory",
+    "word": "accessory",
+    "senses": [
+      {
+        "meaning": "부속품; 액세서리; 종범; 부속의; 보조의",
+        "pos": ["n", "adj"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The store offers a wide range of car accessories, from seat covers to navigation systems.",
+      "He was charged as an accessory to the crime, providing assistance to the main culprit."
+    ],
+    "exampleMeaning": [
+      "그 매장은 시트커버부터 내비게이션까지 다양한 자동차 부속품을 판매한다.",
+      "그는 주범을 도운 혐의로 범죄의 종범으로 기소되었다."
+    ]
+  },
+  {
+    "id": "accident",
+    "word": "accident",
+    "senses": [
+      { "meaning": "사고; 의외의 사건 (통상 피해나 부상을 초래)", "pos": ["n"] }
+    ],
+    "category": [3, 5],
+    "example": [
+      "The company is investigating the accident to determine the cause and prevent future incidents.",
+      "Due to a sudden accident on the highway, deliveries will be delayed."
+    ],
+    "exampleMeaning": [
+      "회사는 원인을 규명하고 향후 사고를 예방하기 위해 그 사고를 조사하고 있다.",
+      "고속도로에서 발생한 갑작스러운 사고로 인해 배송이 지연될 예정이다."
+    ]
+  },
+  {
+    "id": "accidentally",
+    "word": "accidentally",
+    "senses": [{ "meaning": "실수로; 의도치 않게", "pos": ["adv"] }],
+    "category": [0, 5],
+    "example": [
+      "I accidentally deleted the important file; I'm so sorry.",
+      "The shipment was accidentally sent to the wrong address."
+    ],
+    "exampleMeaning": [
+      "제가 실수로 중요한 파일을 삭제했습니다. 정말 죄송합니다.",
+      "그 배송물은 실수로 잘못된 주소로 발송되었다."
+    ]
+  },
+  {
+    "id": "acclaim",
+    "word": "acclaim",
+    "senses": [{ "meaning": "찬사; 호평; 극찬", "pos": ["v", "n"] }],
+    "category": [2, 5],
+    "example": [
+      "The new product received widespread acclaim from industry experts.",
+      "The company is hoping for acclaim for its commitment to sustainable practices."
+    ],
+    "exampleMeaning": [
+      "그 신제품은 업계 전문가들로부터 폭넓은 찬사를 받았다.",
+      "회사는 지속 가능한 경영에 대한 헌신으로 호평을 받기를 기대하고 있다."
+    ]
+  },
+  {
+    "id": "accommodate",
+    "word": "accommodate",
+    "senses": [
+      { "meaning": "수용하다; 적응시키다; (요구를) 충족시키다", "pos": ["v"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The hotel can accommodate up to 200 guests for the conference.",
+      "Our flexible schedule can accommodate your team's availability."
+    ],
+    "exampleMeaning": [
+      "그 호텔은 회의를 위해 최대 200명의 손님을 수용할 수 있다.",
+      "저희의 유연한 일정은 귀사 팀의 시간에 맞출 수 있습니다."
+    ]
+  },
+  {
+    "id": "accommodation",
+    "word": "accommodation",
+    "senses": [{ "meaning": "숙박; 숙식 제공", "pos": ["n"] }],
+    "category": [1, 4],
+    "example": [
+      "The company provides accommodation and meals for all overseas employees.",
+      "Due to the conference, finding affordable accommodation in the city is proving difficult."
+    ],
+    "exampleMeaning": [
+      "회사는 모든 해외 근무 직원에게 숙식을 제공한다.",
+      "회의로 인해 시내에서 저렴한 숙소를 구하기가 어려워지고 있다."
+    ]
+  },
+  {
+    "id": "accommodations",
+    "word": "accommodations",
+    "senses": [{ "meaning": "숙박 시설 또는 숙박 서비스", "pos": ["n"] }],
+    "category": [1, 4],
+    "example": [
+      "The conference organizer arranged accommodations at a nearby hotel for all attendees.",
+      "Please confirm your travel itinerary and preferred accommodations by Friday."
+    ],
+    "exampleMeaning": [
+      "회의 주최자는 모든 참석자를 위해 인근 호텔에 숙소를 마련했다.",
+      "금요일까지 여행 일정과 원하시는 숙소를 확인해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "accompany",
+    "word": "accompany",
+    "senses": [{ "meaning": "동반하다; 동행하다; 수반하다", "pos": ["v"] }],
+    "category": [1, 4],
+    "example": [
+      "The marketing team will accompany the CEO on the business trip to Tokyo.",
+      "Please accompany me to the conference room to meet the potential client."
+    ],
+    "exampleMeaning": [
+      "마케팅팀은 CEO의 도쿄 출장에 동행할 예정이다.",
+      "잠재 고객을 만나러 회의실로 저와 함께 가주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "accomplish",
+    "word": "accomplish",
+    "senses": [
+      { "meaning": "완수하다; 달성하다 (목표, 임무 등을)", "pos": ["v"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The project team managed to accomplish all the objectives within the deadline.",
+      "She is determined to accomplish her career goals through hard work and dedication."
+    ],
+    "exampleMeaning": [
+      "프로젝트팀은 기한 내에 모든 목표를 달성해냈다.",
+      "그녀는 노력과 헌신을 통해 커리어 목표를 이루겠다는 결의를 다지고 있다."
+    ]
+  },
+  {
+    "id": "accomplished",
+    "word": "accomplished",
+    "senses": [
+      {
+        "meaning": "(특정 분야에서) 성취를 이룬; 뛰어난 기량을 가진",
+        "pos": ["adj"]
+      }
+    ],
+    "category": [2, 5],
+    "example": [
+      "The company is proud to have an accomplished sales team that consistently exceeds targets.",
+      "She is an accomplished pianist and often performs at corporate events."
+    ],
+    "exampleMeaning": [
+      "회사는 늘 목표를 초과 달성하는 유능한 영업팀을 보유하고 있다는 것에 자부심을 느낀다.",
+      "그녀는 뛰어난 피아니스트로, 기업 행사에서 자주 연주한다."
+    ]
+  },
+  {
+    "id": "accomplishment",
+    "word": "accomplishment",
+    "senses": [{ "meaning": "성취; 완수", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "The department implemented innovative accomplishment procedures to improve operational efficiency.",
+      "Senior executives discussed the accomplishment implications during the monthly board meeting."
+    ],
+    "exampleMeaning": [
+      "그 부서는 운영 효율성을 높이기 위해 혁신적인 성과 관리 절차를 도입했다.",
+      "고위 임원진은 월례 이사회에서 성과에 따른 영향을 논의했다."
+    ]
+  },
+  {
+    "id": "accord",
+    "word": "accord",
+    "senses": [
+      { "meaning": "일치; 조화; 합의에 도달하다", "pos": ["n", "v", "adj"] }
+    ],
+    "category": [2, 5],
+    "example": [
+      "The two companies reached an accord on the terms of the merger.",
+      "It's important for team members to be in accord with the project goals."
+    ],
+    "exampleMeaning": [
+      "두 회사는 합병 조건에 대해 합의에 도달했다.",
+      "팀원들이 프로젝트 목표에 뜻을 같이하는 것이 중요하다."
+    ]
+  },
+  {
+    "id": "accordance",
+    "word": "accordance",
+    "senses": [
+      {
+        "meaning": "~에 따라; ~에 부합하여; ~에 근거하여",
+        "pos": ["prep", "adv"]
+      }
+    ],
+    "category": [2, 5],
+    "example": [
+      "The company operates in accordance with all relevant regulations.",
+      "Please submit your expense report in accordance with the company's policy."
+    ],
+    "exampleMeaning": [
+      "회사는 관련된 모든 규정에 따라 운영된다.",
+      "회사 방침에 따라 경비 보고서를 제출해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "according",
+    "word": "according",
+    "senses": [{ "meaning": "~에 따르면; ~에 따라", "pos": ["adv", "prep"] }],
+    "category": [0, 5],
+    "example": [
+      "The project timeline is according to the client's specifications.",
+      "Please submit your expense report according to company policy."
+    ],
+    "exampleMeaning": [
+      "그 프로젝트 일정은 고객의 요구사항에 따른 것이다.",
+      "회사 방침에 따라 경비 보고서를 제출해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "accordingly",
+    "word": "accordingly",
+    "senses": [{ "meaning": "그에 따라; 적절하게", "pos": ["adv"] }],
+    "category": [1, 5],
+    "example": [
+      "The meeting was postponed until next week, and the project timeline was adjusted accordingly.",
+      "Please review the attached document and submit your report accordingly."
+    ],
+    "exampleMeaning": [
+      "회의가 다음 주로 연기되었고, 프로젝트 일정도 그에 맞춰 조정되었다.",
+      "첨부된 문서를 검토하시고 그에 맞춰 보고서를 제출해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "account",
+    "word": "account",
+    "senses": [{ "meaning": "계좌; 기록; 설명; 담당자", "pos": ["n", "v"] }],
+    "category": [0, 5],
+    "example": [
+      "The company needs to reconcile its bank accounts monthly.",
+      "Please account for all expenses related to the project."
+    ],
+    "exampleMeaning": [
+      "회사는 매달 은행 계좌를 대조해야 한다.",
+      "프로젝트와 관련된 모든 경비를 설명해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "accountability",
+    "word": "accountability",
+    "senses": [{ "meaning": "책임제", "pos": ["n"] }],
+    "category": [2, 5],
+    "example": [
+      "The company's new accountability initiative exceeded expectations in the first quarter.",
+      "Department heads discussed the accountability strategy during yesterday's executive meeting."
+    ],
+    "exampleMeaning": [
+      "회사의 새로운 책임제 시행은 1분기에 기대 이상의 성과를 냈다.",
+      "부서장들은 어제 경영진 회의에서 책임제 전략을 논의했다."
+    ]
+  },
+  {
+    "id": "accountable",
+    "word": "accountable",
+    "senses": [
+      {
+        "meaning": "책임이 있는; ~에 대해 책임지는; 추적 가능한",
+        "pos": ["adj", "v"]
+      }
+    ],
+    "category": [2, 5],
+    "example": [
+      "Each department is accountable for meeting its quarterly sales targets.",
+      "The project manager will be held accountable for any delays in the project timeline."
+    ],
+    "exampleMeaning": [
+      "각 부서는 분기별 매출 목표 달성에 대한 책임이 있다.",
+      "프로젝트 매니저는 일정 지연에 대해 책임을 지게 될 것이다."
+    ]
+  },
+  {
+    "id": "accountant",
+    "word": "accountant",
+    "senses": [
+      {
+        "meaning": "회계사; 회사의 재무 회계 업무를 담당하는 사람",
+        "pos": ["n"]
+      }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The company hired an accountant to manage their financial records.",
+      "Our accountant will prepare the quarterly tax report by the deadline."
+    ],
+    "exampleMeaning": [
+      "회사는 재무 기록을 관리하기 위해 회계사를 고용했다.",
+      "저희 회계사가 기한 내에 분기 세무 보고서를 준비할 것이다."
+    ]
+  },
+  {
+    "id": "accounting",
+    "word": "accounting",
+    "senses": [
+      {
+        "meaning": "회계; 기업의 재무 거래를 기록, 분류, 집계, 보고하는 체계와 절차",
+        "pos": ["n"]
+      }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The accounting department will finalize the quarterly financial statements by Friday.",
+      "Our company hired an external firm to review its accounting practices for compliance."
+    ],
+    "exampleMeaning": [
+      "회계부서는 금요일까지 분기 재무제표를 마무리할 예정이다.",
+      "우리 회사는 준법 여부를 검토하기 위해 외부 업체에 회계 관행 검토를 맡겼다."
+    ]
+  },
+  {
+    "id": "accredit",
+    "word": "accredit",
+    "senses": [
+      {
+        "meaning": "인가하다; 인증하다 (특정 기관/조직이 기준에 부합함을)",
+        "pos": ["v"]
+      }
+    ],
+    "category": [2, 5],
+    "example": [
+      "The university is seeking accreditation from a recognized international body.",
+      "To maintain its accreditation, the company must undergo regular audits."
+    ],
+    "exampleMeaning": [
+      "그 대학은 공인된 국제 기관으로부터 인증을 받고자 한다.",
+      "인증을 유지하려면 회사는 정기 감사를 받아야 한다."
+    ]
+  },
+  {
+    "id": "accrual",
+    "word": "accrual",
+    "senses": [
+      { "meaning": "발생액; 미지급/미수 항목; 발생주의", "pos": ["n"] }
+    ],
+    "category": [2, 5],
+    "example": [
+      "The company reported a significant accrual for future warranty claims.",
+      "Accrual accounting provides a more accurate picture of a company's financial health."
+    ],
+    "exampleMeaning": [
+      "회사는 향후 보증 청구에 대한 상당한 충당금을 계상했다고 보고했다.",
+      "발생주의 회계는 회사의 재무 상태를 더 정확하게 보여준다."
+    ]
+  },
+  {
+    "id": "accrue",
+    "word": "accrue",
+    "senses": [
+      {
+        "meaning": "누적되다; 점차 증가하다 (금액, 이자, 권리 등)",
+        "pos": ["v"]
+      }
+    ],
+    "category": [2, 5],
+    "example": [
+      "Interest will accrue on the outstanding balance if payment is not received by the due date.",
+      "The company expects to accrue significant profits this quarter due to increased sales."
+    ],
+    "exampleMeaning": [
+      "기한 내에 결제되지 않으면 미납 잔액에 이자가 발생한다.",
+      "회사는 매출 증가로 이번 분기에 상당한 이익이 쌓일 것으로 예상하고 있다."
+    ]
+  },
+  {
+    "id": "accumulate",
+    "word": "accumulate",
+    "senses": [
+      { "meaning": "누적하다; 축적하다; 점차 증가시키다", "pos": ["v"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company is trying to accumulate more capital to fund its expansion.",
+      "Over time, the debt accumulated by the small business became unsustainable."
+    ],
+    "exampleMeaning": [
+      "회사는 사업 확장 자금을 마련하기 위해 자본을 더 축적하려 하고 있다.",
+      "시간이 지나면서 그 소기업이 축적한 부채는 감당할 수 없는 수준이 되었다."
+    ]
+  },
+  {
+    "id": "accumulation",
+    "word": "accumulation",
+    "senses": [{ "meaning": "축적; 누적; 퇴적", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "The company is experiencing a significant accumulation of inventory due to decreased sales.",
+      "The accumulation of data over the past year has allowed us to identify key market trends."
+    ],
+    "exampleMeaning": [
+      "회사는 매출 감소로 인해 재고가 상당히 쌓이고 있다.",
+      "지난 1년간 누적된 데이터 덕분에 우리는 주요 시장 동향을 파악할 수 있었다."
+    ]
+  },
+  {
+    "id": "accuracy",
+    "word": "accuracy",
+    "senses": [
+      {
+        "meaning": "정확도; 정확성 (사실이나 기준에 부합하는 정도)",
+        "pos": ["n", "adj"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The report needs to be checked for accuracy before it's submitted to the board.",
+      "The translation software's accuracy has improved significantly with the latest update."
+    ],
+    "exampleMeaning": [
+      "그 보고서는 이사회에 제출되기 전에 정확성을 검토받아야 한다.",
+      "그 번역 소프트웨어의 정확도는 최신 업데이트로 크게 향상되었다."
+    ]
+  },
+  {
+    "id": "accurate",
+    "word": "accurate",
+    "senses": [
+      { "meaning": "정확한; 오차가 없는 (사실에 부합하는)", "pos": ["adj"] }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The report needs to be reviewed to ensure the data is accurate.",
+      "The accounting department must provide accurate financial statements to investors."
+    ],
+    "exampleMeaning": [
+      "데이터가 정확한지 확인하기 위해 그 보고서를 검토해야 한다.",
+      "회계부서는 투자자들에게 정확한 재무제표를 제공해야 한다."
+    ]
+  },
+  {
+    "id": "accurately",
+    "word": "accurately",
+    "senses": [
+      { "meaning": "정확하게 (데이터, 보고, 정보 등에 있어)", "pos": ["adv"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The report needs to be updated to accurately reflect the current market trends.",
+      "Please double-check the figures to ensure they are accurately recorded in the spreadsheet."
+    ],
+    "exampleMeaning": [
+      "그 보고서는 현재 시장 동향을 정확하게 반영하도록 업데이트되어야 한다.",
+      "수치가 스프레드시트에 정확하게 기록되었는지 다시 한번 확인해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "accusation",
+    "word": "accusation",
+    "senses": [{ "meaning": "고발; 혐의 제기; 비난", "pos": ["n"] }],
+    "category": [2, 4],
+    "example": [
+      "The manager faced an accusation of unethical behavior.",
+      "She denied all accusations made against her."
+    ],
+    "exampleMeaning": [
+      "그 관리자는 비윤리적 행동에 대한 혐의 제기에 직면했다.",
+      "그녀는 자신에게 제기된 모든 혐의를 부인했다."
+    ]
+  },
+  {
+    "id": "accuse",
+    "word": "accuse",
+    "senses": [{ "meaning": "고발하다; 비난하다", "pos": ["v"] }],
+    "category": [1, 4],
+    "example": [
+      "The company accused the supplier of delivering substandard materials.",
+      "He was accused of leaking confidential information to the press."
+    ],
+    "exampleMeaning": [
+      "회사는 공급업체가 불량 자재를 납품했다고 비난했다.",
+      "그는 기밀 정보를 언론에 유출한 혐의를 받았다."
+    ]
+  },
+  {
+    "id": "accused",
+    "word": "accused",
+    "senses": [{ "meaning": "고발당한; 비난받은", "pos": ["adj", "v"] }],
+    "category": [1, 5],
+    "example": [
+      "The former employee was accused of leaking confidential company data.",
+      "If you are accused of any wrongdoing, it's crucial to seek legal counsel immediately."
+    ],
+    "exampleMeaning": [
+      "전 직원은 회사의 기밀 데이터를 유출한 혐의를 받았다.",
+      "어떤 부정행위로든 혐의를 받게 된다면 즉시 법률 자문을 구하는 것이 중요하다."
+    ]
+  },
+  {
+    "id": "accustom",
+    "word": "accustom",
+    "senses": [
+      { "meaning": "익숙해지게 하다; 적응시키다", "pos": ["v", "adj"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "It takes time to accustom yourself to a new working environment.",
+      "She quickly accustomed herself to the demands of the new project."
+    ],
+    "exampleMeaning": [
+      "새로운 근무 환경에 익숙해지는 데는 시간이 걸린다.",
+      "그녀는 새 프로젝트의 요구사항에 빠르게 적응했다."
+    ]
+  },
+  {
+    "id": "achievable",
+    "word": "achievable",
+    "senses": [{ "meaning": "실현 가능한; 달성 가능한", "pos": ["adj"] }],
+    "category": [1, 5],
+    "example": [
+      "The company set an achievable sales target for the new quarter.",
+      "With proper planning and resources, the project's goals are achievable."
+    ],
+    "exampleMeaning": [
+      "회사는 새 분기에 달성 가능한 매출 목표를 설정했다.",
+      "적절한 계획과 자원이 있다면 그 프로젝트의 목표는 달성 가능하다."
+    ]
+  },
+  {
+    "id": "achieve",
+    "word": "achieve",
+    "senses": [{ "meaning": "달성하다; 이루다 (목표, 성과를)", "pos": ["v"] }],
+    "category": [0, 5],
+    "example": [
+      "The company aims to achieve a 15% increase in sales this quarter.",
+      "With hard work and dedication, she managed to achieve her career goals."
+    ],
+    "exampleMeaning": [
+      "회사는 이번 분기에 매출 15% 증가를 달성하는 것을 목표로 하고 있다.",
+      "노력과 헌신 덕분에 그녀는 커리어 목표를 이룰 수 있었다."
+    ]
+  },
+  {
+    "id": "achievement",
+    "word": "achievement",
+    "senses": [{ "meaning": "성취", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "The company's new achievement initiative exceeded expectations in the first quarter.",
+      "Department heads discussed the achievement strategy during yesterday's executive meeting."
+    ],
+    "exampleMeaning": [
+      "회사의 새로운 성과 관리 계획은 1분기에 기대 이상의 성과를 냈다.",
+      "부서장들은 어제 경영진 회의에서 성과 전략을 논의했다."
+    ]
+  },
+  {
+    "id": "achiever",
+    "word": "achiever",
+    "senses": [{ "meaning": "성과를 이룬 사람; 성취자", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "Our company seeks to identify and recruit high-potential achievers.",
+      "The manager praised her as a top achiever in the sales team."
+    ],
+    "exampleMeaning": [
+      "우리 회사는 잠재력 높은 성과자를 발굴하고 채용하고자 한다.",
+      "관리자는 그녀를 영업팀 최고 성과자로 칭찬했다."
+    ]
+  },
+  {
+    "id": "achieving",
+    "word": "achieving",
+    "senses": [
+      { "meaning": "달성하는; 이루는; 완수하는", "pos": ["v", "adj"] }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The company is focused on achieving its sales targets for the quarter.",
+      "Achieving a high level of customer satisfaction is a key priority for our team."
+    ],
+    "exampleMeaning": [
+      "회사는 이번 분기 매출 목표 달성에 주력하고 있다.",
+      "높은 수준의 고객 만족을 달성하는 것이 우리 팀의 핵심 우선순위이다."
+    ]
+  },
+  {
+    "id": "acid",
+    "word": "acid",
+    "senses": [{ "meaning": "산; 산성의", "pos": ["n", "adj"] }],
+    "category": [1, 5],
+    "example": [
+      "The chemical solution turned blue litmus paper red, indicating it was an acid.",
+      "Many fruits, like oranges and lemons, have an acid taste."
+    ],
+    "exampleMeaning": [
+      "그 화학 용액은 파란 리트머스 종이를 붉게 변화시켜 산성임을 나타냈다.",
+      "오렌지나 레몬 같은 많은 과일은 신맛(산성 맛)이 난다."
+    ]
+  },
+  {
+    "id": "acidic",
+    "word": "acidic",
+    "senses": [{ "meaning": "산성의; 신맛이 나는", "pos": ["adj"] }],
+    "category": [2, 5],
+    "example": [
+      "Lemon juice is highly acidic and can be used to clean some surfaces.",
+      "The soil in this region is too acidic for certain plants to grow well."
+    ],
+    "exampleMeaning": [
+      "레몬즙은 산성이 강해서 일부 표면을 청소하는 데 사용할 수 있다.",
+      "이 지역의 토양은 산성이 너무 강해서 일부 식물이 잘 자라지 못한다."
+    ]
+  },
+  {
+    "id": "ackerman",
+    "word": "ackerman",
+    "senses": [
+      {
+        "meaning": "애커먼 공식(기어비 계산에 사용되는 공식, 공학 설계에 응용)",
+        "pos": ["n"]
+      }
+    ],
+    "category": [3, 5],
+    "example": [
+      "The engineer used the Ackerman formula to determine the optimal gear ratio for the new machinery.",
+      "Understanding the Ackerman method is crucial for efficient gear design and manufacturing."
+    ],
+    "exampleMeaning": [
+      "엔지니어는 새 기계의 최적 기어비를 결정하기 위해 애커먼 공식을 사용했다.",
+      "효율적인 기어 설계와 제조를 위해서는 애커먼 방식을 이해하는 것이 중요하다."
+    ]
+  },
+  {
+    "id": "acknowledge",
+    "word": "acknowledge",
+    "senses": [
+      { "meaning": "인정하다; 승인하다; 이해를 표하다", "pos": ["v"] }
+    ],
+    "category": [1, 4],
+    "example": [
+      "The manager acknowledged the team's hard work and dedication to the project.",
+      "Please acknowledge receipt of this email and confirm your availability for the meeting."
+    ],
+    "exampleMeaning": [
+      "관리자는 팀의 노력과 프로젝트에 대한 헌신을 인정했다.",
+      "이 이메일 수신을 확인해 주시고 회의 참석 가능 여부를 알려주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "acknowledging",
+    "word": "acknowledging",
+    "senses": [
+      { "meaning": "이해, 동의, 수용을 표하는; 인정하는", "pos": ["v"] }
+    ],
+    "category": [1, 4],
+    "example": [
+      "The company acknowledged the customer's complaint and offered a full refund.",
+      "Please acknowledge receipt of this email and confirm your availability for a meeting next week."
+    ],
+    "exampleMeaning": [
+      "회사는 고객의 불만을 인정하고 전액 환불을 제공했다.",
+      "이 이메일 수신을 확인해 주시고 다음 주 회의 참석 가능 여부를 알려주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "acquaint",
+    "word": "acquaint",
+    "senses": [{ "meaning": "~에 익숙하게 하다; ~을 알게 하다", "pos": ["v"] }],
+    "category": [2, 4],
+    "example": [
+      "The new employee needs to be acquainted with the company's policies and procedures.",
+      "I'd like to acquaint you with our new marketing director, Ms. Chen."
+    ],
+    "exampleMeaning": [
+      "신입 직원은 회사의 정책과 절차를 숙지해야 한다.",
+      "저희 새 마케팅 이사인 첸 씨를 소개해 드리고 싶습니다."
+    ]
+  },
+  {
+    "id": "acquaintance",
+    "word": "acquaintance",
+    "senses": [
+      { "meaning": "아는 사람; 지인 (친밀하지는 않은)", "pos": ["n"] }
+    ],
+    "category": [2, 4],
+    "example": [
+      "I have a few acquaintances in the marketing department, but I don't know them very well.",
+      "Networking events are a good way to make new acquaintances in your industry."
+    ],
+    "exampleMeaning": [
+      "마케팅부서에 몇몇 아는 사람이 있지만 그리 잘 알지는 못한다.",
+      "네트워킹 행사는 업계에서 새로운 지인을 만들기에 좋은 방법이다."
+    ]
+  },
+  {
+    "id": "acquire",
+    "word": "acquire",
+    "senses": [
+      { "meaning": "획득하다; 취득하다 (노력이나 구매를 통해)", "pos": ["v"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company aims to acquire a new software license to improve operational efficiency.",
+      "To expand its market share, the firm is looking to acquire a smaller competitor."
+    ],
+    "exampleMeaning": [
+      "회사는 운영 효율성을 높이기 위해 새 소프트웨어 라이선스를 취득하고자 한다.",
+      "시장 점유율을 확대하기 위해 그 회사는 소규모 경쟁사를 인수하려 하고 있다."
+    ]
+  },
+  {
+    "id": "acquired",
+    "word": "acquired",
+    "senses": [
+      { "meaning": "획득한; 후천적으로 습득한; 취득한", "pos": ["adj"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company has acquired a reputation for excellent customer service.",
+      "She acquired valuable skills through her internship program."
+    ],
+    "exampleMeaning": [
+      "회사는 우수한 고객 서비스로 평판을 얻었다.",
+      "그녀는 인턴십 프로그램을 통해 값진 기술을 습득했다."
+    ]
+  },
+  {
+    "id": "acquisition",
+    "word": "acquisition",
+    "senses": [{ "meaning": "인수; 취득; 획득 (기업이나 자산)", "pos": ["n"] }],
+    "category": [2, 5],
+    "example": [
+      "The company announced the acquisition of a smaller competitor to expand its market share.",
+      "The successful acquisition significantly boosted the company's revenue and profitability."
+    ],
+    "exampleMeaning": [
+      "회사는 시장 점유율 확대를 위해 소규모 경쟁사를 인수한다고 발표했다.",
+      "성공적인 인수는 회사의 매출과 수익성을 크게 끌어올렸다."
+    ]
+  },
+  {
+    "id": "acre",
+    "word": "acre",
+    "senses": [{ "meaning": "에이커 (토지 면적 단위)", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "The farm spans over 100 acres of land.",
+      "They bought a two-acre plot to build their new house."
+    ],
+    "exampleMeaning": [
+      "그 농장은 100에이커가 넘는 부지에 걸쳐 있다.",
+      "그들은 새 집을 지으려고 2에이커 부지를 매입했다."
+    ]
+  },
+  {
+    "id": "across",
+    "word": "across",
+    "senses": [
+      { "meaning": "가로질러; 건너서; ~의 반대편에", "pos": ["prep", "adv"] }
+    ],
+    "category": [3, 4],
+    "example": [
+      "The new bridge will allow employees to walk across the street to the office building.",
+      "Please send the report across to the marketing department for review."
+    ],
+    "exampleMeaning": [
+      "새 다리 덕분에 직원들은 걸어서 길을 건너 사무실 건물로 갈 수 있게 된다.",
+      "검토를 위해 그 보고서를 마케팅부서로 보내 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "act",
+    "word": "act",
+    "senses": [{ "meaning": "행동; 행위; (역할을) 맡다", "pos": ["n", "v"] }],
+    "category": [3, 5],
+    "example": [
+      "The company is taking swift action to address the recent data breach.",
+      "He will act as a representative for our company at the trade show."
+    ],
+    "exampleMeaning": [
+      "회사는 최근 데이터 유출 사건에 대응하기 위해 신속하게 조치를 취하고 있다.",
+      "그는 무역박람회에서 우리 회사를 대표할 것이다."
+    ]
+  },
+  {
+    "id": "acting",
+    "word": "acting",
+    "senses": [{ "meaning": "연기; 공연 (연극, 영화 등)", "pos": ["n", "v"] }],
+    "category": [1, 4],
+    "example": [
+      "The company hired an acting coach to improve the team's presentation skills.",
+      "The CEO's acting skills were impressive during the crisis management meeting."
+    ],
+    "exampleMeaning": [
+      "회사는 팀의 발표 역량을 향상시키기 위해 연기 코치를 고용했다.",
+      "CEO의 연기력은 위기관리 회의에서 인상적이었다."
+    ]
+  },
+  {
+    "id": "action",
+    "word": "action",
+    "senses": [
+      {
+        "meaning": "행동; 문제 해결이나 목표 달성을 위해 취하는 구체적 조치나 단계",
+        "pos": ["n", "v"]
+      }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The project manager outlined the next actions required to meet the deadline.",
+      "Please action the client's request by updating the order in the system today."
+    ],
+    "exampleMeaning": [
+      "프로젝트 매니저는 마감일을 맞추기 위해 필요한 다음 조치들을 설명했다.",
+      "오늘 시스템에서 주문을 업데이트하여 고객의 요청을 처리해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "activate",
+    "word": "activate",
+    "senses": [
+      { "meaning": "활성화하다; 작동시키다; 발효시키다", "pos": ["v"] }
+    ],
+    "category": [0, 5],
+    "example": [
+      "Please activate your account by clicking the link in the confirmation email.",
+      "The IT department will activate the new software system next Monday."
+    ],
+    "exampleMeaning": [
+      "확인 이메일의 링크를 클릭하여 계정을 활성화해 주시기 바랍니다.",
+      "IT부서는 다음 주 월요일에 새 소프트웨어 시스템을 가동할 예정이다."
+    ]
+  },
+  {
+    "id": "activation",
+    "word": "activation",
+    "senses": [{ "meaning": "활성화; 작동; 촉발", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "Please follow the instructions for product activation after installation.",
+      "The marketing team is planning a new brand activation event next month."
+    ],
+    "exampleMeaning": [
+      "설치 후 제품 활성화 안내를 따라 주시기 바랍니다.",
+      "마케팅팀은 다음 달에 새로운 브랜드 활성화 행사를 계획하고 있다."
+    ]
+  },
+  {
+    "id": "active",
+    "word": "active",
+    "senses": [
+      { "meaning": "적극적인; 활발한; 운영 중인", "pos": ["adj", "v"] }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The company is actively seeking new markets to expand its business.",
+      "Please ensure all employees actively participate in the team meetings."
+    ],
+    "exampleMeaning": [
+      "회사는 사업 확장을 위해 새로운 시장을 적극적으로 모색하고 있다.",
+      "모든 직원이 팀 회의에 적극적으로 참여하도록 해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "actively",
+    "word": "actively",
+    "senses": [
+      { "meaning": "적극적으로; 활발하게; 주도적으로", "pos": ["adv"] }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The company is actively seeking new talent to join its team.",
+      "She actively participates in all department meetings and discussions."
+    ],
+    "exampleMeaning": [
+      "회사는 팀에 합류할 새로운 인재를 적극적으로 찾고 있다.",
+      "그녀는 모든 부서 회의와 토론에 적극적으로 참여한다."
+    ]
+  },
+  {
+    "id": "activist",
+    "word": "activist",
+    "senses": [{ "meaning": "사회운동가; 행동주의자", "pos": ["n"] }],
+    "category": [2, 5],
+    "example": [
+      "The environmental activist campaigned for stricter pollution controls.",
+      "She is a well-known activist for human rights."
+    ],
+    "exampleMeaning": [
+      "그 환경운동가는 더 엄격한 오염 규제를 위해 캠페인을 벌였다.",
+      "그녀는 인권을 위해 활동하는 유명한 운동가이다."
+    ]
+  },
+  {
+    "id": "activity",
+    "word": "activity",
+    "senses": [{ "meaning": "활동; 사무; 업무", "pos": ["n"] }],
+    "category": [0, 5],
+    "example": [
+      "The company organized a team-building activity to improve employee morale.",
+      "Please submit a report detailing all project activities by the end of the week."
+    ],
+    "exampleMeaning": [
+      "회사는 직원 사기를 높이기 위해 팀빌딩 활동을 마련했다.",
+      "이번 주말까지 모든 프로젝트 활동을 상세히 기록한 보고서를 제출해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "actor",
+    "word": "actor",
+    "senses": [{ "meaning": "배우; 연기자", "pos": ["n"] }],
+    "category": [3, 5],
+    "example": [
+      "The company hired a well-known actor to endorse their new product.",
+      "The actor's performance in the commercial significantly boosted sales."
+    ],
+    "exampleMeaning": [
+      "회사는 신제품 홍보를 위해 유명 배우를 섭외했다.",
+      "그 배우의 광고 출연은 매출을 크게 끌어올렸다."
+    ]
+  },
+  {
+    "id": "actress",
+    "word": "actress",
+    "senses": [{ "meaning": "여배우", "pos": ["n"] }],
+    "category": [3, 5],
+    "example": [
+      "The company hired a famous actress to endorse their new product line.",
+      "The actress delivered a captivating performance at the film festival, drawing significant media attention."
+    ],
+    "exampleMeaning": [
+      "회사는 신제품 라인 홍보를 위해 유명 여배우를 섭외했다.",
+      "그 여배우는 영화제에서 매력적인 연기를 선보여 상당한 언론의 주목을 받았다."
+    ]
+  },
+  {
+    "id": "actual",
+    "word": "actual",
+    "senses": [{ "meaning": "실제의; 진짜의; 현실의", "pos": ["adj"] }],
+    "category": [0, 5],
+    "example": [
+      "The actual cost of the project exceeded the initial budget by 15%.",
+      "Let's compare the projected sales figures with the actual sales data."
+    ],
+    "exampleMeaning": [
+      "프로젝트의 실제 비용은 초기 예산을 15% 초과했다.",
+      "예상 매출 수치와 실제 매출 데이터를 비교해 봅시다."
+    ]
+  },
+  {
+    "id": "actually",
+    "word": "actually",
+    "senses": [{ "meaning": "실제로; 원래는; 사실은", "pos": ["adv"] }],
+    "category": [3, 4],
+    "example": [
+      "Actually, the project deadline has been extended to next Friday.",
+      "I thought the meeting was at 2 PM, but actually it's at 3 PM."
+    ],
+    "exampleMeaning": [
+      "사실, 프로젝트 마감일이 다음 주 금요일로 연장되었다.",
+      "회의가 오후 2시인 줄 알았는데 실제로는 오후 3시이다."
+    ]
+  },
+  {
+    "id": "acute",
+    "word": "acute",
+    "senses": [{ "meaning": "급성의; 심각한; 예리한", "pos": ["adj"] }],
+    "category": [2, 5],
+    "example": [
+      "The company is facing an acute shortage of skilled labor.",
+      "The project manager identified an acute risk of delays due to the supplier's late delivery."
+    ],
+    "exampleMeaning": [
+      "회사는 숙련 노동력의 심각한 부족에 직면해 있다.",
+      "프로젝트 매니저는 공급업체의 배송 지연으로 인한 심각한 지연 위험을 발견했다."
+    ]
+  },
+  {
+    "id": "ad",
+    "word": "ad",
+    "senses": [{ "meaning": "광고 (advertisement의 줄임말)", "pos": ["n"] }],
+    "category": [0, 5],
+    "example": [
+      "We need to run an ad in the local newspaper to promote our new product.",
+      "The company launched a new ad campaign across various social media platforms."
+    ],
+    "exampleMeaning": [
+      "우리는 신제품 홍보를 위해 지역 신문에 광고를 실어야 한다.",
+      "회사는 다양한 소셜미디어 플랫폼에서 새로운 광고 캠페인을 시작했다."
+    ]
+  },
+  {
+    "id": "adapt",
+    "word": "adapt",
+    "senses": [{ "meaning": "적응하다; 조정하다; 맞추다", "pos": ["v"] }],
+    "category": [1, 5],
+    "example": [
+      "The company needs to adapt its marketing strategy to the changing market trends.",
+      "Employees must adapt quickly to the new software system to maintain productivity."
+    ],
+    "exampleMeaning": [
+      "회사는 변화하는 시장 동향에 맞춰 마케팅 전략을 조정해야 한다.",
+      "직원들은 생산성을 유지하기 위해 새 소프트웨어 시스템에 빠르게 적응해야 한다."
+    ]
+  },
+  {
+    "id": "adaptability",
+    "word": "adaptability",
+    "senses": [{ "meaning": "적응력; 융통성", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "The company values employees with a high degree of adaptability to handle unexpected changes in the market.",
+      "To succeed in this dynamic role, adaptability and a willingness to learn new skills are essential."
+    ],
+    "exampleMeaning": [
+      "회사는 시장의 예기치 못한 변화에 대응할 수 있는 높은 적응력을 가진 직원을 중요하게 여긴다.",
+      "이 역동적인 역할에서 성공하려면 적응력과 새로운 기술을 배우려는 의지가 필수적이다."
+    ]
+  },
+  {
+    "id": "adaptable",
+    "word": "adaptable",
+    "senses": [
+      { "meaning": "적응력이 뛰어난; 변화에 적응할 수 있는", "pos": ["adj"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company needs employees who are adaptable to changing market conditions.",
+      "Her adaptable nature allowed her to quickly learn the new software system."
+    ],
+    "exampleMeaning": [
+      "회사는 변화하는 시장 상황에 적응할 수 있는 직원이 필요하다.",
+      "그녀의 적응력 덕분에 그녀는 새 소프트웨어 시스템을 빠르게 익힐 수 있었다."
+    ]
+  },
+  {
+    "id": "adaptation",
+    "word": "adaptation",
+    "senses": [{ "meaning": "적응; 각색", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "The company's adaptation approach needs to be updated.",
+      "Our team will focus on adaptation improvement this quarter."
+    ],
+    "exampleMeaning": [
+      "회사의 적응 방식은 업데이트가 필요하다.",
+      "우리 팀은 이번 분기에 적응력 개선에 주력할 것이다."
+    ]
+  },
+  {
+    "id": "adapted",
+    "word": "adapted",
+    "senses": [
+      {
+        "meaning": "조정된; 적응된 (새로운 조건이나 요구에 맞게)",
+        "pos": ["v", "adj"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company has adapted its marketing strategy to appeal to a younger demographic.",
+      "The software was adapted to meet the specific needs of the client's workflow."
+    ],
+    "exampleMeaning": [
+      "회사는 젊은 층에 어필하기 위해 마케팅 전략을 조정했다.",
+      "그 소프트웨어는 고객의 업무 흐름에 맞는 특정 요구를 충족하도록 조정되었다."
+    ]
+  },
+  {
+    "id": "adapter",
+    "word": "adapter",
+    "senses": [{ "meaning": "어댑터; 변환기; 접속기", "pos": ["n"] }],
+    "category": [0, 5],
+    "example": [
+      "I need an adapter to connect my old monitor to the new laptop.",
+      "This travel adapter is essential for charging your devices overseas."
+    ],
+    "exampleMeaning": [
+      "저는 오래된 모니터를 새 노트북에 연결하려면 어댑터가 필요합니다.",
+      "이 여행용 어댑터는 해외에서 기기를 충전하는 데 필수적이다."
+    ]
+  },
+  {
+    "id": "adapting",
+    "word": "adapting",
+    "senses": [
+      {
+        "meaning": "적응하는; 새로운 조건이나 상황에 맞추는",
+        "pos": ["v", "adj"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company is adapting its marketing strategy to reach a younger demographic.",
+      "Employees need to be adaptable to changing work environments and new technologies."
+    ],
+    "exampleMeaning": [
+      "회사는 젊은 층에 다가가기 위해 마케팅 전략을 조정하고 있다.",
+      "직원들은 변화하는 근무 환경과 신기술에 적응할 수 있어야 한다."
+    ]
+  },
+  {
+    "id": "adaptive",
+    "word": "adaptive",
+    "senses": [{ "meaning": "적응성의; 적응할 수 있는", "pos": ["adj"] }],
+    "category": [2, 5],
+    "example": [
+      "The company needs an adaptive strategy to respond to rapid market changes.",
+      "This software features an adaptive interface that adjusts to user preferences."
+    ],
+    "exampleMeaning": [
+      "회사는 급변하는 시장에 대응할 적응형 전략이 필요하다.",
+      "이 소프트웨어는 사용자 선호에 맞춰 조정되는 적응형 인터페이스를 갖추고 있다."
+    ]
+  },
+  {
+    "id": "add",
+    "word": "add",
+    "senses": [{ "meaning": "더하다; 추가하다; 첨가하다", "pos": ["v"] }],
+    "category": [3, 5],
+    "example": [
+      "Could you please add this item to the purchase order?",
+      "The accountant needs to add the expenses to the monthly report."
+    ],
+    "exampleMeaning": [
+      "이 항목을 구매 주문서에 추가해 주시겠어요?",
+      "회계 담당자는 월간 보고서에 지출 내역을 추가해야 한다."
+    ]
+  },
+  {
+    "id": "addicted",
+    "word": "addicted",
+    "senses": [
+      {
+        "meaning": "어떤 것에 강하게 중독되어 헤어나오지 못하는; 몰입한",
+        "pos": ["adj", "v"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company is concerned that some employees are addicted to social media during work hours.",
+      "We need to find a solution to prevent our team members from becoming addicted to online games."
+    ],
+    "exampleMeaning": [
+      "회사는 일부 직원들이 근무 시간 중 소셜미디어에 중독되어 있다는 것을 우려하고 있다.",
+      "우리는 팀원들이 온라인 게임에 중독되지 않도록 하는 해결책을 찾아야 한다."
+    ]
+  },
+  {
+    "id": "adding",
+    "word": "adding",
+    "senses": [
+      { "meaning": "더하는; 추가하는; 첨가하는", "pos": ["v", "adj"] }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The company is adding new features to its software to improve user experience.",
+      "Adding a brief summary at the end of the report can help readers quickly understand the key findings."
+    ],
+    "exampleMeaning": [
+      "회사는 사용자 경험을 향상시키기 위해 소프트웨어에 새로운 기능을 추가하고 있다.",
+      "보고서 끝에 간단한 요약을 추가하면 독자가 핵심 결과를 빠르게 이해하는 데 도움이 된다."
+    ]
+  },
+  {
+    "id": "addition",
+    "word": "addition",
+    "senses": [{ "meaning": "덧셈; 추가; 부가물", "pos": ["n"] }],
+    "category": [0, 5],
+    "example": [
+      "The project budget requires an addition of $5,000 for unexpected expenses.",
+      "We appreciate the addition of the new feature to the software."
+    ],
+    "exampleMeaning": [
+      "프로젝트 예산에는 예상치 못한 지출을 위해 5,000달러의 추가 금액이 필요하다.",
+      "저희는 소프트웨어에 새로운 기능이 추가된 것에 감사드립니다."
+    ]
+  },
+  {
+    "id": "additional",
+    "word": "additional",
+    "senses": [
+      { "meaning": "추가의; 부가적인; 보충의", "pos": ["adj", "adv"] }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The company is offering an additional 10% discount for loyal customers.",
+      "We need to prepare additional documents for the presentation."
+    ],
+    "exampleMeaning": [
+      "회사는 단골 고객에게 추가 10% 할인을 제공하고 있다.",
+      "우리는 발표를 위해 추가 서류를 준비해야 한다."
+    ]
+  },
+  {
+    "id": "additionally",
+    "word": "additionally",
+    "senses": [{ "meaning": "게다가; 또한; 추가적으로", "pos": ["adv"] }],
+    "category": [1, 5],
+    "example": [
+      "The project budget has increased; additionally, the deadline has been extended.",
+      "We offer free shipping on orders over $50; additionally, customers receive a 10% discount."
+    ],
+    "exampleMeaning": [
+      "프로젝트 예산이 늘어났고, 게다가 마감일도 연장되었다.",
+      "저희는 50달러 이상 주문 시 무료 배송을 제공하며, 추가로 고객은 10% 할인을 받는다."
+    ]
+  },
+  {
+    "id": "address",
+    "word": "address",
+    "senses": [
+      {
+        "meaning": "주소; (정식) 호칭; 처리하다 (문제, 서신 등을)",
+        "pos": ["n", "v"]
+      }
+    ],
+    "category": [0, 5],
+    "example": [
+      "Please send the invoice to the following address.",
+      "The manager needs to address the concerns raised by the employees."
+    ],
+    "exampleMeaning": [
+      "다음 주소로 송장을 보내 주시기 바랍니다.",
+      "관리자는 직원들이 제기한 우려사항을 해결해야 한다."
+    ]
+  },
+  {
+    "id": "addressing",
+    "word": "addressing",
+    "senses": [
+      {
+        "meaning": "처리하는; 해결하는; (편지, 소포 등을) ~앞으로 보내는",
+        "pos": ["v", "adj"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The IT department is addressing the network outage as a top priority.",
+      "Please address the letter to the Accounts Payable Department."
+    ],
+    "exampleMeaning": [
+      "IT부서는 네트워크 장애를 최우선 순위로 처리하고 있다.",
+      "그 편지를 매입채무부서 앞으로 보내 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "adductor",
+    "word": "adductor",
+    "senses": [
+      {
+        "meaning": "내전근 (사지를 몸의 중심선 쪽으로 당기는 근육)",
+        "pos": ["n"]
+      }
+    ],
+    "category": [3, 5],
+    "example": [
+      "The adductor muscles in the thigh are crucial for activities like walking and running.",
+      "He strained his adductor during the soccer match and had to be substituted."
+    ],
+    "exampleMeaning": [
+      "허벅지의 내전근은 걷기나 달리기 같은 활동에 중요하다.",
+      "그는 축구 경기 중 내전근을 삐어 교체되어야 했다."
+    ]
+  },
+  {
+    "id": "adept",
+    "word": "adept",
+    "senses": [{ "meaning": "능숙한; 정통한; 숙련된", "pos": ["adj"] }],
+    "category": [2, 5],
+    "example": [
+      "She is adept at using various software programs, making her a valuable asset to the team.",
+      "The experienced negotiator is adept at finding common ground and reaching agreements."
+    ],
+    "exampleMeaning": [
+      "그녀는 다양한 소프트웨어 프로그램 사용에 능숙하여 팀에 소중한 자산이다.",
+      "그 노련한 협상가는 공통분모를 찾아 합의에 이르는 데 능숙하다."
+    ]
+  },
+  {
+    "id": "adequate",
+    "word": "adequate",
+    "senses": [
+      { "meaning": "충분한; 적절한; 요구를 충족하는", "pos": ["adj"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company's current resources are adequate to handle the project's initial phase.",
+      "While the hotel room was small, it was adequate for a short business trip."
+    ],
+    "exampleMeaning": [
+      "회사의 현재 자원은 프로젝트 초기 단계를 처리하기에 충분하다.",
+      "호텔 객실은 작았지만 짧은 출장에는 충분했다."
+    ]
+  },
+  {
+    "id": "adequately",
+    "word": "adequately",
+    "senses": [{ "meaning": "충분히; 적절하게", "pos": ["adv"] }],
+    "category": [1, 5],
+    "example": [
+      "The company ensured that all employees were adequately trained before taking on new responsibilities.",
+      "The report adequately addressed the concerns raised by the stakeholders."
+    ],
+    "exampleMeaning": [
+      "회사는 새로운 업무를 맡기 전에 모든 직원이 충분히 교육받도록 했다.",
+      "그 보고서는 이해관계자들이 제기한 우려사항을 충분히 다루었다."
+    ]
+  },
+  {
+    "id": "adhere",
+    "word": "adhere",
+    "senses": [{ "meaning": "준수하다; 고수하다; 들러붙다", "pos": ["v"] }],
+    "category": [2, 5],
+    "example": [
+      "All employees are required to adhere to the company's code of conduct.",
+      "The project team must adhere to the agreed-upon timeline to ensure timely completion."
+    ],
+    "exampleMeaning": [
+      "모든 직원은 회사의 행동 강령을 준수해야 한다.",
+      "프로젝트팀은 제때 완료를 위해 합의된 일정을 준수해야 한다."
+    ]
+  },
+  {
+    "id": "adisa",
+    "word": "adisa",
+    "senses": [
+      { "meaning": "(컴퓨터) 관리 시스템; 시스템 관리자", "pos": ["n"] }
+    ],
+    "category": [3, 5],
+    "example": [
+      "The IT department relies on the system administrator to maintain network security.",
+      "Please contact the system administrator if you encounter any technical issues with the software."
+    ],
+    "exampleMeaning": [
+      "IT부서는 네트워크 보안 유지를 시스템 관리자에게 의존한다.",
+      "소프트웨어에 기술적 문제가 발생하면 시스템 관리자에게 문의해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "adjacent",
+    "word": "adjacent",
+    "senses": [{ "meaning": "인접한; 이웃한", "pos": ["adj"] }],
+    "category": [1, 5],
+    "example": [
+      "The conference room is adjacent to the cafeteria, making it convenient for attendees to grab lunch.",
+      "The company's headquarters are located in an adjacent building to the research and development center."
+    ],
+    "exampleMeaning": [
+      "회의실은 구내식당과 인접해 있어 참석자들이 점심을 먹기 편리하다.",
+      "회사 본사는 연구개발센터와 인접한 건물에 위치해 있다."
+    ]
+  },
+  {
+    "id": "adjourn",
+    "word": "adjourn",
+    "senses": [
+      { "meaning": "(회의, 재판 등을) 잠시 중단하다; 연기하다", "pos": ["v"] }
+    ],
+    "category": [2, 5],
+    "example": [
+      "Due to unforeseen circumstances, the meeting will be adjourned until next week.",
+      "The judge adjourned the trial to allow the defense time to prepare their case."
+    ],
+    "exampleMeaning": [
+      "예기치 못한 사정으로 회의는 다음 주로 연기될 예정이다.",
+      "판사는 변호인 측이 사건을 준비할 시간을 주기 위해 재판을 휴정했다."
+    ]
+  },
+  {
+    "id": "adjournment",
+    "word": "adjournment",
+    "senses": [
+      { "meaning": "(회의, 토론 등의) 휴회, 연회", "pos": ["n", "v"] }
+    ],
+    "category": [2, 5],
+    "example": [
+      "Due to unforeseen circumstances, the meeting was adjourned until further notice.",
+      "The chairperson decided to adjourn the session to allow for a brief break."
+    ],
+    "exampleMeaning": [
+      "예기치 못한 사정으로 회의는 추후 통보가 있을 때까지 연기되었다.",
+      "의장은 짧은 휴식을 위해 회의를 휴회하기로 결정했다."
+    ]
+  },
+  {
+    "id": "adjust",
+    "word": "adjust",
+    "senses": [{ "meaning": "조정하다; 적응하다; 수정하다", "pos": ["v"] }],
+    "category": [0, 5],
+    "example": [
+      "Please adjust the font size to 12 points for better readability.",
+      "The company needs to adjust its marketing strategy to respond to changing market trends."
+    ],
+    "exampleMeaning": [
+      "가독성을 높이기 위해 글꼴 크기를 12포인트로 조정해 주시기 바랍니다.",
+      "회사는 변화하는 시장 동향에 대응하기 위해 마케팅 전략을 조정해야 한다."
+    ]
+  },
+  {
+    "id": "adjusted",
+    "word": "adjusted",
+    "senses": [
+      {
+        "meaning": "조정된; 수정된 (특정 기준이나 요구에 맞게)",
+        "pos": ["adj", "v"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The project timeline was adjusted to accommodate the unexpected delay.",
+      "Please adjust your presentation to better suit the audience's level of expertise."
+    ],
+    "exampleMeaning": [
+      "프로젝트 일정은 예기치 못한 지연에 맞춰 조정되었다.",
+      "청중의 전문성 수준에 더 잘 맞도록 발표 내용을 조정해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "adjustment",
+    "word": "adjustment",
+    "senses": [{ "meaning": "조정; 적응", "pos": ["n"] }],
+    "category": [0, 5],
+    "example": [
+      "The department implemented innovative adjustment procedures to improve operational efficiency.",
+      "Senior executives discussed the adjustment implications during the monthly board meeting."
+    ],
+    "exampleMeaning": [
+      "그 부서는 운영 효율성을 높이기 위해 혁신적인 조정 절차를 도입했다.",
+      "고위 임원진은 월례 이사회에서 조정에 따른 영향을 논의했다."
+    ]
+  },
+  {
+    "id": "admin",
+    "word": "admin",
+    "senses": [
+      { "meaning": "관리자; 관리 담당자; 시스템 관리자", "pos": ["n"] }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The IT admin is responsible for maintaining the company's network security.",
+      "Please contact the system admin if you encounter any technical issues."
+    ],
+    "exampleMeaning": [
+      "IT 관리자는 회사의 네트워크 보안 유지를 담당한다.",
+      "기술적 문제가 발생하면 시스템 관리자에게 문의해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "administer",
+    "word": "administer",
+    "senses": [
+      {
+        "meaning": "관리하다; 집행하다; (시험, 약물 등을) 시행하다",
+        "pos": ["v"]
+      }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The HR department will administer the employee performance review process.",
+      "The nurse will administer the medication to the patient according to the doctor's instructions."
+    ],
+    "exampleMeaning": [
+      "인사부서가 직원 성과 평가 절차를 관리할 것이다.",
+      "간호사는 의사의 지시에 따라 환자에게 약을 투여할 것이다."
+    ]
+  },
+  {
+    "id": "administration",
+    "word": "administration",
+    "senses": [{ "meaning": "행정 관리; 경영진; 행정 부서", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "The company's administration is responsible for handling employee benefits and payroll.",
+      "New regulations from the administration will affect our import procedures."
+    ],
+    "exampleMeaning": [
+      "회사의 행정 부서는 직원 복리후생과 급여 처리를 담당한다.",
+      "행정 당국의 새로운 규정은 우리의 수입 절차에 영향을 미칠 것이다."
+    ]
+  },
+  {
+    "id": "administrative",
+    "word": "administrative",
+    "senses": [{ "meaning": "행정 관리와 관련된; 행정상의", "pos": ["adj"] }],
+    "category": [1, 5],
+    "example": [
+      "The administrative assistant is responsible for scheduling meetings and managing correspondence.",
+      "Please submit your expense report through the administrative portal."
+    ],
+    "exampleMeaning": [
+      "행정 보조원은 회의 일정 관리와 서신 관리를 담당한다.",
+      "행정 포털을 통해 경비 보고서를 제출해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "administrator",
+    "word": "administrator",
+    "senses": [{ "meaning": "관리자; 행정 담당자", "pos": ["n"] }],
+    "category": [1, 5],
+    "example": [
+      "The administrator is responsible for managing the company's IT infrastructure.",
+      "Please contact the system administrator if you encounter any technical issues."
+    ],
+    "exampleMeaning": [
+      "관리자는 회사의 IT 인프라 관리를 담당한다.",
+      "기술적 문제가 발생하면 시스템 관리자에게 문의해 주시기 바랍니다."
+    ]
+  },
+  {
+    "id": "admire",
+    "word": "admire",
+    "senses": [{ "meaning": "존경하다; 찬탄하다; 감상하다", "pos": ["v"] }],
+    "category": [1, 4],
+    "example": [
+      "I really admire her dedication to her work.",
+      "Many people admire his courage and determination."
+    ],
+    "exampleMeaning": [
+      "저는 그녀의 업무에 대한 헌신을 정말 존경합니다.",
+      "많은 사람들이 그의 용기와 결단력에 감탄한다."
+    ]
+  },
+  {
+    "id": "admiringly",
+    "word": "admiringly",
+    "senses": [{ "meaning": "찬탄하는; 감탄하는 어조로", "pos": ["adv"] }],
+    "category": [2, 4],
+    "example": [
+      "The manager listened to her proposal admiringly, impressed by her innovative ideas.",
+      "He accepted the award admiringly, thanking his team for their hard work and dedication."
+    ],
+    "exampleMeaning": [
+      "관리자는 그녀의 혁신적인 아이디어에 감명받아 감탄하며 제안을 경청했다.",
+      "그는 감격스러워하며 상을 받았고, 팀의 노고와 헌신에 감사를 표했다."
+    ]
+  },
+  {
+    "id": "admission",
+    "word": "admission",
+    "senses": [
+      {
+        "meaning": "입학 허가; 입장료; (어떤 일에 대한) 시인, 동의",
+        "pos": ["n", "v"]
+      }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The university requires an admission fee of $50 for the application process.",
+      "The company admitted a new employee to the marketing department."
+    ],
+    "exampleMeaning": [
+      "그 대학은 지원 절차에 50달러의 입학 지원료를 요구한다.",
+      "회사는 마케팅부서에 신입 직원을 받아들였다."
+    ]
+  },
+  {
+    "id": "admit",
+    "word": "admit",
+    "senses": [
+      { "meaning": "인정하다; 고백하다; 입장을 허용하다", "pos": ["v"] }
+    ],
+    "category": [0, 5],
+    "example": [
+      "The company admitted a slight delay in the project's completion.",
+      "We admit that our initial estimate was too optimistic."
+    ],
+    "exampleMeaning": [
+      "회사는 프로젝트 완료가 약간 지연되었음을 인정했다.",
+      "우리는 초기 추정치가 지나치게 낙관적이었음을 인정한다."
+    ]
+  },
+  {
+    "id": "admitted",
+    "word": "admitted",
+    "senses": [
+      { "meaning": "인정된; 입장이 허용된; 받아들여진", "pos": ["v"] }
+    ],
+    "category": [1, 5],
+    "example": [
+      "The company admitted a mistake in the report and issued a public apology.",
+      "Only registered guests are admitted to the VIP lounge."
+    ],
+    "exampleMeaning": [
+      "회사는 보고서의 실수를 인정하고 공개 사과했다.",
+      "등록된 손님만 VIP 라운지 입장이 허용된다."
+    ]
+  },
+  {
+    "id": "admittedly",
+    "word": "admittedly",
+    "senses": [
+      { "meaning": "솔직히 말해서; 인정하지 않을 수 없이", "pos": ["adv"] }
+    ],
+    "category": [2, 4],
+    "example": [
+      "Admittedly, the project faced some unexpected challenges, but the team worked diligently to overcome them.",
+      "Admittedly, the new software is more complex than the previous version, but it offers significantly improved functionality."
+    ],
+    "exampleMeaning": [
+      "솔직히 말해서 그 프로젝트는 몇 가지 예기치 못한 난관에 부딪혔지만, 팀은 이를 극복하기 위해 성실히 노력했다.",
+      "솔직히 새 소프트웨어는 이전 버전보다 복잡하지만, 기능은 훨씬 개선되었다."
+    ]
+  },
+  {
+    "id": "adolescent",
+    "word": "adolescent",
+    "senses": [{ "meaning": "청소년; 청소년기의", "pos": ["n", "adj"] }],
+    "category": [2, 5],
+    "example": [
+      "The program aims to support adolescents struggling with academic pressure.",
+      "Adolescent development is a critical stage in a person's life."
+    ],
+    "exampleMeaning": [
+      "그 프로그램은 학업 스트레스로 어려움을 겪는 청소년을 지원하는 것을 목표로 한다.",
+      "청소년기 발달은 인생에서 매우 중요한 단계이다."
+    ]
+  },
+  {
+    "id": "adopt",
+    "word": "adopt",
+    "senses": [{ "meaning": "채택하다; 입양하다; 시행하다", "pos": ["v"] }],
+    "category": [1, 5],
+    "example": [
+      "The company decided to adopt a new performance evaluation system to improve employee productivity.",
+      "We need to adopt a more flexible approach to project management to meet changing client demands."
+    ],
+    "exampleMeaning": [
+      "회사는 직원 생산성을 향상시키기 위해 새로운 성과 평가 시스템을 채택하기로 결정했다.",
+      "우리는 변화하는 고객 요구에 맞추기 위해 프로젝트 관리에 더 유연한 접근 방식을 채택해야 한다."
+    ]
+  }
+]

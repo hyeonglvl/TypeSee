@@ -1,7 +1,29 @@
 import { useSyncExternalStore } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabase } from "./supabase";
-import type { WordEntry } from "./types";
+import type { Pos, WordEntry, WordSense } from "./types";
+
+/** 구버전 저장분(단수 pos·단일 예문 문자열)을 현행 배열 포맷으로 승격한다.
+ *  localStorage 백업과 DB 행 양쪽에 옛 포맷이 남아 있을 수 있다. */
+function normalizeSenses(raw: unknown): WordSense[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter(
+      (s): s is { meaning: string; pos?: Pos | Pos[] } =>
+        typeof s?.meaning === "string",
+    )
+    .map(({ meaning, pos }) => ({
+      meaning,
+      pos: pos === undefined ? undefined : Array.isArray(pos) ? pos : [pos],
+    }));
+}
+
+function normalizeText(raw: unknown): string[] | undefined {
+  if (typeof raw === "string") return raw ? [raw] : undefined;
+  if (Array.isArray(raw))
+    return raw.filter((s): s is string => typeof s === "string");
+  return undefined;
+}
 
 /**
  * 사용자가 직접 추가한 단어("내 단어장") — STARTER_WORDS 와 완전히 분리된 풀.
@@ -54,9 +76,21 @@ export function hydrateLocal() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
-    for (const entry of JSON.parse(raw) as WordEntry[]) {
+    for (const entry of JSON.parse(raw) as Array<
+      Omit<WordEntry, "senses" | "example" | "exampleMeaning"> & {
+        senses: unknown;
+        example?: unknown;
+        exampleMeaning?: unknown;
+      }
+    >) {
       if (typeof entry?.id === "string" && typeof entry?.word === "string")
-        words.set(entry.id, entry);
+        words.set(entry.id, {
+          id: entry.id,
+          word: entry.word,
+          senses: normalizeSenses(entry.senses),
+          example: normalizeText(entry.example),
+          exampleMeaning: normalizeText(entry.exampleMeaning),
+        });
     }
     if (words.size > 0) notify();
   } catch {
@@ -94,8 +128,10 @@ export function addCustomWord(entry: Omit<WordEntry, "id">): WordEntry {
             word_id: saved.id,
             word: saved.word,
             senses: saved.senses,
-            example: saved.example ?? null,
-            example_meaning: saved.exampleMeaning ?? null,
+            // example 컬럼은 TEXT — 커스텀 단어는 예문이 하나뿐이라
+            // 첫 항목만 저장한다 (읽을 때 normalizeText 가 배열로 승격).
+            example: saved.example?.[0] ?? null,
+            example_meaning: saved.exampleMeaning?.[0] ?? null,
           },
         ],
         { onConflict: "user_id,word_id" },
@@ -133,9 +169,9 @@ async function syncOnLogin(sb: SupabaseClient, userId: string) {
     words.set(row.word_id, {
       id: row.word_id,
       word: row.word,
-      senses: row.senses,
-      example: row.example ?? undefined,
-      exampleMeaning: row.example_meaning ?? undefined,
+      senses: normalizeSenses(row.senses),
+      example: normalizeText(row.example),
+      exampleMeaning: normalizeText(row.example_meaning),
     });
   }
   notify();
@@ -146,8 +182,8 @@ async function syncOnLogin(sb: SupabaseClient, userId: string) {
       word_id: w.id,
       word: w.word,
       senses: w.senses,
-      example: w.example ?? null,
-      example_meaning: w.exampleMeaning ?? null,
+      example: w.example?.[0] ?? null,
+      example_meaning: w.exampleMeaning?.[0] ?? null,
     }));
     const { error: upErr } = await sb
       .from("custom_words")

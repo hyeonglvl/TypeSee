@@ -1,17 +1,32 @@
-export type Pos = "n" | "v" | "adj" | "adv" | "phrase";
+export type Pos = "n" | "v" | "adj" | "adv" | "prep" | "phrase";
 
 export interface WordSense {
   meaning: string;
-  pos?: Pos;
+  /** 한 뜻이 여러 품사를 겸할 수 있다 (예: prep+adv). */
+  pos?: Pos[];
 }
 
 export interface WordEntry {
   id: string;
   word: string;
   senses: WordSense[];
-  /** 심플한 예문 한 문장 (추후 표시 기능 예정). */
+  /** 소속 카테고리 id 목록 — 한 단어가 여러 카테고리에 속할 수 있다.
+   *  id 의미는 src/data/index.ts 의 CATEGORIES 가 단일 소스. */
+  category?: number[];
+  /** 예문 목록 — exampleMeaning 과 인덱스로 짝을 이룬다.
+   *  2개 이상이면 세션 카드가 랜덤으로 하나를 골라 보여준다. */
+  example?: string[];
+  /** 예문 한글 해석 목록 (example 과 순서 일치). */
+  exampleMeaning?: string[];
+}
+
+/** words.ts 구세대 포맷 — 단수 pos·단일 예문. 로드 시(src/data/index.ts)
+ *  WordEntry 로 변환되며, 새 데이터는 전부 wordjson.json 포맷을 쓴다. */
+export interface LegacyWordEntry {
+  id: string;
+  word: string;
+  senses: Array<{ meaning: string; pos?: Pos }>;
   example?: string;
-  /** 예문의 한글 해석. */
   exampleMeaning?: string;
 }
 
