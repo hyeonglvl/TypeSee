@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 
 /** 카드 완료 시 자동으로 다음 카드로 넘어갈지 — 세션 전역 설정. */
 
-let autoAdvance = true;
+let autoAdvance = false;
 const listeners = new Set<() => void>();
 
 export function useAutoAdvancePref(): boolean {
@@ -12,7 +12,7 @@ export function useAutoAdvancePref(): boolean {
       return () => listeners.delete(fn);
     },
     () => autoAdvance,
-    () => true, // SSR 기본값
+    () => false, // SSR 기본값
   );
 }
 

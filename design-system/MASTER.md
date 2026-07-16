@@ -1,57 +1,57 @@
-# TypeSee Design System — MASTER (v5 "Manuscript")
+# TypeSee Design System — MASTER (v4 "크래프트 저널")
 
-> ui-ux-pro-max 스킬 워크플로로 도출: 스타일 DB의 **Minimalism & Swiss Style**
-> (모노크롬·헤어라인·그리드·200ms 호버 — Linear 계열의 원형) × **E-Ink/Paper**
-> (따뜻한 종이·잉크·그레인)를 합성. dials: variance 3 · motion 3 · density 6.
-> 페이지별 예외는 `design-system/pages/<page>.md` 가 이 문서를 오버라이드한다.
+> ui-ux-pro-max 스킬의 DB 검색(E-Ink/Paper 스타일 + Diary/Journal 팔레트 +
+> Minimal Single Column 패턴, dials: variance 4 · motion 3 · density 4)을
+> 기존 v3 "종이와 잉크" 은유와 합성한 결과. 페이지별 예외는
+> `design-system/pages/<page>.md` 가 이 문서를 오버라이드한다.
 
-## 원칙
+## 은유 (변하지 않는 규칙)
 
-- **구조는 그림자가 아니라 헤어라인이 만든다.** 떠 있는 시트(모달·호버 팝오버)에만 `--shadow-sheet` 한 겹.
-- **포인트 색은 하나.** 잉크 바이올렛(`--ink`) — 타이핑된 글자, 주요 CTA, 포커스, 진행. 빨강(`--err`)·형광펜(`--mark`)·초록(`--ok`)은 의미가 있을 때만.
-- **제목/본문은 액센트를 입지 않는다** — `--fg` 계열만.
-- **키보드 우선.** 모든 주요 행동에 `kbd` 힌트(전역 스타일), 포커스 링 항상 보임.
-- 레이아웃 언어: 카드 그리드보다 **그룹 리스트(행)** — 아이콘 · 제목/설명 · 단축키.
+- **파란 잉크 = 내가 쓴 것.** 타이핑된 글자·진행바·인터랙티브 강조는 항상 잉크 블루.
+- **빨간 펜 = 실수.** 오답, 채점 X, 공책 마진 라인.
+- **형광펜 노랑 = 저장.** 북마크한 단어.
+- **크래프트 브라운 = 장식.** 브레이스, 테이프 등 비인터랙티브 장식 전용 — 클릭되는 것에 쓰지 않는다.
+- 제목/본문 텍스트는 액센트 색을 입지 않는다 (잉크 계열만).
 
 ## Tokens (`src/styles/global.css`)
 
 | Token | Value | Role |
 |---|---|---|
-| `--bg` | `#F7F4ED` | 원고지 캔버스 (그레인 opacity 0.09) |
-| `--panel` / `--panel-hover` | `#FCFBF7` / `#FFFEFB` | 패널·행 / 호버 |
-| `--line` / `--line-strong` | rgba(31,27,20,.10 / .22) | 헤어라인 |
-| `--fg` / `--fg-mute` / `--fg-faint` | `#201B13` / `#5F594C` / `#98917F` | 전경 3단계 |
-| `--ink` / `--ink-deep` / `--ink-soft` | `#4C5AD4` / `#3542B0` / 9% | 단일 포인트 |
-| `--err` / `--err-soft` | `#C43D33` / 10% | 오답 |
-| `--mark` / `--mark-soft` | `#F5C543` / 22% | 저장 |
-| `--ok` | `#3E7A45` | 완성·통과 |
-| `--shadow-sheet` | soft 1겹 | 모달·팝오버 전용 |
+| `--canvas` | `#F6EFDF` | 책상 위 크래프트지 캔버스 (그레인 + 옅은 도트) |
+| `--surface` / `--surface-raised` | `#FDFAF2` / `#FFFEFA` | 종이 카드 / 활성 종이 |
+| `--ink` / `--ink-2` / `--ink-3` | `#2A241A` / `#6C6250` / `#A5987F` | 본문 잉크 3단계 |
+| `--accent` / `--accent-deep` | `#2B4FD8` / `#1D3AA8` | 파란 잉크 |
+| `--danger` | `#C8382E` | 빨간 펜 |
+| `--highlight` | `#FFD43B` | 형광펜 |
+| `--kraft` | `#A9744B` | 크래프트 장식 |
+| `--shadow-card` / `--shadow-pop` | soft drop + 3–4px 하드 오프셋 | "스케치" 종이 그림자 |
 
 ## Typography (next/font, `src/app/layout.tsx`)
 
 | Token | Font | Scope |
 |---|---|---|
-| `--font-ui` | Inter (400–700) + 시스템 산세리프(한글) | UI 전반 |
-| `--font-mono` | JetBrains Mono (400–600) | 타이핑 글리프, 카운터, 통계 숫자 |
+| `--font-sans` | 시스템 산세리프 (Apple SD Gothic/Pretendard) | 한글 본문·UI 전반 |
+| `--font-display` | Playfair Display (500–700, italic) | 라틴 전용: 워드마크, 모드명, 큰 숫자 |
+| `--font-hand` | Nanum Pen Script | 손글씨 액센트: 배지·태그라인·스트릭·익힘 단계 (한글 지원 필수라 Kalam 대신 채택) |
+| `--font-mono` | JetBrains Mono (400/500) | 타이핑 글리프·슬롯 |
 
-Type scale: `--text-xs 12 / sm 13 / base 14 / md 15 / lg 17 / xl 20 / 2xl 28 / 3xl 40`.
-숫자는 항상 `tabular-nums`. 세리프·손글씨 없음.
+- Nanum Pen Script 는 같은 px 에서 작게 보인다 — 최소 16px 로 쓴다.
+- 손글씨 요소는 `rotate(±0.6–1.6deg)` 로 살짝 기울여 붙인 느낌을 준다.
 
-## Spacing & Shape
+## Signature 요소
 
-- 4px 그리드: `--sp-1 4 / 2 8 / 3 12 / 4 16 / 5 24 / 6 32 / 7 48 / 8 64`
-- Radius: `--r-s 6 / --r-m 10 / --r-l 14`, 칩·필만 999
-- 상단 바 높이 52px(홈·세션 공통), 본문 칼럼 `min(600px, 100vw - 48px)`
+- **공책 페이지 (Session 활성 카드):** 옅은 파란 괘선(36px 간격) + 왼쪽 42px 빨간 마진 라인. 장식이므로 베이스라인 정렬은 하지 않는다.
+- **마스킹 테이프 배지:** `border-radius: 3px` + 손글씨 + 미세 회전. 색 의미는 은유 표를 따른다.
+- **그레인 캔버스:** `body::before` 에 feTurbulence 노이즈 SVG + 24px 도트, opacity 0.55. 레이어 하나로 고정(리페인트 없음).
 
-## Motion
+## Motion (dial 3/10 — Subtle)
 
-- `--dur-1 120ms / --dur-2 200ms`, `--ease` = cubic-bezier(.25,.1,.25,1)
-- 색·배경 전환만 CSS, 이동·스케일은 motion/react 스프링 (기존 로직 유지)
-- `prefers-reduced-motion` 전역 respect
+- 마이크로 인터랙션 150–300ms, spring 기반 (기존 motion/react 설정 유지).
+- transform/opacity 만 애니메이트. `prefers-reduced-motion` 전역 respect (global.css).
 
 ## 금지 (skill anti-patterns)
 
-- 이모지 아이콘 금지 — 인라인 SVG(스트로크 1.8) 유지.
-- 다크 모드 없음 (light-only).
-- 본문 대비 4.5:1 미만 금지 — `--fg-faint` 는 보조 라벨 전용.
-- 장식 그림자·회전·손글씨 금지 — v4 크래프트 장식은 폐기됨.
+- 이모지 아이콘 금지 — 인라인 SVG 유지.
+- 다크 모드 없음 (light-only, `color-scheme: light`).
+- 텍스트 대비 4.5:1 미만 금지 — `--ink-2` 이상을 본문에, `--ink-3` 는 보조 텍스트 전용.
+- 손글씨 서체를 본문/버튼 라벨에 쓰지 않는다 — 액센트 전용.

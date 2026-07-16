@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   addCustomWord,
+  clearAllCustomWords,
   removeCustomWord,
   useCustomWords,
 } from "@/lib/customWordsStore";
@@ -18,20 +19,39 @@ const COOLDOWN_KEY = "typesee:word-gen-cooldown-until";
 const COOLDOWN_MS = 60_000;
 const MAX_WORDS_PER_CALL = 100;
 
-const POS_OPTIONS: Array<{ value: Pos | ""; label: string }> = [
-  { value: "", label: "품사" },
-  { value: "n", label: "명사" },
-  { value: "v", label: "동사" },
-  { value: "adj", label: "형용사" },
-  { value: "adv", label: "부사" },
-  { value: "phrase", label: "구/숙어" },
+/** short: 초안 행처럼 좁은 곳에서 쓰는 한 글자 라벨. */
+const POS_OPTIONS: Array<{ value: Pos; label: string; short: string }> = [
+  { value: "n", label: "명사", short: "명" },
+  { value: "v", label: "동사", short: "동" },
+  { value: "adj", label: "형용사", short: "형" },
+  { value: "adv", label: "부사", short: "부" },
+  { value: "prep", label: "전치사", short: "전" },
+  { value: "phrase", label: "구/숙어", short: "구" },
 ];
+
+const POS_LABEL = Object.fromEntries(
+  POS_OPTIONS.map((o) => [o.value, o.label]),
+) as Record<Pos, string>;
+
+function togglePos(list: Pos[], p: Pos): Pos[] {
+  return list.includes(p) ? list.filter((x) => x !== p) : [...list, p];
+}
+
+/** 클릭 순서와 무관하게 저장은 항상 사전 순서(명→동→…)로. */
+function sortPos(list: Pos[]): Pos[] {
+  return POS_OPTIONS.filter((o) => list.includes(o.value)).map((o) => o.value);
+}
+
+/** 카드 표기용 — senses 전체의 품사를 중복 없이 사전 순서로. */
+function posOf(entry: WordEntry): Pos[] {
+  return sortPos([...new Set(entry.senses.flatMap((s) => s.pos ?? []))]);
+}
 
 interface Draft {
   key: string;
   word: string;
   meaning: string;
-  pos: Pos | "";
+  pos: Pos[];
   example: string;
   exampleMeaning: string;
 }
@@ -59,6 +79,8 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
 
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
+  /** 중복 등 치명적이지 않은 안내 — 에러(빨강)와 분리해 표시한다. */
+  const [genNotice, setGenNotice] = useState<string | null>(null);
   const [cooldownUntil, setCooldownUntil] = useState<number>(() => {
     if (typeof window === "undefined") return 0;
     return Number(localStorage.getItem(COOLDOWN_KEY)) || 0;
@@ -68,9 +90,19 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
   const [manualOpen, setManualOpen] = useState(false);
   const [mWord, setMWord] = useState("");
   const [mMeaning, setMMeaning] = useState("");
-  const [mPos, setMPos] = useState<Pos | "">("");
+  const [mPos, setMPos] = useState<Pos[]>([]);
   const [mExample, setMExample] = useState("");
   const [mExampleMeaning, setMExampleMeaning] = useState("");
+
+  /** 이미 단어장에 있는 단어(소문자) — 자동 생성 중복 체크용. */
+  const existingWords = useMemo(
+    () => new Set(words.map((w) => w.word.trim().toLowerCase())),
+    [words],
+  );
+  const duplicateWords = useMemo(
+    () => parsedWords.filter((w) => existingWords.has(w.toLowerCase())),
+    [parsedWords, existingWords],
+  );
 
   const cooldownRemaining = Math.max(
     0,
@@ -91,7 +123,11 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
       }
       // 입력칸·셀렉트에 포커스가 있으면 숫자 단축키를 끈다
       const t = e.target;
-      if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement)
+      if (
+        t instanceof HTMLInputElement ||
+        t instanceof HTMLTextAreaElement ||
+        t instanceof HTMLSelectElement
+      )
         return;
       if (words.length === 0) return;
       if (e.key === "1") onStart("typing", words);
@@ -115,8 +151,22 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
       setGenError(`한 번에 최대 ${MAX_WORDS_PER_CALL}개까지 가능해요`);
       return;
     }
-    setGenerating(true);
     setGenError(null);
+    setGenNotice(null);
+
+    // 이미 단어장에 있는 단어는 API 로 보내지 않고 중복 안내만 남긴다
+    const freshWords = parsedWords.filter(
+      (w) => !existingWords.has(w.toLowerCase()),
+    );
+    if (duplicateWords.length > 0)
+      setGenNotice(
+        `${duplicateWords.join(", ")}는 이미 단어장에 있어 건너뛰었어요`,
+      );
+    if (freshWords.length === 0) {
+      setBulkInput("");
+      return; // 전부 중복 — 쿨다운도 소모하지 않는다
+    }
+    setGenerating(true);
     try {
       const sb = getSupabase();
       const token = sb
@@ -133,7 +183,7 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
       const res = await fetch("/api/generate-word", {
         method: "POST",
         headers,
-        body: JSON.stringify({ words: parsedWords }),
+        body: JSON.stringify({ words: freshWords }),
       });
       const body = await res.json();
       if (!res.ok) {
@@ -157,14 +207,16 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
             key: `${Date.now()}-${i}`,
             word: r.word,
             meaning: r.meaning,
-            pos: r.pos ?? "",
+            pos: r.pos ? [r.pos] : [],
             example: r.example,
             exampleMeaning: r.exampleMeaning,
           }),
         ),
       ]);
       if (invalidWords.length > 0) {
-        setGenError(`${invalidWords.join(", ")}는 단어가 아닌 것 같아 추가하지 않았어요`);
+        setGenError(
+          `${invalidWords.join(", ")}는 단어가 아닌 것 같아 추가하지 않았어요`,
+        );
       }
       setBulkInput("");
       startCooldown(COOLDOWN_MS);
@@ -191,7 +243,10 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
       addCustomWord({
         word: d.word.trim(),
         senses: [
-          { meaning: d.meaning.trim(), pos: d.pos ? [d.pos] : undefined },
+          {
+            meaning: d.meaning.trim(),
+            pos: d.pos.length > 0 ? sortPos(d.pos) : undefined,
+          },
         ],
         example: d.example.trim() ? [d.example.trim()] : undefined,
         exampleMeaning: d.exampleMeaning.trim()
@@ -216,13 +271,18 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
     if (!canSaveManual) return;
     addCustomWord({
       word: mWord.trim(),
-      senses: [{ meaning: mMeaning.trim(), pos: mPos ? [mPos] : undefined }],
+      senses: [
+        {
+          meaning: mMeaning.trim(),
+          pos: mPos.length > 0 ? sortPos(mPos) : undefined,
+        },
+      ],
       example: [mExample.trim()],
       exampleMeaning: [mExampleMeaning.trim()],
     });
     setMWord("");
     setMMeaning("");
-    setMPos("");
+    setMPos([]);
     setMExample("");
     setMExampleMeaning("");
   };
@@ -237,7 +297,7 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
         </h1>
         <p className={styles.subtitle}>
           단어를 쉼표나 줄바꿈으로 구분해서 여러 개 넣으면 한 번에 뜻과 예문을
-          채워줘요 · 기존 625개 단어와는 별도로 관리돼요
+          채워줘요
         </p>
       </header>
 
@@ -253,7 +313,17 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
         />
         <div className={styles.formFooter}>
           <span className={styles.parsedCount}>
-            {parsedWords.length > 0 ? `${parsedWords.length}개 인식됨` : ""}
+            {parsedWords.length > 0 && (
+              <>
+                {parsedWords.length}개 인식됨
+                {duplicateWords.length > 0 && (
+                  <span className={styles.dupCount}>
+                    {" "}
+                    · {duplicateWords.length}개 중복
+                  </span>
+                )}
+              </>
+            )}
           </span>
           <button
             type="button"
@@ -271,6 +341,7 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
           </button>
         </div>
         {genError && <p className={styles.genError}>{genError}</p>}
+        {genNotice && <p className={styles.genNotice}>{genNotice}</p>}
       </div>
 
       {drafts.length > 0 && (
@@ -297,19 +368,26 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
                     updateDraft(d.key, { meaning: e.target.value })
                   }
                 />
-                <select
-                  className={styles.draftPos}
-                  value={d.pos}
-                  onChange={(e) =>
-                    updateDraft(d.key, { pos: e.target.value as Pos | "" })
-                  }
+                <div
+                  className={styles.draftPosGroup}
+                  role="group"
+                  aria-label="품사 선택 (복수 가능)"
                 >
                   {POS_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
+                    <button
+                      key={o.value}
+                      type="button"
+                      className={styles.posChip}
+                      aria-pressed={d.pos.includes(o.value)}
+                      title={o.label}
+                      onClick={() =>
+                        updateDraft(d.key, { pos: togglePos(d.pos, o.value) })
+                      }
+                    >
+                      {o.short}
+                    </button>
                   ))}
-                </select>
+                </div>
                 <input
                   className={styles.draftField}
                   placeholder="예문"
@@ -360,24 +438,28 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
             onChange={(e) => setMWord(e.target.value)}
             maxLength={40}
           />
-          <div className={styles.fieldsRow}>
-            <input
-              className={styles.field}
-              placeholder="뜻"
-              value={mMeaning}
-              onChange={(e) => setMMeaning(e.target.value)}
-            />
-            <select
-              className={styles.posSelect}
-              value={mPos}
-              onChange={(e) => setMPos(e.target.value as Pos | "")}
-            >
-              {POS_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+          <input
+            className={styles.field}
+            placeholder="뜻"
+            value={mMeaning}
+            onChange={(e) => setMMeaning(e.target.value)}
+          />
+          <div
+            className={styles.posChipRow}
+            role="group"
+            aria-label="품사 선택 (복수 가능)"
+          >
+            {POS_OPTIONS.map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                className={`${styles.posChip} ${styles.posChipLg}`}
+                aria-pressed={mPos.includes(o.value)}
+                onClick={() => setMPos((cur) => togglePos(cur, o.value))}
+              >
+                {o.label}
+              </button>
+            ))}
           </div>
           <input
             className={styles.field}
@@ -420,7 +502,14 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
                 >
                   ✕
                 </button>
-                <span className={styles.cardWord}>{w.word}</span>
+                <span className={styles.cardWordRow}>
+                  <span className={styles.cardWord}>{w.word}</span>
+                  {posOf(w).map((p) => (
+                    <span key={p} className={styles.cardPos}>
+                      {POS_LABEL[p]}
+                    </span>
+                  ))}
+                </span>
                 <span className={styles.cardMeaning}>
                   {w.senses.map((s) => s.meaning).join(" · ")}
                 </span>
@@ -470,6 +559,22 @@ export default function MyWordsScreen({ onStart, onBack }: Props) {
           뒤로 <kbd>esc</kbd>
         </button>
       </div>
+
+      {words.length > 0 && (
+        <button
+          className={styles.clearButton}
+          onClick={() => {
+            if (
+              window.confirm(
+                `내 단어장의 단어 ${words.length}개를 모두 지울까요?`,
+              )
+            )
+              clearAllCustomWords();
+          }}
+        >
+          단어 모두 지우기
+        </button>
+      )}
     </div>
   );
 }

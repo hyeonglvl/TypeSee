@@ -1,50 +1,44 @@
-/* StreakCalendar — v5 "Manuscript": 헤어라인 패널 안의 잉크 램프 히트맵. */
-
 .wrap {
   position: relative;
-  width: 100%;
-  padding: var(--sp-4);
-  border-radius: var(--r-l);
-  background: var(--panel);
-  border: 1px solid var(--line);
+  width: min(700px, 86vw);
 }
 
 .scroller {
   overflow-x: auto;
   scrollbar-width: thin;
-  transition: opacity var(--dur-1) var(--ease);
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 
 .dim {
-  opacity: 0.4;
+  opacity: 0.45;
 }
 
 .yearLabel {
   display: block;
-  margin-bottom: var(--sp-1);
-  font-size: var(--text-xs);
+  margin-bottom: 4px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--fg-faint);
+  color: var(--ink-3);
   text-align: right;
 }
 
 .months {
-  --cell: 18px;
+  --cell: 20px;
   display: grid;
   grid-template-columns: repeat(26, var(--cell));
   gap: 3px;
-  margin-bottom: var(--sp-1);
+  margin-bottom: 4px;
 }
 
 .monthLabel {
   grid-row: 1;
-  font-size: var(--text-xs);
-  color: var(--fg-faint);
+  font-size: 11px;
+  color: var(--ink-3);
   white-space: nowrap;
 }
 
 .grid {
-  --cell: 18px;
+  --cell: 20px;
   display: grid;
   grid-template-columns: repeat(26, var(--cell));
   grid-template-rows: repeat(7, var(--cell));
@@ -58,38 +52,38 @@
   justify-content: center;
   width: var(--cell);
   height: var(--cell);
-  border-radius: 4px;
-  font-size: 9px;
+  border-radius: 6px;
+  font-size: 10px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  transition: background-color var(--dur-1) var(--ease);
+  transition: background-color var(--dur-fast) var(--ease-out);
 }
 
-/* Ink ramp — 학습이 많은 날일수록 짙은 잉크 */
+/* Blue-ink ramp — deeper ink for busier days */
 
 .level0 {
   background: transparent;
-  border: 1px solid var(--line);
-  color: var(--fg-faint);
+  border: 1px solid var(--hairline);
+  color: var(--ink-3);
 }
 
 .level1 {
-  background: rgba(76, 90, 212, 0.14);
-  color: var(--ink-deep);
+  background: rgba(43, 79, 216, 0.12);
+  color: var(--accent-deep);
 }
 
 .level2 {
-  background: rgba(76, 90, 212, 0.32);
-  color: var(--ink-deep);
+  background: rgba(43, 79, 216, 0.3);
+  color: var(--accent-deep);
 }
 
 .level3 {
-  background: rgba(76, 90, 212, 0.6);
+  background: rgba(43, 79, 216, 0.6);
   color: #ffffff;
 }
 
 .level4 {
-  background: var(--ink);
+  background: var(--accent);
   color: #ffffff;
 }
 
@@ -100,17 +94,17 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  padding: var(--sp-2);
+  padding: 8px;
 }
 
 .guestOverlay p {
-  background: var(--panel-hover);
-  border: 1px solid var(--line-strong);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline-strong);
   border-radius: 999px;
-  padding: 7px 16px;
-  font-size: var(--text-sm);
+  padding: 8px 18px;
+  font-size: 13px;
   font-weight: 500;
-  color: var(--fg-mute);
-  box-shadow: var(--shadow-sheet);
+  color: var(--ink-2);
+  box-shadow: var(--shadow-card);
   white-space: nowrap;
 }

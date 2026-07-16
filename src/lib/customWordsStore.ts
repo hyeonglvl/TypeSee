@@ -154,6 +154,20 @@ export function removeCustomWord(id: string) {
     .then(({ error }) => error && warnRemote(error));
 }
 
+/** 내 단어장 전체 비우기 — 로그인 상태면 계정의 DB 행도 모두 삭제한다. */
+export function clearAllCustomWords() {
+  if (words.size === 0) return;
+  words.clear();
+  notify();
+
+  const sb = getSupabase();
+  if (!sb || !activeUserId) return;
+  sb.from("custom_words")
+    .delete()
+    .eq("user_id", activeUserId)
+    .then(({ error }) => error && warnRemote(error));
+}
+
 async function syncOnLogin(sb: SupabaseClient, userId: string) {
   const { data, error } = await sb
     .from("custom_words")

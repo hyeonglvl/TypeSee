@@ -1,45 +1,44 @@
-/* MyWords(내 단어장) — v5 "Manuscript": 헤어라인 패널 폼 + 카드 그리드. */
-
 .screen {
   height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--sp-5);
-  padding: var(--sp-6) var(--sp-5);
+  gap: 26px;
+  padding: 32px 24px;
 }
 
 .header {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: 8px;
 }
 
 .eyebrow {
-  font-size: var(--text-xs);
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--fg-faint);
+  color: var(--ink-2);
 }
 
 .title {
-  font-size: var(--text-2xl);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--fg);
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
 .titleCount {
-  color: var(--ink);
+  color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
 
 .subtitle {
-  font-size: var(--text-sm);
-  color: var(--fg-mute);
+  font-size: 14px;
+  color: var(--ink-2);
 }
 
 /* Form ----------------------------------------------------------------- */
@@ -47,61 +46,55 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: 10px;
   width: min(520px, 92vw);
-  padding: var(--sp-4);
-  border-radius: var(--r-l);
-  background: var(--panel);
-  border: 1px solid var(--line);
+  padding: 18px;
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-card);
 }
 
 .bulkInput {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: var(--r-s);
-  border: 1px solid var(--line);
-  background: var(--bg);
-  font-size: var(--text-base);
+  padding: 10px 14px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--hairline-strong);
+  background: var(--canvas);
+  font-size: 14px;
   line-height: 1.5;
-  color: var(--fg);
+  color: var(--ink);
   resize: vertical;
-  font-family: var(--font-ui);
+  font-family: var(--font-sans);
 }
 
 .bulkInput:focus {
   outline: none;
-  border-color: var(--ink);
-  background: var(--panel-hover);
+  border-color: var(--accent);
 }
 
 .formFooter {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--sp-2);
+  gap: 10px;
 }
 
 .parsedCount {
-  font-size: var(--text-xs);
-  color: var(--fg-faint);
+  font-size: 12px;
+  color: var(--ink-3);
   font-variant-numeric: tabular-nums;
 }
 
 .genButton {
-  padding: 9px 16px;
-  border-radius: var(--r-m);
+  padding: 10px 16px;
+  border-radius: var(--radius-m);
   background: var(--ink);
-  color: #fff;
-  font-size: var(--text-sm);
+  color: var(--canvas);
+  font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
-  transition:
-    background-color var(--dur-1) var(--ease),
-    opacity var(--dur-1) var(--ease);
-}
-
-.genButton:hover:not(:disabled) {
-  background: var(--ink-deep);
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 
 .genButton:disabled {
@@ -110,8 +103,19 @@
 }
 
 .genError {
-  font-size: var(--text-sm);
-  color: var(--err);
+  font-size: 13px;
+  color: var(--danger);
+}
+
+/* 중복 안내 — 에러가 아니라 정보라서 저장 배지와 같은 앰버 톤 */
+.genNotice {
+  font-size: 13px;
+  color: #6f5500;
+}
+
+.dupCount {
+  color: #6f5500;
+  font-weight: 600;
 }
 
 /* Draft review (auto-generated, editable before saving) ------------------ */
@@ -119,17 +123,19 @@
 .drafts {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
-  width: min(760px, 92vw);
-  padding: var(--sp-3);
-  border-radius: var(--r-l);
-  background: var(--panel);
-  border: 1px solid var(--line);
+  gap: 8px;
+  /* 품사 칩 6개가 들어가며 기존 760px 로는 입력칸이 지나치게 좁아진다 */
+  width: min(880px, 94vw);
+  padding: 14px;
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-card);
 }
 
 .draftRow {
   display: flex;
-  gap: var(--sp-1);
+  gap: 6px;
   align-items: center;
 }
 
@@ -137,42 +143,75 @@
   width: 110px;
   flex-shrink: 0;
   padding: 7px 10px;
-  border-radius: var(--r-s);
-  border: 1px solid var(--line);
-  background: var(--bg);
+  border-radius: var(--radius-m);
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
+  font-size: 13px;
   font-weight: 600;
-  color: var(--fg);
+  color: var(--ink);
 }
 
 .draftField {
   flex: 1;
   min-width: 0;
   padding: 7px 10px;
-  border-radius: var(--r-s);
-  border: 1px solid var(--line);
-  background: var(--bg);
-  font-size: var(--text-sm);
-  color: var(--fg);
+  border-radius: var(--radius-m);
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
+  font-size: 13px;
+  color: var(--ink);
 }
 
 .draftField:focus,
 .draftWord:focus {
   outline: none;
-  border-color: var(--ink);
-  background: var(--panel-hover);
+  border-color: var(--accent);
 }
 
-.draftPos {
-  width: 78px;
+/* 품사 멀티 토글 — 초안 행은 한 글자 칩, 직접 입력 폼은 큰 칩(posChipLg) */
+.draftPosGroup {
+  display: flex;
+  gap: 3px;
   flex-shrink: 0;
-  padding: 7px 6px;
-  border-radius: var(--r-s);
-  border: 1px solid var(--line);
-  background: var(--bg);
-  font-size: var(--text-xs);
-  color: var(--fg-mute);
+}
+
+.posChip {
+  min-width: 25px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
+  font-size: 11px;
+  color: var(--ink-3);
+  transition: color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.posChip:hover {
+  color: var(--ink);
+  border-color: var(--hairline-strong);
+}
+
+.posChip[aria-pressed="true"] {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent-deep);
+  font-weight: 600;
+}
+
+.posChipLg {
+  height: 30px;
+  padding: 0 12px;
+  font-size: 12.5px;
+}
+
+.posChipRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .draftDelete {
@@ -181,92 +220,69 @@
   height: 26px;
   display: grid;
   place-items: center;
-  border-radius: var(--r-s);
+  border-radius: 999px;
   font-size: 11px;
-  color: var(--fg-faint);
-  background: var(--panel-hover);
-  border: 1px solid var(--line-strong);
-  transition:
-    color var(--dur-1) var(--ease),
-    background-color var(--dur-1) var(--ease);
+  color: var(--ink-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline-strong);
+  transition: color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
 }
 
 .draftDelete:hover {
-  color: var(--err);
-  background: var(--err-soft);
+  color: var(--danger);
+  background: var(--danger-dim);
 }
 
 /* Manual add (secondary, collapsed by default) ---------------------------- */
 
 .manualToggle {
-  font-size: var(--text-sm);
-  color: var(--fg-faint);
+  font-size: 13px;
+  color: var(--ink-3);
   padding: 4px 10px;
-  border-radius: var(--r-s);
-  transition: color var(--dur-1) var(--ease);
+  border-radius: 999px;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .manualToggle:hover {
-  color: var(--fg);
+  color: var(--ink);
 }
 
 .manualForm {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: 10px;
   width: min(520px, 92vw);
-  padding: var(--sp-4);
-  border-radius: var(--r-l);
-  background: var(--panel);
-  border: 1px dashed var(--line-strong);
-}
-
-.fieldsRow {
-  display: flex;
-  gap: var(--sp-2);
+  padding: 18px;
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  border: 1px dashed var(--hairline-strong);
 }
 
 .field {
   flex: 1;
   padding: 9px 12px;
-  border-radius: var(--r-s);
-  border: 1px solid var(--line);
-  background: var(--bg);
-  font-size: var(--text-base);
-  color: var(--fg);
+  border-radius: var(--radius-m);
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
+  font-size: 14px;
+  color: var(--ink);
 }
 
 .field:focus {
   outline: none;
-  border-color: var(--ink);
-  background: var(--panel-hover);
-}
-
-.posSelect {
-  padding: 9px 10px;
-  border-radius: var(--r-s);
-  border: 1px solid var(--line);
-  background: var(--bg);
-  font-size: var(--text-sm);
-  color: var(--fg-mute);
-  max-width: 130px;
+  border-color: var(--accent);
 }
 
 .saveButton {
-  margin-top: var(--sp-1);
+  margin-top: 4px;
   padding: 10px;
-  border-radius: var(--r-m);
-  background: var(--ink);
+  border-radius: var(--radius-m);
+  background: var(--accent);
   color: #fff;
-  font-size: var(--text-base);
+  font-size: 14px;
   font-weight: 600;
-  transition:
-    background-color var(--dur-1) var(--ease),
-    opacity var(--dur-1) var(--ease);
-}
-
-.saveButton:hover:not(:disabled) {
-  background: var(--ink-deep);
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 
 .saveButton:disabled {
@@ -279,7 +295,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--sp-3);
+  gap: 12px;
   width: min(760px, 92vw);
 }
 
@@ -295,16 +311,15 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: var(--sp-3) var(--sp-4);
-  border-radius: var(--r-m);
-  background: var(--panel);
-  border: 1px solid var(--line);
-  transition: border-color var(--dur-1) var(--ease);
+  padding: 14px 16px;
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-card);
 }
 
 .card:hover {
   z-index: 10;
-  border-color: var(--line-strong);
 }
 
 .card:hover .cardExample {
@@ -312,16 +327,34 @@
   pointer-events: auto;
 }
 
+.cardWordRow {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
 .cardWord {
   font-family: var(--font-mono);
-  font-size: var(--text-md);
+  font-size: 16px;
   font-weight: 600;
-  color: var(--fg);
+  color: var(--ink);
+}
+
+.cardPos {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1.5px 7px;
+  border-radius: 999px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(43, 79, 216, 0.18);
+  color: var(--accent-deep);
+  white-space: nowrap;
 }
 
 .cardMeaning {
-  font-size: var(--text-sm);
-  color: var(--fg-mute);
+  font-size: 13px;
+  color: var(--ink-2);
 }
 
 .cardDelete {
@@ -333,16 +366,15 @@
   height: 22px;
   display: grid;
   place-items: center;
-  border-radius: var(--r-s);
+  border-radius: 999px;
   font-size: 11px;
-  color: var(--fg-faint);
-  background: var(--panel-hover);
-  border: 1px solid var(--line-strong);
+  color: var(--ink-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline-strong);
   opacity: 0;
   pointer-events: none;
-  transition:
-    opacity var(--dur-1) var(--ease),
-    color var(--dur-1) var(--ease);
+  transition: opacity var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 
 .card:hover .cardDelete {
@@ -351,8 +383,8 @@
 }
 
 .cardDelete:hover {
-  color: var(--err);
-  background: var(--err-soft);
+  color: var(--danger);
+  background: var(--danger-dim);
 }
 
 .cardExample {
@@ -367,33 +399,33 @@
   flex-direction: column;
   justify-content: center;
   gap: 4px;
-  padding: var(--sp-3) 32px var(--sp-3) var(--sp-4);
-  border-radius: var(--r-m);
-  background: var(--panel-hover);
-  border: 1px solid var(--line-strong);
-  box-shadow: var(--shadow-sheet);
+  padding: 14px 32px 14px 16px;
+  border-radius: var(--radius-m);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: var(--shadow-pop);
   opacity: 0;
   pointer-events: none;
   overflow-y: auto;
-  transition: opacity var(--dur-1) var(--ease);
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 
 .cardExample p {
-  font-size: var(--text-xs);
-  color: var(--fg-mute);
+  font-size: 12.5px;
+  color: var(--ink-2);
   line-height: 1.4;
   overflow-wrap: break-word;
 }
 
 .cardExampleKo {
-  color: var(--fg-faint) !important;
+  color: var(--ink-3) !important;
 }
 
 /* Actions ------------------------------------------------------------------ */
 
 .actions {
   display: flex;
-  gap: var(--sp-3);
+  gap: 12px;
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -402,25 +434,26 @@
 .ghostButton {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: var(--r-m);
-  font-size: var(--text-base);
+  gap: 9px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-size: 14px;
   font-weight: 600;
-  transition:
-    background-color var(--dur-1) var(--ease),
-    border-color var(--dur-1) var(--ease),
-    color var(--dur-1) var(--ease),
-    opacity var(--dur-1) var(--ease);
+  transition: transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
 }
 
 .primaryButton {
   background: var(--ink);
-  color: #fff;
+  color: var(--canvas);
+  box-shadow: var(--shadow-card);
 }
 
 .primaryButton:hover:not(:disabled) {
-  background: var(--ink-deep);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-pop);
 }
 
 .primaryButton:disabled,
@@ -430,13 +463,42 @@
 }
 
 .ghostButton {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  color: var(--fg-mute);
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  color: var(--ink-2);
 }
 
 .ghostButton:hover:not(:disabled) {
-  background: var(--panel-hover);
-  border-color: var(--line-strong);
-  color: var(--fg);
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+
+/* Review 화면의 footer 링크와 같은 톤 — 파괴적 동작이라 호버 시 빨강 */
+.clearButton {
+  font-size: 13px;
+  color: var(--ink-3);
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.clearButton:hover {
+  color: var(--danger);
+}
+
+.screen kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 25px;
+  height: 25px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface-raised);
+  box-shadow: 0 1.5px 0 var(--hairline-strong);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-2);
 }
