@@ -39,6 +39,10 @@ const POS_LABEL: Record<Pos, string> = {
   adv: "부사",
   prep: "전치사",
   phrase: "구",
+  pron: "대명사",
+  conj: "접속사",
+  det: "한정사",
+  modal: "조동사",
 };
 
 const WINDOW = 2;

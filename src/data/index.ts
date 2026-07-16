@@ -71,6 +71,10 @@ const KNOWN_POS: ReadonlySet<string> = new Set([
   "adv",
   "prep",
   "phrase",
+  "pron",
+  "conj",
+  "det",
+  "modal",
 ] satisfies Pos[]);
 
 if (process.env.NODE_ENV !== "production") {

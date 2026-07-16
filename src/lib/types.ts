@@ -1,4 +1,14 @@
-export type Pos = "n" | "v" | "adj" | "adv" | "prep" | "phrase";
+export type Pos =
+  | "n"
+  | "v"
+  | "adj"
+  | "adv"
+  | "prep"
+  | "phrase"
+  | "pron"
+  | "conj"
+  | "det"
+  | "modal";
 
 export interface WordSense {
   meaning: string;
