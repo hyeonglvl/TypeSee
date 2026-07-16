@@ -13,7 +13,6 @@ import { hydrateDifficultyPref } from "@/lib/difficultyPref";
 import {
   attachUser,
   detachUser,
-  hydrateLocal,
   recordSession,
   sessionWeight,
   timeWeight,
@@ -70,9 +69,10 @@ export default function App() {
   const pool = useReviewPool();
   const customWords = useCustomWords();
 
-  // localStorage 백업 복원 — SSR HTML과 첫 렌더가 일치하도록 마운트 후에
+  // localStorage 백업 복원(내 단어장·난이도) — SSR HTML과 첫 렌더가
+  // 일치하도록 마운트 후에. 복습 풀(Note)은 게스트 localStorage 백업이
+  // 없다 — 게스트는 Note 자체가 비활성.
   useEffect(() => {
-    hydrateLocal();
     hydrateCustomWordsLocal();
     hydrateDifficultyPref();
   }, []);

@@ -94,7 +94,8 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 7px;
-  font-size: 18px;
+  font-size: 24px;
+  font-family: var(--font-hand);
   color: var(--ink-2);
   letter-spacing: -0.01em;
 }
@@ -114,12 +115,13 @@
   border: none;
   background: transparent;
   font-family: var(--font-display);
-  font-size: 21px;
-  font-weight: 600;
+  font-family: var(--font-hand);
+  font-size: 22px;
+  /* font-weight: 800; */
   color: var(--ink);
   text-align: center;
   padding: 0 4px 2px 4px;
-  border-bottom: 1.5px dashed var(--hairline-strong);
+  border-bottom: 1.4px dashed var(--hairline-strong);
   border-radius: 0;
   cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease-out);
@@ -128,6 +130,7 @@
 .categorySelect:hover,
 .categorySelect:focus-visible {
   outline: none;
+
   border-bottom-color: var(--accent);
 }
 
@@ -140,11 +143,12 @@
 /* 엘리베이터 버튼 — 숫자 위아래의 작은 ▲▼ */
 .countArrow {
   display: grid;
+
   place-items: center;
   width: 100%;
   min-width: 30px;
-  height: 18px;
-  font-size: 16px;
+  height: 12px;
+  font-size: 12px;
   line-height: 1;
   color: var(--ink-3);
   border-radius: 4px;
@@ -166,8 +170,10 @@
   border: none;
   background: transparent;
   font-family: var(--font-display);
-  font-size: 21px;
-  font-weight: 600;
+  font-family: var(--font-hand);
+
+  font-size: 22px;
+  font-weight: 400;
   color: var(--ink);
   text-align: center;
   padding: 0 0 2px;

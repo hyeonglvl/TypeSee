@@ -165,7 +165,11 @@ export default function HomeScreen({
       if (e.key === "1") onStart("typing", count);
       else if (e.key === "2") onStart("quiz", count);
       else if (e.key === "3") onStart("listening", count);
-      else if ((e.key === "4" || e.key.toLowerCase() === "r") && pool.count > 0)
+      else if (
+        (e.key === "4" || e.key.toLowerCase() === "r") &&
+        user &&
+        pool.count > 0
+      )
         onReview();
       else if (e.key === "5" && user) onMyWords();
       else if (e.key === "ArrowUp") {
@@ -303,9 +307,9 @@ export default function HomeScreen({
 
         <motion.button
           className={`${styles.modeCard} ${styles.reviewCard}`}
-          disabled={pool.count === 0}
-          whileHover={pool.count > 0 ? { y: -3 } : undefined}
-          whileTap={pool.count > 0 ? { scale: 0.98 } : undefined}
+          disabled={!user || pool.count === 0}
+          whileHover={user && pool.count > 0 ? { y: -3 } : undefined}
+          whileTap={user && pool.count > 0 ? { scale: 0.98 } : undefined}
           transition={{ type: "spring", stiffness: 400, damping: 26 }}
           onClick={onReview}
         >
@@ -314,7 +318,7 @@ export default function HomeScreen({
           </span>
           <span className={styles.modeTitle}>
             Note
-            {pool.count > 0 && (
+            {user && pool.count > 0 && (
               <motion.span
                 key={pool.count}
                 className={styles.reviewCount}
@@ -333,7 +337,7 @@ export default function HomeScreen({
               ? "틀린 단어, 저장한 단어 다시 풀기"
               : "틀리거나 저장한 단어가 여기에 모여요"}
           </span>
-          {pool.count > 0 && <kbd className={styles.modeKey}>4</kbd>}
+          {user && pool.count > 0 && <kbd className={styles.modeKey}>4</kbd>}
         </motion.button>
 
         <motion.button
@@ -374,11 +378,11 @@ export default function HomeScreen({
 
       <p className={styles.footHint}>
         <kbd>↑</kbd> <kbd>↓</kbd> 단어 수 &nbsp;·&nbsp; <kbd>1</kbd>{" "}
-        <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd>
+        <kbd>2</kbd> <kbd>3</kbd>
         {user && (
           <>
             {" "}
-            <kbd>5</kbd>
+            <kbd>4</kbd> <kbd>5</kbd>
           </>
         )}{" "}
         바로 시작
