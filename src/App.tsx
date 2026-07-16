@@ -10,6 +10,7 @@ import { ALL_WORDS, wordsInCategory } from "@/data";
 import { shuffle, weightedSample } from "@/lib/engine";
 import { useAuthUser } from "@/lib/auth";
 import { hydrateDifficultyPref } from "@/lib/difficultyPref";
+import { hydrateHomePrefs } from "@/lib/homePrefs";
 import {
   attachUser,
   detachUser,
@@ -69,12 +70,13 @@ export default function App() {
   const pool = useReviewPool();
   const customWords = useCustomWords();
 
-  // localStorage 백업 복원(내 단어장·난이도) — SSR HTML과 첫 렌더가
+  // localStorage 백업 복원(내 단어장·난이도·홈 선택) — SSR HTML과 첫 렌더가
   // 일치하도록 마운트 후에. 복습 풀(Note)은 게스트 localStorage 백업이
   // 없다 — 게스트는 Note 자체가 비활성.
   useEffect(() => {
     hydrateCustomWordsLocal();
     hydrateDifficultyPref();
+    hydrateHomePrefs();
   }, []);
 
   useEffect(() => {
@@ -191,74 +193,77 @@ export default function App() {
   const goHome = useCallback(() => setPhase({ step: "home" }), []);
 
   return (
-    <AnimatePresence mode="wait">
-      {phase.step === "home" && (
-        <motion.div key="home" style={{ height: "100%" }} {...screenMotion}>
-          <HomeScreen
-            onStart={startNormal}
-            onReview={() => setPhase({ step: "review" })}
-            onMyWords={() => setPhase({ step: "myWords" })}
-          />
-        </motion.div>
-      )}
-      {phase.step === "review" && (
-        <motion.div key="review" style={{ height: "100%" }} {...screenMotion}>
-          <ReviewScreen
-            onStart={(mode, words) => startReview(mode, words)}
-            onBack={goHome}
-          />
-        </motion.div>
-      )}
-      {phase.step === "myWords" && (
-        <motion.div key="myWords" style={{ height: "100%" }} {...screenMotion}>
-          <MyWordsScreen onStart={startCustomSession} onBack={goHome} />
-        </motion.div>
-      )}
-      {phase.step === "session" && (
-        <motion.div key="session" style={{ height: "100%" }} {...screenMotion}>
-          <SessionScreen
-            words={phase.words}
-            mode={phase.mode}
-            reviewIds={phase.reviewIds}
-            retentionIds={phase.retentionIds}
-            onExit={(summary) => {
-              record(summary, phase.config);
-              goHome();
-            }}
-            onFinish={(summary) => {
-              record(summary, phase.config);
-              setPhase({ step: "result", summary, config: phase.config });
-            }}
-          />
-        </motion.div>
-      )}
-      {phase.step === "result" && (
-        <motion.div key="result" style={{ height: "100%" }} {...screenMotion}>
-          <ResultScreen
-            summary={phase.summary}
-            onRetry={() => {
-              if (phase.config.kind === "normal")
-                startNormal(
-                  phase.config.mode,
-                  phase.config.count,
-                  phase.config.category,
-                );
-              else if (phase.config.kind === "custom")
-                startCustomSession(phase.config.mode, customWords);
-              else if (pool.count > 0) startReview(phase.config.mode);
-              else goHome();
-            }}
-            onRetryTrouble={() =>
-              startReview(
-                "quiz",
-                phase.summary.troubleWords.map((t) => t.entry),
-              )
-            }
-            onHome={goHome}
-          />
-        </motion.div>
-      )}
+    <>
+      <AnimatePresence mode="wait">
+        {phase.step === "home" && (
+          <motion.div key="home" style={{ height: "100%" }} {...screenMotion}>
+            <HomeScreen
+              onStart={startNormal}
+              onReview={() => setPhase({ step: "review" })}
+              onMyWords={() => setPhase({ step: "myWords" })}
+            />
+          </motion.div>
+        )}
+        {phase.step === "review" && (
+          <motion.div key="review" style={{ height: "100%" }} {...screenMotion}>
+            <ReviewScreen
+              onStart={(mode, words) => startReview(mode, words)}
+              onBack={goHome}
+            />
+          </motion.div>
+        )}
+        {phase.step === "myWords" && (
+          <motion.div key="myWords" style={{ height: "100%" }} {...screenMotion}>
+            <MyWordsScreen onStart={startCustomSession} onBack={goHome} />
+          </motion.div>
+        )}
+        {phase.step === "session" && (
+          <motion.div key="session" style={{ height: "100%" }} {...screenMotion}>
+            <SessionScreen
+              words={phase.words}
+              mode={phase.mode}
+              reviewIds={phase.reviewIds}
+              retentionIds={phase.retentionIds}
+              onExit={(summary) => {
+                record(summary, phase.config);
+                goHome();
+              }}
+              onFinish={(summary) => {
+                record(summary, phase.config);
+                setPhase({ step: "result", summary, config: phase.config });
+              }}
+            />
+          </motion.div>
+        )}
+        {phase.step === "result" && (
+          <motion.div key="result" style={{ height: "100%" }} {...screenMotion}>
+            <ResultScreen
+              summary={phase.summary}
+              onRetry={() => {
+                if (phase.config.kind === "normal")
+                  startNormal(
+                    phase.config.mode,
+                    phase.config.count,
+                    phase.config.category,
+                  );
+                else if (phase.config.kind === "custom")
+                  startCustomSession(phase.config.mode, customWords);
+                else if (pool.count > 0) startReview(phase.config.mode);
+                else goHome();
+              }}
+              onRetryTrouble={() =>
+                startReview(
+                  "quiz",
+                  phase.summary.troubleWords.map((t) => t.entry),
+                )
+              }
+              onHome={goHome}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* AnimatePresence(mode="wait") 는 자식 1개만 허용 — 화면 밖에 둔다 */}
       <Analytics />
-    </AnimatePresence>
+    </>
   );
 }

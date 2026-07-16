@@ -10,7 +10,8 @@ import {
 } from "@/lib/difficultyPref";
 import AuthSheet from "@/screens/AuthSheet";
 import StreakCalendar from "@/screens/StreakCalendar";
-import { CATEGORIES, CATEGORY_COUNTS, DEFAULT_CATEGORY } from "@/data";
+import { CATEGORIES, CATEGORY_COUNTS } from "@/data";
+import { setHomePrefs, useHomePrefs } from "@/lib/homePrefs";
 import type { SessionMode } from "@/lib/types";
 import styles from "./Home.module.css";
 
@@ -115,7 +116,6 @@ function BraceSvg({ className }: { className?: string }) {
   );
 }
 
-const COUNT_DEFAULT = 10;
 const COUNT_STEP = 5;
 const COUNT_MIN = 1;
 
@@ -127,20 +127,22 @@ function labelEm(label: string): number {
 }
 
 export default function HomeScreen({ onStart, onReview, onMyWords }: Props) {
-  const [count, setCount] = useState(COUNT_DEFAULT);
+  // 카테고리·단어 수는 세션을 다녀와도 유지 — homePrefs 스토어가 든다
+  const { count, category } = useHomePrefs();
   // 입력 중엔 빈 문자열·미완성 숫자를 허용해야 해서 초안을 따로 든다
   const [countDraft, setCountDraft] = useState<string | null>(null);
-  const [category, setCategory] = useState(DEFAULT_CATEGORY);
   const [sheetOpen, setSheetOpen] = useState(false);
   const user = useAuthUser();
   const pool = useReviewPool();
   const customWords = useCustomWords();
   const difficulty = useDifficultyPref();
 
-  const categoryTotal = CATEGORY_COUNTS.get(category) ?? 0;
-  const clampCount = (n: number) =>
-    Math.min(Math.max(categoryTotal, COUNT_MIN), Math.max(COUNT_MIN, n));
-  const nudgeCount = (delta: number) => setCount((c) => clampCount(c + delta));
+  const clampCount = (n: number, cat: number) => {
+    const total = CATEGORY_COUNTS.get(cat) ?? 0;
+    return Math.min(Math.max(total, COUNT_MIN), Math.max(COUNT_MIN, n));
+  };
+  const nudgeCount = (delta: number) =>
+    setHomePrefs((p) => ({ count: clampCount(p.count + delta, p.category) }));
   // 모드 카드가 쓰는 2-인자 시그니처에 현재 카테고리를 물려준다
   const startWithCategory = (mode: SessionMode, n: number) =>
     onStart(mode, n, category);
@@ -148,7 +150,8 @@ export default function HomeScreen({ onStart, onReview, onMyWords }: Props) {
   const commitDraft = () => {
     if (countDraft === null) return;
     const n = parseInt(countDraft, 10);
-    if (!Number.isNaN(n)) setCount(clampCount(n));
+    if (!Number.isNaN(n))
+      setHomePrefs((p) => ({ count: clampCount(n, p.category) }));
     setCountDraft(null);
   };
 
@@ -233,10 +236,11 @@ export default function HomeScreen({ onStart, onReview, onMyWords }: Props) {
             }}
             onChange={(e) => {
               const next = Number(e.target.value);
-              setCategory(next);
               // 카테고리별 단어 수가 달라 현재 개수가 넘칠 수 있다
-              const max = Math.max(CATEGORY_COUNTS.get(next) ?? 0, COUNT_MIN);
-              setCount((c) => Math.min(max, c));
+              setHomePrefs((p) => ({
+                category: next,
+                count: clampCount(p.count, next),
+              }));
             }}
           >
             {CATEGORIES.map((c) => {
