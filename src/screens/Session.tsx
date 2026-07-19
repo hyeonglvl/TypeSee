@@ -543,12 +543,18 @@ const WordCard = memo(function WordCard({
 
   // 예문이 여러 개면 카드마다 하나를 랜덤으로 골라 보여준다 — 타이핑 중
   // 리렌더에도 바뀌지 않게 단어 id 가 같은 동안은 한 번만 뽑는다.
-  const exampleCount = word.entry.example?.length ?? 0;
-  const exampleIdx = useMemo(
-    () => (exampleCount > 0 ? Math.floor(Math.random() * exampleCount) : 0),
+  // 표제어가 실제로 들어간 예문만 후보로 — 굴절형만 쓰인 예문이 뽑히면
+  // findWordSpan 매칭이 실패해 예문 없이 단어만 표시되기 때문.
+  const exampleIdx = useMemo(() => {
+    const examples = word.entry.example ?? [];
+    const target = word.entry.word.toLowerCase();
+    const usable = examples
+      .map((ex, i) => (ex.toLowerCase().includes(target) ? i : -1))
+      .filter((i) => i !== -1);
+    const pool = usable.length > 0 ? usable : examples.map((_, i) => i);
+    return pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : 0;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [word.entry.id],
-  );
+  }, [word.entry.id]);
   const example = word.entry.example?.[exampleIdx];
   const exampleKo = word.entry.exampleMeaning?.[exampleIdx];
 
@@ -769,7 +775,13 @@ function ExampleLine({
         {span.prefix && (
           <span className={styles.sentenceText}>{span.prefix}</span>
         )}
-        <WordGlyphs word={word} mode={mode} active={active} difficulty={difficulty} />
+        <WordGlyphs
+          word={word}
+          mode={mode}
+          active={active}
+          difficulty={difficulty}
+          stackAnswer
+        />
         {span.suffix && (
           <span className={styles.sentenceText}>{span.suffix}</span>
         )}
@@ -793,11 +805,15 @@ function WordGlyphs({
   mode,
   active,
   difficulty,
+  stackAnswer = false,
 }: {
   word: WordState;
   mode: SessionMode;
   active: boolean;
   difficulty: Difficulty;
+  /** 예문 컨텍스트 — 정답을 절대위치로 띄우면 예문 윗줄과 겹치므로,
+   *  단어칸 바로 위에 실제 공간을 차지하는 세로 스택으로 얹는다. */
+  stackAnswer?: boolean;
 }) {
   const target = word.entry.word;
   const typedLen = word.typed.length;
@@ -834,9 +850,9 @@ function WordGlyphs({
   // 입력된 글자 모두 회색 "입력됨" 톤.
   const revealGrading = difficulty === "easy" || word.status === "done";
 
-  return (
+  const row = (
     <span className={styles.wordRow}>
-      {showAnswerAbove && (
+      {showAnswerAbove && !stackAnswer && (
         <span className={styles.answerAbove}>{target}</span>
       )}
       {Array.from({ length: revealLen }, (_, i) => target[i]).map((ch, i) => {
@@ -899,6 +915,19 @@ function WordGlyphs({
       })}
     </span>
   );
+
+  // 예문 컨텍스트 오답 — 정답 칩을 단어칸 바로 위에 세로로 쌓아 그 줄의
+  // 높이를 실제로 늘리며 얹는다. 절대위치가 아니라 윗줄과 겹치지 않는다.
+  if (showAnswerAbove && stackAnswer) {
+    return (
+      <span className={styles.wordStack}>
+        <span className={styles.sentenceAnswer}>{target}</span>
+        {row}
+      </span>
+    );
+  }
+
+  return row;
 }
 
 /* Grading stamps — 완료 직후 홀드 구간에 잠깐 찍히는 정오답 도장.

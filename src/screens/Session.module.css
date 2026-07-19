@@ -436,20 +436,23 @@
 
 .sentenceBlock {
   display: block;
-  max-width: 62vw;
+  /* 와이드 화면에서 한 줄이 100자를 넘지 않게 — 가독 적정선은 60~75자 */
+  max-width: min(62vw, 52ch);
   text-align: center;
 }
 
 .sentenceRow {
   display: block;
   line-height: 1.6;
+  /* 여러 줄로 꺾일 때 줄 길이를 균등 분배 — 외톨이 단어 방지 */
+  text-wrap: balance;
 }
 
 .sentenceText {
   font-family: var(--font-sans);
-  font-size: clamp(16px, 2vw, 22px);
+  font-size: clamp(17px, 2.2vw, 23px);
   font-weight: 400;
-  color: var(--ink-3);
+  color: var(--ink-2);
 }
 
 .sentenceMeaning {
@@ -460,6 +463,29 @@
   font-weight: 400;
   color: var(--ink-3);
   opacity: 0.9;
+}
+
+/* 퀴즈·리스닝 오답 완료(예문 컨텍스트) — 단어칸 바로 위에 정답 칩을 세로로
+   쌓는 래퍼. 절대위치가 아니라 줄 높이를 실제로 늘려 윗줄과 겹치지 않는다 */
+.wordStack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: bottom;
+}
+
+.sentenceAnswer {
+  display: inline-block;
+  margin-bottom: 3px;
+  padding: 1px 10px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent-deep);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
 }
 
 /* Word glyphs — typing mode ---------------------------------------------------
@@ -476,17 +502,29 @@
   letter-spacing: 0.02em;
 }
 
-/* 끝까지 쳤는데 틀렸을 때 유저 입력 위에 뜨는 정답 */
+/* 예문 안에 놓일 땐 문장의 ~1.2배까지만 — 단어가 든 줄만 줄 높이가
+   불룩해지는 것을 막고, 존재감은 잉크 색과 굵기로 유지한다 */
+.sentenceRow .wordRow {
+  font-size: clamp(20px, 2.6vw, 28px);
+}
+
+/* 끝까지 쳤는데 틀렸을 때 유저 입력 위에 뜨는 정답 — 예문이 여러 줄일 때
+   윗줄 텍스트와 글자가 겹치므로, 종이 칩을 깔아 교정 메모처럼 띄운다 */
 .answerAbove {
   position: absolute;
   bottom: calc(100% + 4px);
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.42em;
+  z-index: 1;
+  padding: 1px 8px;
+  font-size: max(0.42em, 12px);
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--accent-deep);
   white-space: nowrap;
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
 }
 
 .char {
@@ -753,11 +791,11 @@
   }
 
   .sentenceBlock {
-    max-width: 88vw;
+    max-width: min(88vw, 52ch);
   }
 
   .sentenceText {
-    font-size: clamp(17px, 4.4vw, 22px);
+    font-size: clamp(18px, 4.6vw, 23px);
   }
 
   .sentenceMeaning {
@@ -766,6 +804,10 @@
 
   .wordRow {
     font-size: clamp(24px, 11vw, 32px);
+  }
+
+  .sentenceRow .wordRow {
+    font-size: clamp(21px, 5.5vw, 27px);
   }
 
   .topHint,
