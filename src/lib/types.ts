@@ -30,16 +30,6 @@ export interface WordEntry {
   exampleMeaning?: string[];
 }
 
-/** words.ts 구세대 포맷 — 단수 pos·단일 예문. 로드 시(src/data/index.ts)
- *  WordEntry 로 변환되며, 새 데이터는 전부 wordjson.json 포맷을 쓴다. */
-export interface LegacyWordEntry {
-  id: string;
-  word: string;
-  senses: Array<{ meaning: string; pos?: Pos }>;
-  example?: string;
-  exampleMeaning?: string;
-}
-
 export type SessionMode = "typing" | "quiz" | "listening";
 
 export interface WordState {

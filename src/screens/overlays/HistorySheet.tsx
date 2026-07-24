@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { STARTER_WORDS } from "@/data/words";
-import { clearHistoryAll, clearHistoryWord, useHistoryPool } from "@/lib/reviewStore";
+import { ALL_WORDS } from "@/data";
+import { clearHistoryAll, clearHistoryWord, useHistoryPool } from "@/lib/stores/reviewStore";
 import styles from "./HistorySheet.module.css";
 
 interface Props {
@@ -13,7 +13,7 @@ export default function HistorySheet({ onClose }: Props) {
 
   const entries = useMemo(
     () =>
-      STARTER_WORDS.filter((w) => history.ids.has(w.id)).sort(
+      ALL_WORDS.filter((w) => history.ids.has(w.id)).sort(
         (a, b) => history.wrongCountOf(b.id) - history.wrongCountOf(a.id),
       ),
     [history],

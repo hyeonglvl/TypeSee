@@ -5,14 +5,15 @@ import { ensureSoundOn, speak, toggleSound, useSoundPref } from "@/lib/tts";
 import {
   toggleAutoAdvance,
   useAutoAdvancePref,
-} from "@/lib/autoAdvancePref";
-import { useDifficultyPref, type Difficulty } from "@/lib/difficultyPref";
+} from "@/lib/prefs/autoAdvancePref";
+import { useDifficultyPref, type Difficulty } from "@/lib/prefs/difficultyPref";
 import {
   easeStage,
   saveWord,
   useReviewPool,
   type EaseStageTone,
-} from "@/lib/reviewStore";
+} from "@/lib/stores/reviewStore";
+import { wordBoundaryMatch } from "@/lib/wordMatch";
 import type {
   Pos,
   SessionMode,
@@ -543,13 +544,15 @@ const WordCard = memo(function WordCard({
 
   // 예문이 여러 개면 카드마다 하나를 랜덤으로 골라 보여준다 — 타이핑 중
   // 리렌더에도 바뀌지 않게 단어 id 가 같은 동안은 한 번만 뽑는다.
-  // 표제어가 실제로 들어간 예문만 후보로 — 굴절형만 쓰인 예문이 뽑히면
-  // findWordSpan 매칭이 실패해 예문 없이 단어만 표시되기 때문.
+  // 표제어가 실제로 들어간(단어 경계로) 예문만 후보로 — 굴절형만 쓰였거나
+  // ("lying"은 "lie"를 포함하지 않는다) 다른 단어 속에 우연히 글자가
+  // 섞여 있으면(예: "clients" 속 "lie") findWordSpan 매칭이 실패해 예문
+  // 없이 단어만 표시된다.
   const exampleIdx = useMemo(() => {
     const examples = word.entry.example ?? [];
-    const target = word.entry.word.toLowerCase();
+    const target = word.entry.word;
     const usable = examples
-      .map((ex, i) => (ex.toLowerCase().includes(target) ? i : -1))
+      .map((ex, i) => (wordBoundaryMatch(target, ex) ? i : -1))
       .filter((i) => i !== -1);
     const pool = usable.length > 0 ? usable : examples.map((_, i) => i);
     return pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : 0;
@@ -728,18 +731,11 @@ function findWordSpan(
   example: string | undefined,
 ): { prefix: string; suffix: string } | null {
   if (!example) return null;
-  const boundary = new RegExp(`\\b${word}\\b`, "i").exec(example);
-  if (boundary) {
-    return {
-      prefix: example.slice(0, boundary.index),
-      suffix: example.slice(boundary.index + boundary[0].length),
-    };
-  }
-  const idx = example.toLowerCase().indexOf(word.toLowerCase());
-  if (idx === -1) return null;
+  const boundary = wordBoundaryMatch(word, example);
+  if (!boundary) return null;
   return {
-    prefix: example.slice(0, idx),
-    suffix: example.slice(idx + word.length),
+    prefix: example.slice(0, boundary.index),
+    suffix: example.slice(boundary.index + boundary[0].length),
   };
 }
 
