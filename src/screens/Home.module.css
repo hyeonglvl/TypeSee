@@ -12,6 +12,33 @@
   padding: 20px 24px;
 }
 
+/* GitHub link (top-left) ---------------------------------------------------- */
+
+.githubLink {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.githubLink:hover {
+  background: var(--surface-raised);
+  color: var(--ink);
+  box-shadow: var(--shadow-card);
+}
+
 /* Account (top-right) ------------------------------------------------------ */
 
 .accountArea {
