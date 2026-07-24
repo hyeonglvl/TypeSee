@@ -195798,5 +195798,1010 @@
       "우리는 다음 주말 아이들과 함께 지역 동물원을 방문할 계획이다.",
       "그 도시의 동물원은 멸종위기종 보전 노력으로 유명하다."
     ]
+  },
+  {
+    "id": "candle",
+    "word": "candle",
+    "senses": [
+      {
+        "meaning": "양초",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "She lit a candle in the dark."
+    ],
+    "exampleMeaning": [
+      "그녀는 어둠 속에서 양초에 불을 붙였다."
+    ]
+  },
+  {
+    "id": "lantern",
+    "word": "lantern",
+    "senses": [
+      {
+        "meaning": "등불",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "A lantern lit the old street."
+    ],
+    "exampleMeaning": [
+      "등불이 오래된 거리를 비췄다."
+    ]
+  },
+  {
+    "id": "zeal",
+    "word": "zeal",
+    "senses": [
+      {
+        "meaning": "열정",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "He works with great zeal."
+    ],
+    "exampleMeaning": [
+      "그는 대단한 열정으로 일한다."
+    ]
+  },
+  {
+    "id": "blossom",
+    "word": "blossom",
+    "senses": [
+      {
+        "meaning": "꽃을 피우다",
+        "pos": [
+          "v"
+        ]
+      },
+      {
+        "meaning": "꽃",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "Cherry trees blossom in spring."
+    ],
+    "exampleMeaning": [
+      "벚나무는 봄에 꽃을 피운다."
+    ]
+  },
+  {
+    "id": "breeze",
+    "word": "breeze",
+    "senses": [
+      {
+        "meaning": "산들바람",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "A cool breeze came from the sea."
+    ],
+    "exampleMeaning": [
+      "시원한 바람이 바다에서 불어왔다."
+    ]
+  },
+  {
+    "id": "deny",
+    "word": "deny",
+    "senses": [
+      {
+        "meaning": "부인하다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "He tried to deny the truth."
+    ],
+    "exampleMeaning": [
+      "그는 진실을 부인하려 했다."
+    ]
+  },
+  {
+    "id": "destiny",
+    "word": "destiny",
+    "senses": [
+      {
+        "meaning": "운명",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "He believed it was his destiny."
+    ],
+    "exampleMeaning": [
+      "그는 그것이 자신의 운명이라고 믿었다."
+    ]
+  },
+  {
+    "id": "earnest",
+    "word": "earnest",
+    "senses": [
+      {
+        "meaning": "진지한",
+        "pos": [
+          "adj"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "He made an earnest apology."
+    ],
+    "exampleMeaning": [
+      "그는 진지하게 사과했다."
+    ]
+  },
+  {
+    "id": "empathy",
+    "word": "empathy",
+    "senses": [
+      {
+        "meaning": "공감",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "Nurses need empathy for patients."
+    ],
+    "exampleMeaning": [
+      "간호사는 환자에 대한 공감이 필요하다."
+    ]
+  },
+  {
+    "id": "envy",
+    "word": "envy",
+    "senses": [
+      {
+        "meaning": "부러움",
+        "pos": [
+          "n"
+        ]
+      },
+      {
+        "meaning": "부러워하다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "I felt envy at his success."
+    ],
+    "exampleMeaning": [
+      "나는 그의 성공에 부러움을 느꼈다."
+    ]
+  },
+  {
+    "id": "eternal",
+    "word": "eternal",
+    "senses": [
+      {
+        "meaning": "영원한",
+        "pos": [
+          "adj"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "They promised eternal love."
+    ],
+    "exampleMeaning": [
+      "그들은 영원한 사랑을 약속했다."
+    ]
+  },
+  {
+    "id": "grief",
+    "word": "grief",
+    "senses": [
+      {
+        "meaning": "슬픔",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "She was filled with grief."
+    ],
+    "exampleMeaning": [
+      "그녀는 슬픔에 잠겼다."
+    ]
+  },
+  {
+    "id": "harmony",
+    "word": "harmony",
+    "senses": [
+      {
+        "meaning": "조화",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "They live in harmony with nature."
+    ],
+    "exampleMeaning": [
+      "그들은 자연과 조화롭게 산다."
+    ]
+  },
+  {
+    "id": "immense",
+    "word": "immense",
+    "senses": [
+      {
+        "meaning": "막대한",
+        "pos": [
+          "adj"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "The palace was of immense size."
+    ],
+    "exampleMeaning": [
+      "그 궁전은 엄청난 규모였다."
+    ]
+  },
+  {
+    "id": "jealous",
+    "word": "jealous",
+    "senses": [
+      {
+        "meaning": "질투하는",
+        "pos": [
+          "adj"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "He was jealous of his brother."
+    ],
+    "exampleMeaning": [
+      "그는 동생을 질투했다."
+    ]
+  },
+  {
+    "id": "joyful",
+    "word": "joyful",
+    "senses": [
+      {
+        "meaning": "기쁜",
+        "pos": [
+          "adj"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "It was a joyful reunion."
+    ],
+    "exampleMeaning": [
+      "그것은 기쁜 재회였다."
+    ]
+  },
+  {
+    "id": "linger",
+    "word": "linger",
+    "senses": [
+      {
+        "meaning": "오래 머무르다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "The smell of coffee lingered."
+    ],
+    "exampleMeaning": [
+      "커피 향이 오래 남아 있었다."
+    ]
+  },
+  {
+    "id": "affection",
+    "word": "affection",
+    "senses": [
+      {
+        "meaning": "애정",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "She shows affection to her cat."
+    ],
+    "exampleMeaning": [
+      "그녀는 고양이에게 애정을 보인다."
+    ]
+  },
+  {
+    "id": "betray",
+    "word": "betray",
+    "senses": [
+      {
+        "meaning": "배신하다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "He betrayed his best friend."
+    ],
+    "exampleMeaning": [
+      "그는 가장 친한 친구를 배신했다."
+    ]
+  },
+  {
+    "id": "chase",
+    "word": "chase",
+    "senses": [
+      {
+        "meaning": "뒤쫓다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "The cat chased the mouse."
+    ],
+    "exampleMeaning": [
+      "고양이가 쥐를 쫓았다."
+    ]
+  },
+  {
+    "id": "cling",
+    "word": "cling",
+    "senses": [
+      {
+        "meaning": "매달리다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "Wet clothes cling to your skin."
+    ],
+    "exampleMeaning": [
+      "젖은 옷은 피부에 달라붙는다."
+    ]
+  },
+  {
+    "id": "coarse",
+    "word": "coarse",
+    "senses": [
+      {
+        "meaning": "거친",
+        "pos": [
+          "adj"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "The cloth felt coarse."
+    ],
+    "exampleMeaning": [
+      "그 천은 거칠게 느껴졌다."
+    ]
+  },
+  {
+    "id": "companion",
+    "word": "companion",
+    "senses": [
+      {
+        "meaning": "동반자",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "A dog is a loyal companion."
+    ],
+    "exampleMeaning": [
+      "개는 충실한 동반자다."
+    ]
+  },
+  {
+    "id": "conscience",
+    "word": "conscience",
+    "senses": [
+      {
+        "meaning": "양심",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "His conscience kept him honest."
+    ],
+    "exampleMeaning": [
+      "그의 양심이 그를 정직하게 만들었다."
+    ]
+  },
+  {
+    "id": "cottage",
+    "word": "cottage",
+    "senses": [
+      {
+        "meaning": "오두막",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "They stayed in a lake cottage."
+    ],
+    "exampleMeaning": [
+      "그들은 호숫가 오두막에 머물렀다."
+    ]
+  },
+  {
+    "id": "cruel",
+    "word": "cruel",
+    "senses": [
+      {
+        "meaning": "잔인한",
+        "pos": [
+          "adj"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "Don't be cruel to animals."
+    ],
+    "exampleMeaning": [
+      "동물에게 잔인하게 굴지 마라."
+    ]
+  },
+  {
+    "id": "dim",
+    "word": "dim",
+    "senses": [
+      {
+        "meaning": "어둑한",
+        "pos": [
+          "adj"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "The room was dim and quiet."
+    ],
+    "exampleMeaning": [
+      "방은 어둡고 조용했다."
+    ]
+  },
+  {
+    "id": "drown",
+    "word": "drown",
+    "senses": [
+      {
+        "meaning": "물에 빠져 죽다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "The lifeguard saved him from drowning."
+    ],
+    "exampleMeaning": [
+      "안전요원이 그를 익사에서 구해냈다."
+    ]
+  },
+  {
+    "id": "erupt",
+    "word": "erupt",
+    "senses": [
+      {
+        "meaning": "분출하다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "The volcano erupted suddenly."
+    ],
+    "exampleMeaning": [
+      "화산이 갑자기 분출했다."
+    ]
+  },
+  {
+    "id": "exclaim",
+    "word": "exclaim",
+    "senses": [
+      {
+        "meaning": "외치다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "\"We won!\" she exclaimed."
+    ],
+    "exampleMeaning": [
+      "\"우리가 이겼어!\" 그녀가 외쳤다."
+    ]
+  },
+  {
+    "id": "faint",
+    "word": "faint",
+    "senses": [
+      {
+        "meaning": "희미한",
+        "pos": [
+          "adj"
+        ]
+      },
+      {
+        "meaning": "기절하다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "I heard a faint sound outside."
+    ],
+    "exampleMeaning": [
+      "나는 밖에서 희미한 소리를 들었다."
+    ]
+  },
+  {
+    "id": "feast",
+    "word": "feast",
+    "senses": [
+      {
+        "meaning": "잔치",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "We had a feast on New Year's Day."
+    ],
+    "exampleMeaning": [
+      "우리는 설날에 잔치를 벌였다."
+    ]
+  },
+  {
+    "id": "found",
+    "word": "found",
+    "senses": [
+      {
+        "meaning": "설립하다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "She founded the company in 2010."
+    ],
+    "exampleMeaning": [
+      "그녀는 2010년에 회사를 설립했다."
+    ]
+  },
+  {
+    "id": "fright",
+    "word": "fright",
+    "senses": [
+      {
+        "meaning": "공포",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "The thunder gave me a fright."
+    ],
+    "exampleMeaning": [
+      "천둥소리에 나는 깜짝 놀랐다."
+    ]
+  },
+  {
+    "id": "frost",
+    "word": "frost",
+    "senses": [
+      {
+        "meaning": "서리",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "Frost covered the grass this morning."
+    ],
+    "exampleMeaning": [
+      "오늘 아침 서리가 잔디를 덮었다."
+    ]
+  },
+  {
+    "id": "frown",
+    "word": "frown",
+    "senses": [
+      {
+        "meaning": "찡그리다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "He frowned at the bad news."
+    ],
+    "exampleMeaning": [
+      "그는 나쁜 소식에 얼굴을 찌푸렸다."
+    ]
+  },
+  {
+    "id": "funeral",
+    "word": "funeral",
+    "senses": [
+      {
+        "meaning": "장례식",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "Many people attended the funeral."
+    ],
+    "exampleMeaning": [
+      "많은 사람들이 장례식에 참석했다."
+    ]
+  },
+  {
+    "id": "furious",
+    "word": "furious",
+    "senses": [
+      {
+        "meaning": "격노한",
+        "pos": [
+          "adj"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "He was furious about the lie."
+    ],
+    "exampleMeaning": [
+      "그는 그 거짓말에 몹시 화가 났다."
+    ]
+  },
+  {
+    "id": "glory",
+    "word": "glory",
+    "senses": [
+      {
+        "meaning": "영광",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "The team fought for glory."
+    ],
+    "exampleMeaning": [
+      "그 팀은 영광을 위해 싸웠다."
+    ]
+  },
+  {
+    "id": "greed",
+    "word": "greed",
+    "senses": [
+      {
+        "meaning": "탐욕",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "Greed ruined the rich man."
+    ],
+    "exampleMeaning": [
+      "탐욕이 그 부자를 망쳤다."
+    ]
+  },
+  {
+    "id": "haste",
+    "word": "haste",
+    "senses": [
+      {
+        "meaning": "서두름",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "In his haste, he forgot his keys."
+    ],
+    "exampleMeaning": [
+      "서두르다가 그는 열쇠를 잊어버렸다."
+    ]
+  },
+  {
+    "id": "hatch",
+    "word": "hatch",
+    "senses": [
+      {
+        "meaning": "부화하다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "The eggs hatched this morning."
+    ],
+    "exampleMeaning": [
+      "오늘 아침 알들이 부화했다."
+    ]
+  },
+  {
+    "id": "heap",
+    "word": "heap",
+    "senses": [
+      {
+        "meaning": "더미",
+        "pos": [
+          "n"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "A heap of leaves lay in the yard."
+    ],
+    "exampleMeaning": [
+      "낙엽 더미가 마당에 있었다."
+    ]
+  },
+  {
+    "id": "holy",
+    "word": "holy",
+    "senses": [
+      {
+        "meaning": "신성한",
+        "pos": [
+          "adj"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "They visited a holy temple."
+    ],
+    "exampleMeaning": [
+      "그들은 성스러운 사원을 방문했다."
+    ]
+  },
+  {
+    "id": "immigrate",
+    "word": "immigrate",
+    "senses": [
+      {
+        "meaning": "이민 오다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "Her family immigrated to Canada."
+    ],
+    "exampleMeaning": [
+      "그녀의 가족은 캐나다로 이민을 갔다."
+    ]
+  },
+  {
+    "id": "imply",
+    "word": "imply",
+    "senses": [
+      {
+        "meaning": "암시하다",
+        "pos": [
+          "v"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "Silence doesn't always imply agreement."
+    ],
+    "exampleMeaning": [
+      "침묵이 항상 동의를 의미하는 것은 아니다."
+    ]
+  },
+  {
+    "id": "intimate",
+    "word": "intimate",
+    "senses": [
+      {
+        "meaning": "친밀한",
+        "pos": [
+          "adj"
+        ]
+      }
+    ],
+    "category": [
+      4
+    ],
+    "example": [
+      "They are intimate friends."
+    ],
+    "exampleMeaning": [
+      "그들은 친밀한 친구 사이다."
+    ]
   }
 ]
