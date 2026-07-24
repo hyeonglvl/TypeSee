@@ -1,35 +1,43 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import {
-  JetBrains_Mono,
-  Nanum_Pen_Script,
-  Playfair_Display,
-} from "next/font/google";
+import { Playfair_Display } from "next/font/google";
+import localFont from "next/font/local";
 import "@/styles/global.css";
 
-/* 종이·잉크 v4 타이포 3종 — global.css 의 --font-* 토큰이 이 변수들을
-   읽는다. Playfair 는 라틴 전용(워드마크·모드명·숫자), Nanum Pen 은
-   한글 손글씨 액센트(배지·태그라인), JetBrains Mono 는 타이핑 글리프. */
+// 'TypeSee' 워드마크(Home.tsx) 전용 — 앱 전체 폰트를 RIDIBatang으로 바꾼 뒤에도
+// 이 폰트만 유지된다.
 const displayFont = Playfair_Display({
   subsets: ["latin"],
   style: ["normal", "italic"],
   weight: ["500", "600", "700"],
   variable: "--next-font-display",
 });
-const handFont = Nanum_Pen_Script({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--next-font-hand",
-});
-const monoFont = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--next-font-mono",
+const bodyFont = localFont({
+  src: "../styles/RIDIBatang.otf",
+  variable: "--next-font-ridibatang",
+  display: "swap",
 });
 
+const SITE_URL = "https://type-see.vercel.app";
+const DESCRIPTION = "타이핑하며 눈에 새기는 영단어";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "TypeSee",
-  description: "타이핑하며 눈에 새기는 영단어",
+  description: DESCRIPTION,
+  openGraph: {
+    title: "TypeSee",
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: "TypeSee",
+    locale: "ko_KR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TypeSee",
+    description: DESCRIPTION,
+  },
 };
 
 export const viewport: Viewport = {
@@ -46,7 +54,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     // 하이드레이션 경고를 낸다 — 이 요소의 속성 미스매치만 무시한다.
     <html
       lang="ko"
-      className={`${displayFont.variable} ${handFont.variable} ${monoFont.variable}`}
+      className={`${displayFont.variable} ${bodyFont.variable}`}
       suppressHydrationWarning
     >
       <body>{children}</body>

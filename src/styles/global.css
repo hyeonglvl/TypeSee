@@ -53,14 +53,18 @@
     0 2px 4px rgba(58, 47, 32, 0.06),
     0 24px 52px -20px rgba(58, 47, 32, 0.33);
 
-  /* Type — next/font(layout.tsx)가 --next-font-* 를 주입한다 */
-  --font-sans: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI",
-    "Apple SD Gothic Neo", "Pretendard", sans-serif;
-  --font-display: var(--next-font-display, "Iowan Old Style"), "Palatino",
+  /* Type — next/font(layout.tsx)가 --next-font-* 를 주입한다.
+     RIDIBatang(--font-sans)이 앱 전체 기본 서체 — display/hand/mono 는 전부
+     여기로 통일했다. --font-wordmark 만 예외로, Home.tsx 의 'TypeSee'
+     워드마크 전용이라 이전 Playfair 그대로 남겨뒀다. */
+  --font-sans: var(--next-font-ridibatang, "RIDIBatang"), -apple-system,
+    BlinkMacSystemFont, system-ui, "Segoe UI", "Apple SD Gothic Neo",
+    "Pretendard", sans-serif;
+  --font-display: var(--font-sans);
+  --font-hand: var(--font-sans);
+  --font-mono: var(--font-sans);
+  --font-wordmark: var(--next-font-display, "Iowan Old Style"), "Palatino",
     "Georgia", serif;
-  --font-hand: var(--next-font-hand, "Segoe Print"), var(--font-sans);
-  --font-mono: var(--next-font-mono, ui-monospace), "SF Mono",
-    "JetBrains Mono", Menlo, monospace;
 
   /* Shape */
   --radius-s: 10px;

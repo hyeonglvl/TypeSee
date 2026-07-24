@@ -66,7 +66,7 @@
 }
 
 .wordmark {
-  font-family: var(--font-display);
+  font-family: var(--font-wordmark);
   font-size: clamp(48px, 6vw, 66px);
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -209,6 +209,10 @@
   align-items: flex-start;
   gap: 4px;
   width: min(212px, 27vw);
+  /* 로그인 전 Note/내 단어장에만 붙는 lockBadge 줄까지 감안한 높이 —
+     카드마다 내용 줄 수가 달라도(로그인 전/후, desc 줄바꿈) 5개 카드가
+     항상 같은 높이로 보이게 고정한다. */
+  min-height: 150px;
   padding: 14px 22px 14px;
   border-radius: var(--radius-l);
   background: var(--surface);
@@ -410,6 +414,10 @@
 
   .modeCard {
     width: auto;
+    /* 데스크톱 min-height(150px)는 lockBadge 줄까지 감안한 높이라 desc가
+       숨는 모바일 컴팩트 카드엔 과하다 — grid align-items:stretch(위)가
+       이미 행 단위로 높이를 맞춰준다 */
+    min-height: auto;
     padding: 16px 8px 14px;
     align-items: center;
     text-align: center;
