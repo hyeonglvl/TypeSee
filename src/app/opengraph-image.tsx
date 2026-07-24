@@ -1,7 +1,8 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { TMark } from "./_brand/tmark";
 
-export const runtime = "edge";
 export const alt = "TypeSee — 타이핑하며 눈에 새기는 영단어";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -14,19 +15,11 @@ const TAGLINE = "타이핑하며 눈에 새기는 영단어";
 // wght=600 으로 고정 인스턴싱한 결과다 — satori(next/og)가 원본 variable font의
 // fvar 테이블을 파싱하다 죽어서(fvar axis 파싱 에러) 정적 인스턴스가 필요했다.
 export default async function Image() {
+  const fontsDir = join(process.cwd(), "src/app/_brand/fonts");
   const [displayNormal, displayItalic, hand] = await Promise.all([
-    fetch(
-      new URL("./_brand/fonts/PlayfairDisplay-600-static.ttf", import.meta.url),
-    ).then((res) => res.arrayBuffer()),
-    fetch(
-      new URL(
-        "./_brand/fonts/PlayfairDisplay-Italic-600-static.ttf",
-        import.meta.url,
-      ),
-    ).then((res) => res.arrayBuffer()),
-    fetch(
-      new URL("./_brand/fonts/NanumPenScript-subset.ttf", import.meta.url),
-    ).then((res) => res.arrayBuffer()),
+    readFile(join(fontsDir, "PlayfairDisplay-600-static.ttf")),
+    readFile(join(fontsDir, "PlayfairDisplay-Italic-600-static.ttf")),
+    readFile(join(fontsDir, "NanumPenScript-subset.ttf")),
   ]);
 
   return new ImageResponse(
