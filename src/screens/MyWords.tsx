@@ -5,7 +5,7 @@ import {
   clearAllCustomWords,
   removeCustomWord,
   useCustomWords,
-} from "@/lib/customWordsStore";
+} from "@/lib/stores/customWordsStore";
 import { getSupabase } from "@/lib/supabase";
 import type { Pos, SessionMode, WordEntry } from "@/lib/types";
 import styles from "./MyWords.module.css";

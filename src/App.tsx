@@ -9,8 +9,8 @@ import MyWordsScreen from "@/screens/MyWords";
 import { ALL_WORDS, wordsInCategory } from "@/data";
 import { shuffle, weightedSample } from "@/lib/engine";
 import { useAuthUser } from "@/lib/auth";
-import { hydrateDifficultyPref } from "@/lib/difficultyPref";
-import { hydrateHomePrefs } from "@/lib/homePrefs";
+import { hydrateDifficultyPref } from "@/lib/prefs/difficultyPref";
+import { hydrateHomePrefs } from "@/lib/prefs/homePrefs";
 import {
   attachUser,
   detachUser,
@@ -18,18 +18,18 @@ import {
   sessionWeight,
   timeWeight,
   useReviewPool,
-} from "@/lib/reviewStore";
+} from "@/lib/stores/reviewStore";
 import {
   attachUser as attachCustomWordsUser,
   detachUser as detachCustomWordsUser,
   hydrateLocal as hydrateCustomWordsLocal,
   useCustomWords,
-} from "@/lib/customWordsStore";
+} from "@/lib/stores/customWordsStore";
 import {
   attachUser as attachStreakUser,
   detachUser as detachStreakUser,
   recordDailyActivity,
-} from "@/lib/streakStore";
+} from "@/lib/stores/streakStore";
 import type { SessionMode, SessionSummary, WordEntry } from "@/lib/types";
 
 type SessionConfig =
@@ -182,7 +182,7 @@ export default function App() {
   );
 
   const record = useCallback((summary: SessionSummary, config: SessionConfig) => {
-    // 커스텀 단어는 STARTER_WORDS 에 없는 id 라서 recordSession 을 타면
+    // 커스텀 단어는 ALL_WORDS 에 없는 id 라서 recordSession 을 타면
     // Review.tsx 가 못 찾는 고아 항목이 복습 풀에 쌓인다 — 스트릭만 적립한다.
     if (config.kind !== "custom") {
       recordSession(summary.outcomes);

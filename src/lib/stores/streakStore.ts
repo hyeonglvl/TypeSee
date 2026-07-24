@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { getSupabase } from "./supabase";
+import { getSupabase } from "../supabase";
 
 /**
  * Per-day count of words typed, for the home-screen streak calendar.

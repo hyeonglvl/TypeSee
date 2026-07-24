@@ -8,9 +8,9 @@ import {
   easeStage,
   useReviewPool,
   type EaseStageTone,
-} from "@/lib/reviewStore";
+} from "@/lib/stores/reviewStore";
 import { useAuthUser } from "@/lib/auth";
-import HistorySheet from "@/screens/HistorySheet";
+import HistorySheet from "@/screens/overlays/HistorySheet";
 import type { SessionMode, WordEntry } from "@/lib/types";
 import styles from "./Review.module.css";
 

@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { displayName, isAuthAvailable, signOut, useAuthUser } from "@/lib/auth";
-import { useReviewPool } from "@/lib/reviewStore";
-import { useCustomWords } from "@/lib/customWordsStore";
+import { useReviewPool } from "@/lib/stores/reviewStore";
+import { useCustomWords } from "@/lib/stores/customWordsStore";
 import {
   setDifficulty,
   useDifficultyPref,
   type Difficulty,
-} from "@/lib/difficultyPref";
-import AuthSheet from "@/screens/AuthSheet";
-import StreakCalendar from "@/screens/StreakCalendar";
+} from "@/lib/prefs/difficultyPref";
+import AuthSheet from "@/screens/overlays/AuthSheet";
+import StreakCalendar from "@/screens/overlays/StreakCalendar";
 import { CATEGORIES, CATEGORY_COUNTS } from "@/data";
-import { setHomePrefs, useHomePrefs } from "@/lib/homePrefs";
+import { setHomePrefs, useHomePrefs } from "@/lib/prefs/homePrefs";
 import type { SessionMode } from "@/lib/types";
 import styles from "./Home.module.css";
 

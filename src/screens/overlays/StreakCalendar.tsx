@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { localDateKey, useStreak } from "@/lib/streakStore";
+import { localDateKey, useStreak } from "@/lib/stores/streakStore";
 import styles from "./StreakCalendar.module.css";
 
 interface Props {

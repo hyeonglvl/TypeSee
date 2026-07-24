@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getSupabase } from "./supabase";
-import type { WordOutcomeTier } from "./types";
+import { getSupabase } from "../supabase";
+import type { WordOutcomeTier } from "../types";
 
 /**
  * Pool of missed + manually-saved words.

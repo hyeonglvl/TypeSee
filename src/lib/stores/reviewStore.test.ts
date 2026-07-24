@@ -15,7 +15,7 @@ import {
   sessionWeight,
   timeWeight,
 } from "./reviewStore";
-import type { WordOutcomeTier } from "./types";
+import type { WordOutcomeTier } from "../types";
 
 /* getSupabase 는 env 가 없으면 null 을 반환하고 activeUserId 도 없으므로
    모든 원격 동기화는 no-op — 테스트는 순수 메모리 로직만 검증한다. */

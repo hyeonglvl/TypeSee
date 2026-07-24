@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getSupabase } from "./supabase";
-import type { Pos, WordEntry, WordSense } from "./types";
+import { getSupabase } from "../supabase";
+import type { Pos, WordEntry, WordSense } from "../types";
 
 /** 구버전 저장분(단수 pos·단일 예문 문자열)을 현행 배열 포맷으로 승격한다.
  *  localStorage 백업과 DB 행 양쪽에 옛 포맷이 남아 있을 수 있다. */
@@ -26,7 +26,7 @@ function normalizeText(raw: unknown): string[] | undefined {
 }
 
 /**
- * 사용자가 직접 추가한 단어("내 단어장") — STARTER_WORDS 와 완전히 분리된 풀.
+ * 사용자가 직접 추가한 단어("내 단어장") — ALL_WORDS 와 완전히 분리된 풀.
  * 영속성 패턴은 reviewStore.ts 와 동일: 게스트는 인메모리 + localStorage 백업,
  * 로그인 유저는 Supabase `custom_words` 테이블과 동기화.
  */
