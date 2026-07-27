@@ -58,6 +58,16 @@ export async function signInWithGoogle() {
   if (error) throw error;
 }
 
+export async function signInWithGithub() {
+  const sb = getSupabase();
+  if (!sb) throw new Error("로그인 기능이 설정되지 않았습니다");
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: "github",
+    options: { redirectTo: window.location.origin },
+  });
+  if (error) throw error;
+}
+
 export async function signOut() {
   const sb = getSupabase();
   if (!sb) return;

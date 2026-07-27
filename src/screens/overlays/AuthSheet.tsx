@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { motion } from "motion/react";
 import {
+  signInWithGithub,
   signInWithGoogle,
   signInWithUsername,
   signUpWithUsername,
@@ -38,28 +39,24 @@ export default function AuthSheet({ onClose }: Props) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
-  // GitHub 는 아직 미설정 — 활성화 시 Google 과 같은 방식으로 붙인다
-  const handleProvider = (label: string) => {
-    setError(null);
-    setNotice(`${label} 로그인은 추후 서비스 예정이에요`);
-  };
-
-  // 성공하면 페이지가 Google 로 떠나므로 성공 후처리는 없다 — 돌아온 뒤
+  // 성공하면 페이지가 provider 로 떠나므로 성공 후처리는 없다 — 돌아온 뒤
   // 세션 반영은 onAuthStateChange(useAuthUser)가 맡는다.
-  const handleGoogle = async () => {
+  const handleOAuth = async (provider: "google" | "github") => {
     setError(null);
     setNotice(null);
-    // 카카오톡/인스타그램 등 인앱 웹뷰에서는 Google 이 OAuth 자체를
-    // disallowed_useragent 로 거부하므로 시도조차 하지 않고 안내한다.
+    // 카카오톡/인스타그램 등 인앱 웹뷰에서는 OAuth 팝업/리다이렉트가
+    // 막히거나(Google 은 disallowed_useragent 로 거부) 세션이 유실되므로
+    // 시도조차 하지 않고 외부 브라우저로 유도한다.
     if (inAppBrowser) {
       setError(
-        `${inAppBrowserLabel(inAppBrowser)} 인앱 브라우저에서는 Google 로그인이 지원되지 않아요. 우측 상단 메뉴에서 '다른 브라우저로 열기'를 눌러주세요.`,
+        `${inAppBrowserLabel(inAppBrowser)} 인앱 브라우저에서는 소셜 로그인이 지원되지 않아요. 우측 상단 메뉴에서 '다른 브라우저로 열기'를 눌러주세요.`,
       );
       return;
     }
     setLoading(true);
     try {
-      await signInWithGoogle();
+      if (provider === "google") await signInWithGoogle();
+      else await signInWithGithub();
     } catch (err) {
       setError(err instanceof Error ? err.message : "문제가 발생했습니다");
       setLoading(false);
@@ -118,7 +115,7 @@ export default function AuthSheet({ onClose }: Props) {
 
         {inAppBrowser && (
           <p className={styles.notice}>
-            {inAppBrowserLabel(inAppBrowser)} 인앱 브라우저에서는 Google 로그인이 막혀 있어요.
+            {inAppBrowserLabel(inAppBrowser)} 인앱 브라우저에서는 소셜 로그인이 막혀 있어요.
             {inAppBrowser === "kakaotalk" ? (
               <>
                 {" "}
@@ -140,7 +137,8 @@ export default function AuthSheet({ onClose }: Props) {
           <button
             type="button"
             className={styles.providerButton}
-            onClick={() => handleProvider("GitHub")}
+            disabled={loading}
+            onClick={() => handleOAuth("github")}
           >
             <GitHubIcon />
             GitHub로 계속하기
@@ -149,7 +147,7 @@ export default function AuthSheet({ onClose }: Props) {
             type="button"
             className={styles.providerButton}
             disabled={loading}
-            onClick={handleGoogle}
+            onClick={() => handleOAuth("google")}
           >
             <GoogleIcon />
             Google로 계속하기
