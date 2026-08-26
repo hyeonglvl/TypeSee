@@ -13,6 +13,8 @@
 
 <p align="center"><a href="https://type-see.vercel.app">type-see.vercel.app</a></p>
 
+<p align="center">한국어 · <a href="README.en.md">English</a></p>
+
 ## 목차
 
 - [소개](#소개)
@@ -80,7 +82,7 @@ flowchart TD
 | 프레임워크 | Next.js 16 (App Router) · React 19 · TypeScript |
 | 컴파일러 | React Compiler (babel-plugin-react-compiler) |
 | 애니메이션 | Motion |
-| 백엔드 | Supabase — 인증(아이디/비밀번호 · Google) + 학습 기록 저장 ([`supabase/schema.sql`](supabase/schema.sql)) |
+| 백엔드 | Supabase — 인증(아이디/비밀번호 · Google · GitHub) + 학습 기록 저장 ([`supabase/schema.sql`](supabase/schema.sql)) |
 | AI | Gemini API (`gemini-3.1-flash-lite`) — 내 단어장 뜻·예문 자동 생성 (`app/api/generate-word`) |
 | 스타일 | CSS Modules — 화면별 스타일 |
 | 테스트 | Vitest — 세션 엔진 · TS-1 알고리즘 (`npm test`) |
